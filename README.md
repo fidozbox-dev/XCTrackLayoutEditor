@@ -112,7 +112,7 @@ Support & Contributing
 
 Found a bug? Have a feature request?
 
-GitHub: [url]https://github.com/fidozbox-dev/XCTrackLayoutEditor[/url]
+GitHub: https://github.com/fidozbox-dev/XCTrackLayoutEditor
 
 ________________________________________
 
