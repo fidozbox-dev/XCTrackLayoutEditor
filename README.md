@@ -13,9 +13,6 @@ Edit your XCTrack screen layouts in 5 minutes instead of 2 hours!
 
 
 
-
-
-
 ✅ Visual editing - Drag & drop widgets, resize with corner handles
 
 ✅ See all pages - Scroll vertically through all your screens
