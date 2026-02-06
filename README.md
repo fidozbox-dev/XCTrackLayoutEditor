@@ -81,26 +81,45 @@ System Requirements
 ________________________________________
 
 FAQ
+
 Q: Is it safe?
-A: Yes! Everything runs in your browser, no data is sent anywhere.
+
+  A: Yes! Everything runs in your browser, no data is sent anywhere.
+
+----
 Q: Does it work on mobile?
-A: Best on desktop/laptop. Works on tablets, tight on phones.
+
+  A: Best on desktop/laptop. Works on tablets, tight on phones.
+
+----
 Q: Can I edit widget colors/themes?
-A: Not yet - only position and size. Use XCTrack for detailed settings.
+
+  A: Not yet - only position and size. Use XCTrack for detailed settings.
+
+----
 Q: Will my changes work in XCTrack?
-A: Yes! Exports standard .xcfg files that XCTrack can import.
+
+  A: Yes! Exports standard .xcfg files that XCTrack can import.
+
+----
 Q: What if I break something?
-A: Just press Ctrl+Z to undo, or reload your original .xcfg file.
+
+  A: Just press Ctrl+Z to undo, or reload your original .xcfg file.
 
 ________________________________________
 
 Support & Contributing
+
 Found a bug? Have a feature request?
+
 GitHub: [url]https://github.com/fidozbox-dev/XCTrackLayoutEditor[/url]
 
 ________________________________________
 
 Created by Laurent Fischer with assistance from Claude (Anthropic).
+
 For the paragliding community.
+
 XCTrack is developed by XContest.
+
 Fly safe! 🪂
