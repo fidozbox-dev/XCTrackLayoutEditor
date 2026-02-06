@@ -2,19 +2,29 @@
 XCTrack Layout Editor - Free Web Tool
 A visual editor that lets you design your XCTrack flight on computer 
 
+<img width="824" height="725" alt="image" src="https://github.com/user-attachments/assets/47e30645-3f6f-4d3e-9ccf-7e06a90a24dd" />
+
 
 Edit your XCTrack screen layouts in 5 minutes instead of 2 hours!
 → Try it now: [Download the HTML file and open it in your browser]
 No installation, no account, 100% free and works offline.
 
 ✅ Visual editing - Drag & drop widgets, resize with corner handles
+
 ✅ See all pages - Scroll vertically through all your screens
+
 ✅ Copy/paste - Duplicate widgets between pages (Ctrl+C / Ctrl+V)
+
 ✅ Undo/Redo - Full history, no fear of mistakes (Ctrl+Z)
+
 ✅ 33 widgets - Complete library organized by category
+
 ✅ Smart overlapping - Ctrl+Click to select stacked widgets
+
 ✅ Grid & snap - Perfect alignment every time
+
 ✅ Realistic previews - See what your widgets will look like
+
 
 ________________________________________
 
@@ -28,27 +38,40 @@ How to use
 ________________________________________
 
 Quick Tips
+
 💡 Use Ctrl+Click to select widgets that are behind others
+
 💡 Copy/paste widgets across pages for consistent layouts
+
 💡 Enable snap to grid for perfect alignment
+
 💡 Press Ctrl+Z if you make a mistake
+
 💡 Create Empty pages for fully custom designs
 
 ________________________________________
 
 Limitations
+
 ⚠️ Position & size only - Cannot edit widget colors, themes, or specific settings
+
 ⚠️ Preview is approximate - Shows realistic data but not actual flight data
+
 ⚠️ Manual import/export - No direct sync with XCTrack app
+
 ⚠️ Not all widgets are availables
 For advanced widget configuration, use the XCTrack app or edit JSON manually.
 
 ________________________________________
 
 System Requirements
+
 ✅ Modern web browser (Chrome, Firefox, Safari, Edge)
+
 ✅ Works on Windows, Mac, Linux, and tablets
+
 ✅ No internet required (works offline)
+
 ✅ No installation needed
 
 ________________________________________
