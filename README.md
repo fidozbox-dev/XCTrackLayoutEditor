@@ -38,11 +38,15 @@ How to use
 4.	Edit your layouts visually
 5.	Export the new .xcfg file
 6.	Import back into XCTrack
+
+   you can also start from an empty page
 ________________________________________
 
 Quick Tips
 
 💡 Use Ctrl+Click to select widgets that are behind others
+
+💡 Good practive : use goodle drive as exchange point for xcfg files
 
 💡 Copy/paste widgets across pages for consistent layouts
 
