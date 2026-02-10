@@ -82,6 +82,82 @@
             height: 20px;
         }
 
+        .lang-switch {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-switch:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-switch:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .lang-toggle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            gap: 5px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-button {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .lang-button:hover {
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-button.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         .main-layout {
             display: grid;
             grid-template-columns: 350px 1fr;
@@ -812,8 +888,19 @@
             const screenRef = useRef(null);
             const fileInputRef = useRef(null);
 
-            // Détection de la langue du navigateur
-            const lang = navigator.language.startsWith('fr') ? 'fr' : 'en';
+            // Système de langue avec persistance
+            const [language, setLanguage] = useState(() => {
+                const saved = localStorage.getItem('xctrackEditorLang');
+                return saved || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+            });
+
+            const toggleLanguage = () => {
+                const newLang = language === 'fr' ? 'en' : 'fr';
+                setLanguage(newLang);
+                localStorage.setItem('xctrackEditorLang', newLang);
+            };
+
+            const lang = language;
             
             // Traductions
             const t = {
@@ -858,7 +945,20 @@
                     tip3: "Ctrl+Z pour annuler, Ctrl+Y pour rétablir",
                     tip4: "Activez le magnétisme grille pour un alignement parfait",
                     tip5: "Copiez des widgets entre pages avec Ctrl+C / Ctrl+V",
-                    filterWidgets: "Filtrer les widgets..."
+                    filterWidgets: "Filtrer les widgets...",
+                    importConfig: "Importer une configuration",
+                    importDesc: "Glissez-déposez votre fichier .xcfg ici",
+                    importDescOr: "ou cliquez pour parcourir",
+                    createConfig: "Créer une nouvelle configuration",
+                    createDesc: "Commencez avec une page vide",
+                    createDescAnd: "et ajoutez vos widgets",
+                    newConfig: "Nouvelle configuration",
+                    importButton: "📂 Importer xcfg file",
+                    exportButton: "💾 Exporter xcfg file",
+                    addPage: "➕ Ajouter une page",
+                    noPageFound: "Aucune page trouvée pour cette orientation",
+                    reloadFile: "Recharger le fichier",
+                    page: "Page"
                 },
                 en: {
                     title: "XCTrack Layout Editor",
@@ -901,7 +1001,20 @@
                     tip3: "Ctrl+Z to undo, Ctrl+Y to redo",
                     tip4: "Enable snap to grid for perfect alignment",
                     tip5: "Copy widgets between pages with Ctrl+C / Ctrl+V",
-                    filterWidgets: "Filter widgets..."
+                    filterWidgets: "Filter widgets...",
+                    importConfig: "Import a configuration",
+                    importDesc: "Drag and drop your .xcfg file here",
+                    importDescOr: "or click to browse",
+                    createConfig: "Create a new configuration",
+                    createDesc: "Start with an empty page",
+                    createDescAnd: "and add your widgets",
+                    newConfig: "New configuration",
+                    importButton: "📂 Import xcfg file",
+                    exportButton: "💾 Export xcfg file",
+                    addPage: "➕ Add page",
+                    noPageFound: "No page found for this orientation",
+                    reloadFile: "Reload file",
+                    page: "Page"
                 }
             }[lang];
 
@@ -1441,6 +1554,16 @@
                 return (
                     <div className="container">
                         <div className="header">
+                            {/* Language switch */}
+                            <button 
+                                className="lang-switch"
+                                onClick={toggleLanguage}
+                                title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+                            >
+                                {lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
+                            </button>
+
+                            {/* GitHub link */}
                             <a 
                                 href="https://github.com/fidozbox-dev/XCTrackLayoutEditor" 
                                 target="_blank" 
@@ -1453,8 +1576,8 @@
                                 </svg>
                                 GitHub
                             </a>
-                            <h1>XCTrack Layout Editor</h1>
-                            <p>Visualisez et éditez vos layouts XCTrack</p>
+                            <h1>{t.title}</h1>
+                            <p>{t.subtitle}</p>
                         </div>
                         <div className="viewer" style={{ display: 'flex', gap: '30px', justifyContent: 'center', padding: '40px 20px' }}>
                             {/* Option 1: Importer */}
@@ -1466,9 +1589,9 @@
                                 onClick={() => fileInputRef.current?.click()}
                                 style={{ flex: '1', maxWidth: '400px' }}
                             >
-                                <h2>📂 Importer une configuration</h2>
-                                <p>Glissez-déposez votre fichier .xcfg ici<br/>ou cliquez pour parcourir</p>
-                                <button>Sélectionner un fichier</button>
+                                <h2>📂 {t.importConfig}</h2>
+                                <p>{t.importDesc}<br/>{t.importDescOr}</p>
+                                <button>{t.selectFile}</button>
                                 <input 
                                     ref={fileInputRef}
                                     type="file" 
@@ -1490,14 +1613,14 @@
                                 }}
                                 onClick={createNewConfig}
                             >
-                                <h2>✨ Créer une nouvelle configuration</h2>
-                                <p>Commencez avec une page vide<br/>et ajoutez vos widgets</p>
+                                <h2>✨ {t.createConfig}</h2>
+                                <p>{t.createDesc}<br/>{t.createDescAnd}</p>
                                 <button style={{ 
                                     background: 'white', 
                                     color: '#667eea',
                                     fontWeight: 'bold'
                                 }}>
-                                    Nouvelle configuration
+                                    {t.newConfig}
                                 </button>
                             </div>
                         </div>
@@ -1523,9 +1646,9 @@
                             color: '#991b1b', 
                             textAlign: 'center' 
                         }}>
-                            <h2>Aucune page trouvée pour cette orientation</h2>
+                            <h2>{t.noPageFound}</h2>
                             <button onClick={() => setConfigData(null)} style={{ marginTop: '20px' }}>
-                                Charger un autre fichier
+                                {t.reloadFile}
                             </button>
                         </div>
                     </div>
@@ -1539,6 +1662,16 @@
             return (
                 <div className="container">
                     <div className="header">
+                        {/* Language switch */}
+                        <button 
+                            className="lang-switch"
+                            onClick={toggleLanguage}
+                            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+                        >
+                            {lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
+                        </button>
+                        
+                        {/* GitHub link */}
                         <a 
                             href="https://github.com/fidozbox-dev/XCTrackLayoutEditor" 
                             target="_blank" 
@@ -1551,14 +1684,14 @@
                             </svg>
                             GitHub
                         </a>
-                        <h1>XCTrack Layout Editor</h1>
-                        <p>Visualisez et éditez vos layouts XCTrack</p>
+                        <h1>{t.title}</h1>
+                        <p>{t.subtitle}</p>
                     </div>
 
                     <div className="main-layout">
                         <div className="sidebar">
                             <div className="controls">
-                                <h3>⚙️ Configuration</h3>
+                                <h3>⚙️ {t.config}</h3>
 
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <button 
@@ -1588,7 +1721,7 @@
                                 </div>
                                 
                                 <div className="control-group">
-                                    <label>Résolution</label>
+                                    <label>{t.resolution}</label>
                                     <select 
                                         value={resolutionIndex} 
                                         onChange={(e) => setResolutionIndex(parseInt(e.target.value))}
@@ -1602,7 +1735,7 @@
                                 </div>
 
                                 <div className="control-group">
-                                    <label>Orientation</label>
+                                    <label>{t.orientation}</label>
                                     <select 
                                         value={orientation} 
                                         onChange={(e) => {
@@ -1611,8 +1744,8 @@
                                             setSelectedPage(0);
                                         }}
                                     >
-                                        <option value="landscape">Paysage</option>
-                                        <option value="portrait">Portrait</option>
+                                        <option value="landscape">{t.landscape}</option>
+                                        <option value="portrait">{t.portrait}</option>
                                     </select>
                                 </div>
 
@@ -1624,7 +1757,7 @@
                                         onChange={(e) => setShowGrid(e.target.checked)}
                                     />
                                     <label htmlFor="showGrid">
-                                        Afficher la grille ({gridCols}×{gridRows})
+                                        {t.showGrid} ({gridCols}×{gridRows})
                                     </label>
                                 </div>
 
@@ -1636,7 +1769,7 @@
                                         onChange={(e) => setSnapEnabled(e.target.checked)}
                                     />
                                     <label htmlFor="snapEnabled">
-                                        Snap sur la grille
+                                        {t.snapToGrid}
                                     </label>
                                 </div>
 
@@ -1644,7 +1777,7 @@
                                     onClick={() => fileInputRef.current?.click()} 
                                     className="full-width import-btn"
                                 >
-                                    📂 Importer xcfg file
+                                    {t.importButton}
                                 </button>
                                 <input 
                                     ref={fileInputRef}
@@ -1655,14 +1788,14 @@
                                 />
 
                                 <button onClick={exportConfig} className="full-width export-btn">
-                                    💾 Exporter xcfg file
+                                    {t.exportButton}
                                 </button>
                             </div>
 
                             {/* Bibliothèque de widgets */}
                             <div className="widget-library">
                                 <h3 style={{ cursor: 'pointer' }} onClick={() => setShowWidgetLibrary(!showWidgetLibrary)}>
-                                    📚 Bibliothèque de widgets {showWidgetLibrary ? '▼' : '▶'}
+                                    📚 {t.widgetLibrary} {showWidgetLibrary ? '▼' : '▶'}
                                 </h3>
                                 {showWidgetLibrary && (
                                     <>
@@ -1922,7 +2055,7 @@
 
                             {/* Gestion des pages */}
                             <div className="page-management">
-                                <h3>📄 Pages</h3>
+                                <h3>📄 {t.pages}</h3>
                                 <div className="page-type-buttons">
                                     {PAGE_TYPES.map((pageType, idx) => (
                                         <button
@@ -1938,7 +2071,7 @@
 
                             {/* Info widget sélectionné */}
                             <div className="widget-info-panel">
-                                <h3>📦 Widget sélectionné</h3>
+                                <h3>📦 {t.selectedWidget}</h3>
                                 {selectedWidgetData ? (
                                     <>
                                         <h4>{getWidgetName(selectedWidgetData.CLASS)}</h4>
@@ -1980,23 +2113,12 @@
                                             </>
                                         ) : (
                                             <>
-                                                Aucun widget sélectionné.<br/>
-                                                Cliquez sur un widget pour le modifier.
+                                                {t.noWidget}<br/>
+                                                {t.clickWidget}
                                             </>
                                         )}
                                     </div>
                                 )}
-                                {/* Tip toujours visible */}
-                                <div style={{
-                                    marginTop: '10px',
-                                    padding: '8px',
-                                    background: '#eff6ff',
-                                    borderRadius: '6px',
-                                    fontSize: '0.85rem',
-                                    color: '#1e40af'
-                                }}>
-                                    💡 Astuce : Utilisez <strong>Ctrl+Clic</strong> pour sélectionner des widgets superposés
-                                </div>
                             </div>
 
                             {/* Tips */}
@@ -2048,7 +2170,7 @@
                                                 fontSize: '1.2rem',
                                                 margin: 0
                                             }}>
-                                                Page {pageIdx + 1} - {getWidgetName(page.CLASS)}
+                                                {t.page} {pageIdx + 1} - {getWidgetName(page.CLASS)}
                                                 <span style={{ 
                                                     fontSize: '0.9rem', 
                                                     color: '#6b7280',
