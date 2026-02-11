@@ -2,7 +2,7 @@
 XCTrack Layout Editor - Free Web Tool
 A visual editor that lets you design your XCTrack flight on computer 
 
-→ Try it now: https://fidozbox-dev.github.io/XCTrackLayoutEditor/XCtrackLayoutEditor.html
+→ Try it now: [https://fidozbox-dev.github.io/XCTrackLayoutEditor/XCtrackLayoutEditor.html](https://fidozbox-dev.github.io/XCTrackLayoutEditor/XCtrackLayoutEditor.html)
 
 
 No installation, no account, 100% free and works offline if you save the page on you computer. 
