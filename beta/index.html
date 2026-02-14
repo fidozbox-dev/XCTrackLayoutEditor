@@ -759,10 +759,15 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDE2MDIsImV4cCI6MjA4NjQ3NzYwMn0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
         
         let supabase = null;
-        try {
-            supabase = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-            console.warn('Supabase not initialized:', e);
+        if (typeof window.supabase !== 'undefined') {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized:', supabase);
+            } catch (e) {
+                console.error('Supabase initialization error:', e);
+            }
+        } else {
+            console.error('window.supabase not loaded');
         }
 
         const RESOLUTION_PRESETS = [
@@ -1870,6 +1875,9 @@
                         </a>
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
+                            v2025.02.13-auth-fix
+                        </div>
                     </div>
 
                     <div className="main-layout">
