@@ -1655,37 +1655,37 @@
             };
 
             // Community functions
-            const signInWithGoogle = async () => {
+            function signInWithGoogle() {
                 if (!supabase) return;
-                await supabase.auth.signInWithOAuth({ provider: 'google' });
-            };
+                supabase.auth.signInWithOAuth({ provider: 'google' });
+            }
 
-            const signOut = async () => {
+            function signOut() {
                 if (!supabase) return;
-                await supabase.auth.signOut();
-            };
+                supabase.auth.signOut();
+            }
 
-            const saveToCloud = async (name, description, category) => {
+            async function saveToCloud(name, description, category) {
                 if (!supabase || !user || !configData) return;
                 
-                const { error } = await supabase.from('configs').insert({
+                const result = await supabase.from('configs').insert({
                     user_id: user.id,
                     user_email: user.email,
-                    name,
-                    description,
+                    name: name,
+                    description: description,
                     config_json: configData,
-                    category
+                    category: category
                 });
 
-                if (error) {
-                    alert(t.uploadError + ': ' + error.message);
+                if (result.error) {
+                    alert(t.uploadError + ': ' + result.error.message);
                 } else {
                     alert(t.uploadSuccess);
                     setShowCommunityModal(false);
                 }
-            };
+            }
 
-            const loadCommunityConfigs = async () => {
+            async function loadCommunityConfigs() {
                 if (!supabase) return;
                 
                 let query = supabase.from('configs').select('*');
@@ -1702,25 +1702,23 @@
                     query = query.order('created_at', { ascending: false });
                 }
                 
-                const { data, error } = await query.limit(20);
-                if (!error && data) {
-                    setCommunityConfigs(data);
+                const result = await query.limit(20);
+                if (!result.error && result.data) {
+                    setCommunityConfigs(result.data);
                 }
-            };
+            }
 
-            const downloadConfig = async (config) => {
+            async function downloadConfig(config) {
                 if (!supabase) return;
                 
-                // Increment download count
                 await supabase.from('configs').update({ 
                     downloads: (config.downloads || 0) + 1 
                 }).eq('id', config.id);
                 
-                // Load config
                 setConfigData(config.config_json);
                 localStorage.setItem('xctrackConfig', JSON.stringify(config.config_json));
                 setShowCommunityModal(false);
-            };
+            }
 
             if (!configData) {
                 return (
