@@ -98,6 +98,9 @@
             try {
                 const { data, error } = await supabase.auth.signInWithOAuth({
                     provider: 'google'
+                    options: {
+                        redirectTo: 'https://fidozbox-dev.github.io/XCTrackLayoutEditor/beta/auth-test.html'
+                    }
                 });
                 console.log('SignIn result:', data, error);
                 if (error) {
