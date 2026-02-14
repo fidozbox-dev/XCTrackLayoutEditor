@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Auth Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+        }
+        .google-btn {
+            background: #4285f4;
+            color: white;
+        }
+        .signout-btn {
+            background: #ef4444;
+            color: white;
+        }
+        #status {
+            padding: 20px;
+            margin: 20px 0;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <h1>🔐 Test Supabase Auth</h1>
+    
+    <div id="status">
+        <p>Chargement...</p>
+    </div>
+
+    <button id="signInBtn" class="google-btn">Se connecter avec Google</button>
+    <button id="signOutBtn" class="signout-btn" style="display: none;">Se déconnecter</button>
+
+    <script>
+        console.log('Script loaded');
+        console.log('window.supabase:', window.supabase);
+
+        const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDE2MDIsImV4cCI6MjA4NjQ3NzYwMn0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
+
+        let supabase = null;
+
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Supabase client created:', supabase);
+        } catch (e) {
+            console.error('Error creating Supabase client:', e);
+            document.getElementById('status').innerHTML = '<p style="color: red;">Erreur: ' + e.message + '</p>';
+        }
+
+        const statusDiv = document.getElementById('status');
+        const signInBtn = document.getElementById('signInBtn');
+        const signOutBtn = document.getElementById('signOutBtn');
+
+        // Check session
+        if (supabase) {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                console.log('Session:', session);
+                updateUI(session?.user);
+            });
+
+            // Listen for auth changes
+            supabase.auth.onAuthStateChange((event, session) => {
+                console.log('Auth event:', event, session);
+                updateUI(session?.user);
+            });
+        }
+
+        function updateUI(user) {
+            if (user) {
+                statusDiv.innerHTML = '<p>✅ Connecté: <strong>' + user.email + '</strong></p>';
+                signInBtn.style.display = 'none';
+                signOutBtn.style.display = 'inline-block';
+            } else {
+                statusDiv.innerHTML = '<p>❌ Non connecté</p>';
+                signInBtn.style.display = 'inline-block';
+                signOutBtn.style.display = 'none';
+            }
+        }
+
+        signInBtn.addEventListener('click', async function() {
+            console.log('Sign in button clicked');
+            try {
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google'
+                });
+                console.log('SignIn result:', data, error);
+                if (error) {
+                    alert('Erreur: ' + error.message);
+                }
+            } catch (e) {
+                console.error('Sign in error:', e);
+                alert('Erreur: ' + e.message);
+            }
+        });
+
+        signOutBtn.addEventListener('click', async function() {
+            console.log('Sign out button clicked');
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                alert('Erreur: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
