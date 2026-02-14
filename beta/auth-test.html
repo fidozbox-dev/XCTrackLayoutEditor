@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Auth Test 2</title>
+    <title>Supabase Auth Test</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,7 +37,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
 </head>
 <body>
-    <h1>🔐 Test Supabase Auth 2</h1>
+    <h1>🔐 Test Supabase Auth</h1>
     
     <div id="status">
         <p>Chargement...</p>
@@ -97,7 +97,7 @@
             console.log('Sign in button clicked');
             try {
                 const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google'
+                    provider: 'google',
                     options: {
                         redirectTo: 'https://fidozbox-dev.github.io/XCTrackLayoutEditor/beta/auth-test.html'
                     }
