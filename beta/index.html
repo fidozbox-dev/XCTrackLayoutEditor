@@ -3,119 +3,2651 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Auth Test</title>
+    <title>XCTrack Layout Editor</title>
+    <!--
+        XCTrack Layout Editor
+        Created by: Laurent Fischer & Claude (Anthropic)
+        For the paragliding community
+        License: MIT - https://opensource.org/licenses/MIT
+        GitHub: https://github.com/fidozbox-dev/XCTrackLayoutEditor
+    -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✏️</text></svg>">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
         }
-        button {
-            padding: 15px 30px;
-            font-size: 16px;
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .github-link {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .github-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
             cursor: pointer;
-            margin: 10px;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-switch:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-switch:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .lang-toggle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            gap: 5px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-button {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .lang-button:hover {
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-button.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .controls h3 {
+            margin: 0 0 10px 0;
+            color: #374151;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .control-group.checkbox {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group.checkbox label {
+            margin: 0;
+        }
+
+        .control-group.checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        select, button {
+            padding: 10px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select:hover, button:hover {
+            border-color: #667eea;
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button.full-width {
+            width: 100%;
+        }
+
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat strong {
+            color: #374151;
+        }
+
+        .viewer {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: calc(100vh - 140px);
+        }
+
+        .viewer::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .viewer::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .viewer::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .viewer::-webkit-scrollbar-thumb:hover {
+            background: #5568d3;
+        }
+
+        .phone-container {
+            position: relative;
+            background: #1f2937;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            width: fit-content;
+        }
+
+        .phone-screen {
+            position: relative;
+            background: #f3f4f6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .widget {
+            position: absolute;
+            border: 2px solid #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+
+        .widget:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #5568d3;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .widget-label {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #374151;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 50;
+            max-width: calc(100% - 8px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .widget.selected {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+            box-shadow: 0 0 0 2px #ef4444;
+            z-index: 100;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        .resize-handle.nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .resize-handle.ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+        .move-handle {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border: 3px dashed #ef4444;
+            border-radius: 50%;
+            background: transparent;
+            cursor: move;
+            z-index: 101;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .move-handle:hover {
+            border-color: #dc2626;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .grid-line {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .grid-line.vertical {
+            width: 1px;
+            height: 100%;
+        }
+
+        .grid-line.horizontal {
+            height: 1px;
+            width: 100%;
+        }
+
+        .widget-info-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .widget-info-panel h3 {
+            color: #374151;
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .widget-info-panel h4 {
+            color: #374151;
+            margin: 0 0 10px 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .widget-info-panel .coords {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        .widget-info-panel .no-selection {
+            color: #9ca3af;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            width: 100%;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        .export-btn {
+            background: #10b981;
+        }
+
+        .export-btn:hover {
+            background: #059669;
+        }
+
+        .import-btn {
+            background: #6366f1;
+        }
+
+        .import-btn:hover {
+            background: #4f46e5;
+        }
+
+        .widget-library {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .widget-library h3 {
+            color: #374151;
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .widget-library-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .widget-library-item {
+            padding: 10px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .widget-library-item:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateX(4px);
+        }
+
+        .page-management {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .page-management h3 {
+            color: #374151;
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .page-type-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .page-type-btn {
+            padding: 10px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .page-type-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .undo-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1f2937;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .view-mode-toggle {
+            display: flex;
+            gap: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e5e7eb;
+        }
+
+        .view-mode-toggle button {
+            border-radius: 0;
+            border: none;
+            background: white;
+            color: #6b7280;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .view-mode-toggle button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .page-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .page-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .page-card.active {
+            border-color: #667eea;
+        }
+
+        .page-card h4 {
+            color: #374151;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .page-preview {
+            background: #f3f4f6;
+            border-radius: 8px;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-preview.portrait {
+            aspect-ratio: 9/16;
+        }
+
+        .page-preview-screen {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .page-widget-mini {
+            position: absolute;
+            border: 1px solid #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .page-info-mini {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8fafc;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .drop-zone h2 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .drop-zone p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
         }
-        .google-btn {
-            background: #4285f4;
-            color: white;
+
+        .drop-zone button:hover {
+            background: #5568d3;
         }
-        .signout-btn {
-            background: #ef4444;
-            color: white;
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .viewer {
+                order: 1;
+            }
         }
-        #status {
-            padding: 20px;
-            margin: 20px 0;
-            background: #f0f0f0;
-            border-radius: 8px;
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
+    <!-- Supabase Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
 </head>
 <body>
-    <h1>🔐 Test Supabase Auth</h1>
-    
-    <div id="status">
-        <p>Chargement...</p>
-    </div>
+    <div id="root"></div>
 
-    <button id="signInBtn" class="google-btn">Se connecter avec Google</button>
-    <button id="signOutBtn" class="signout-btn" style="display: none;">Se déconnecter</button>
+    <script type="text/babel">
+        const { useState, useMemo, useRef, useEffect } = React;
 
-    <script>
-        console.log('Script loaded');
-        console.log('window.supabase:', window.supabase);
-
+        // Supabase Configuration
         const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDE2MDIsImV4cCI6MjA4NjQ3NzYwMn0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
-
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDE2MDIsImV4cCI6MjA4NjQ3NzYwMn0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
+        
         let supabase = null;
-
         try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log('Supabase client created:', supabase);
+            supabase = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } catch (e) {
-            console.error('Error creating Supabase client:', e);
-            document.getElementById('status').innerHTML = '<p style="color: red;">Erreur: ' + e.message + '</p>';
+            console.warn('Supabase not initialized:', e);
         }
 
-        const statusDiv = document.getElementById('status');
-        const signInBtn = document.getElementById('signInBtn');
-        const signOutBtn = document.getElementById('signOutBtn');
+        const RESOLUTION_PRESETS = [
+            { name: 'Samsung A51 (1080×2400)', width: 2400, height: 1080, gridCols: 44, gridRows: 22 },
+            { name: 'Standard HD (1080×1920)', width: 1920, height: 1080, gridCols: 35, gridRows: 20 },
+        ];
 
-        // Check session
-        if (supabase) {
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                console.log('Session:', session);
-                updateUI(session?.user);
+        const getWidgetName = (className) => {
+            const match = className.match(/\.([^.]+)$/);
+            if (!match) return className;
+            const name = match[1];
+            // Retirer le préfixe "W" pour les widgets et "WP" pour les pages
+            if (name.startsWith('WP')) return name.substring(2);
+            if (name.startsWith('W')) return name.substring(1);
+            return name;
+        };
+
+        const calculateGridSize = (resolution) => {
+            return {
+                horizontal: 10000 / resolution.gridCols,
+                vertical: 10000 / resolution.gridRows
+            };
+        };
+
+        const snapToGrid = (value, gridSize, enabled) => {
+            if (!enabled) return value;
+            return Math.round(value / gridSize) * gridSize;
+        };
+
+        // Templates de widgets pour la bibliothèque
+        const WIDGET_LIBRARY = {
+            "WAltitude": { CLASS: "org.xcontest.XCTrack.widget.w.WAltitude", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, _units: "SYS_UNIT" },
+            "WSpeed": { CLASS: "org.xcontest.XCTrack.widget.w.WSpeed", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, _units: "SYS_UNIT", backwardDetection: false },
+            "WVerticalSpeed": { CLASS: "org.xcontest.XCTrack.widget.w.WVerticalSpeed", _border: false, _bg: 100, _theme: "", _title: false, titletext: "", _unit: false, _hide_labels: false, avg: 2000 },
+            "WGlide": { CLASS: "org.xcontest.XCTrack.widget.w.WGlide", _border: false, _bg: 100, _theme: "", _title: false, titletext: "", _unit: true, _hide_labels: false, showVario: false, avg: 2000, headless: true },
+            "WTime": { CLASS: "org.xcontest.XCTrack.widget.w.WTime", _border: false, _bg: 100, _theme: "", _title: false, titletext: "", showSec: false },
+            "WWindSpeed": { CLASS: "org.xcontest.XCTrack.widget.w.WWindSpeed", _border: true, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WAltitudeAboveGround": { CLASS: "org.xcontest.XCTrack.widget.w.WAltitudeAboveGround", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WAltitudeMaximum": { CLASS: "org.xcontest.XCTrack.widget.w.WAltitudeMaximum", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WThermalAltGain": { CLASS: "org.xcontest.XCTrack.widget.w.WThermalAltGain", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WAirTime": { CLASS: "org.xcontest.XCTrack.widget.w.WAirTime", _border: true, _bg: 100, _theme: "", _title: true, titletext: "" },
+            "WStatusLine": { CLASS: "org.xcontest.XCTrack.widget.w.WStatusLine", _border: false, _bg: 100, _theme: "", showGps: true, showSensors: true, showLive: true, showLiveLabel: false, showBatteryIcon: true, showBatteryPercent: true, showTime: false },
+            "WCompass": { CLASS: "org.xcontest.XCTrack.widget.w.WCompass", _border: true, _bg: 100, _theme: "", rotation: "BEARING", navigation_target: "OPTIMIZED", showWind: true, newWindArrow: true, showHeading: false, showBearing: false, showBackground: false },
+            "WOptiResult": { CLASS: "org.xcontest.XCTrack.widget.w.WOptiResult", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WAirspaceProximity": { CLASS: "org.xcontest.XCTrack.widget.w.WAirspaceProximity", _border: true, _bg: 60, _theme: "", maxDistance: 5000, _shownearinside: true, _showoriginalheightline: true, _showrecomputedheightline: false, _splitdirection: "HORIZONTAL", postponedFloorLimit: 2500, postponedDisplayDistance: 300 },
+            "WThermalAssistant": { CLASS: "org.xcontest.XCTrack.widget.w.WThermalAssistant", _border: false, _bg: 80, _theme: "", rotation: { value: "BEARING_AT_TOP", showCompass: false }, mapScale: { value: 36, auto: false }, drawScale: false, fontSize: "LARGE", mapWidget_heading_arrow_sizecoef: 152, mapWidget_showAirspaces: true, postponedFloorLimit: 2500, postponedDisplayDistance: 600, interval: 330, drawCircle: true, includeWindAlgorithm: "ALGO_PARTICLE_DRIFT", nav_target: "OPTIMIZED", nav_use_brackets: true, nav_line: true, thermals: 3, nav_showWind: true, nav_showSun: false, line_thickness: 20, mapWidget_drawBearing: true },
+            "WXCAssistant": { CLASS: "org.xcontest.XCTrack.widget.w.WXCAssistant", _border: false, _bg: 80, _theme: "", rotation: { value: "BEARING_AT_TOP", showCompass: false }, mapScale: { value: 100, auto: false }, drawScale: false, fontSize: "LARGE", mapWidget_heading_arrow_sizecoef: 152, mapWidget_showAirspaces: true, postponedFloorLimit: 2500, postponedDisplayDistance: 600, nav_target: "OPTIMIZED", nav_use_brackets: true, nav_line: true, nav_showWind: true, nav_showSun: false, line_thickness: 20, mapWidget_drawBearing: true },
+            "WCompMap": { CLASS: "org.xcontest.XCTrack.widget.w.WCompMap", _border: false, _bg: 80, _theme: "", rotation: { value: "BEARING_AT_TOP", showCompass: false }, mapScale: { value: 100, auto: false }, drawScale: false, fontSize: "LARGE", mapWidget_heading_arrow_sizecoef: 152, mapWidget_showAirspaces: true, postponedFloorLimit: 2500, postponedDisplayDistance: 600, nav_target: "OPTIMIZED", nav_use_brackets: true, nav_line: true, line_thickness: 20, mapWidget_drawBearing: true },
+            "WCompDistanceToGoal": { CLASS: "org.xcontest.XCTrack.widget.w.WCompDistanceToGoal", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WCompGlideToGoal": { CLASS: "org.xcontest.XCTrack.widget.w.WCompGlideToGoal", _border: true, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, headless: false },
+            "WCompAltitudeOverGoal": { CLASS: "org.xcontest.XCTrack.widget.w.WCompAltitudeOverGoal", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WCompTimeToStart": { CLASS: "org.xcontest.XCTrack.widget.w.WCompTimeToStart", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _hide_labels: false },
+            "WCompTimeAtStart": { CLASS: "org.xcontest.XCTrack.widget.w.WCompTimeAtStart", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, navigation_target: "OPTIMIZED", use_brackets: true, speed_type: "GROUND", speed_avg: 10000, time_format: "COMPACT" },
+            "WNextTurnpointDistance": { CLASS: "org.xcontest.XCTrack.widget.w.WNextTurnpointDistance", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, navigation_target: "OPTIMIZED", use_brackets: true },
+            "WNextTurnpointAlt": { CLASS: "org.xcontest.XCTrack.widget.w.WNextTurnpointAlt", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, navigation_target: "OPTIMIZED", use_brackets: false, speed_avg: 8000, altitude: "AMSL", glide: "COMPUTED" },
+            "WNextTurnpointGlideTo": { CLASS: "org.xcontest.XCTrack.widget.w.WNextTurnpointGlideTo", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, navigation_target: "OPTIMIZED", use_brackets: false, alt_above: 600, headless: false },
+            "WNextTurnpointTimeOfArrival": { CLASS: "org.xcontest.XCTrack.widget.w.WNextTurnpointTimeOfArrival", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false, navigation_target: "OPTIMIZED", use_brackets: false, speed_type: "GROUND", speed_avg: 8000, time_format: "COMPACT" },
+            "WXCSpeed": { CLASS: "org.xcontest.XCTrack.widget.w.WXCSpeed", _border: false, _bg: 100, _theme: "", _title: true, titletext: "", _unit: true, _hide_labels: false },
+            "WFreeText": { CLASS: "org.xcontest.XCTrack.widget.w.WFreeText", _border: false, _theme: "BlackTheme", text: "Text", color_text: -5000269, color_bg: 16777215, text_size: 40, text_bold: true, text_italic: false, text_padding: 10 },
+            "WVerticalGraph": { CLASS: "org.xcontest.XCTrack.widget.w.WVerticalGraph", _border: false, _bg: 100, _theme: "", interval: 90000, vertical_step: 50, dot_size: 10, dot_color: -8355585 },
+            "WSideView": { CLASS: "org.xcontest.XCTrack.widget.w.WSideView", _border: false, _bg: 100, _theme: "", type: "SIDE_NAVIG", distance: 15000, finalGlideAvg: 9000 },
+            "WAltitudeDataGraph": { CLASS: "org.xcontest.XCTrack.widget.w.WAltitudeDataGraph", _border: true, _bg: 100, _theme: "", type: "GRAPH_WIND", text_size: 20, line_thickness: 10, color_thermal: -2147483393, color_wind: -2136956896 },
+            "WButtonZoomOut": { CLASS: "org.xcontest.XCTrack.widget.w.WButtonZoom", _border: true, _bg: 100, _theme: "", type: "ACTION_ZOOM_OUT" },
+            "WButtonZoomIn": { CLASS: "org.xcontest.XCTrack.widget.w.WButtonZoom", _border: true, _bg: 100, _theme: "", type: "ACTION_ZOOM_IN" },
+            "WButtonNavigPrev": { CLASS: "org.xcontest.XCTrack.widget.w.WButtonNavig", _border: true, _bg: 100, _theme: "", longClick: true, type: "ACTION_PREV_WAYPOINT" },
+            "WButtonNavigNext": { CLASS: "org.xcontest.XCTrack.widget.w.WButtonNavig", _border: true, _bg: 100, _theme: "", longClick: true, type: "ACTION_NEXT_WAYPOINT" },
+        };
+
+        // Types de pages disponibles
+        const PAGE_TYPES = [
+            { name: "Thermal Assistant", CLASS: "org.xcontest.XCTrack.widget.wp.WPThermalAssistant", navigations: "all" },
+            { name: "XC Assistant", CLASS: "org.xcontest.XCTrack.widget.wp.WPXCAssistant", navigations: "all" },
+            { name: "Competition", CLASS: "org.xcontest.XCTrack.widget.wp.WPCompetition", navigations: ["org.xcontest.XCTrack.navig.TaskCompetition"] },
+            { name: "Empty (Blank)", CLASS: "org.xcontest.XCTrack.widget.wp.WPEmpty", navigations: "all" },
+        ];
+
+        // Previews pour les widgets
+        const WIDGET_PREVIEWS = {
+            "WAltitude": { text: "1234", unit: "m", baseSize: 2.5 },
+            "WAltitudeAboveGround": { text: "856", unit: "m", baseSize: 2.5 },
+            "WAltitudeMaximum": { text: "2891", unit: "m", baseSize: 2.5 },
+            "WSpeed": { text: "24", unit: "km/h", baseSize: 2.5 },
+            "WXCSpeed": { text: "32", unit: "km/h", baseSize: 2.5 },
+            "WVerticalSpeed": { text: "+1.2", unit: "m/s", baseSize: 2.5 },
+            "WGlide": { text: "8.5", unit: "", baseSize: 2.5 },
+            "WWindSpeed": { text: "12", unit: "km/h", baseSize: 2 },
+            "WTime": { text: "14:32", baseSize: 2.5 },
+            "WAirTime": { text: "01:23:45", baseSize: 2 },
+            "WThermalAltGain": { text: "+180", unit: "m", baseSize: 2 },
+            "WOptiResult": { text: "42.3", unit: "km", baseSize: 2 },
+            "WStatusLine": { icon: "📶 🔋 💚", baseSize: 1.2 },
+            "WCompass": { icon: "🧭", baseSize: 2.8 },
+            "WThermalAssistant": { icon: "🌀", baseSize: 3 },
+            "WXCAssistant": { icon: "🗺️", baseSize: 3 },
+            "WCompMap": { icon: "🗺️", baseSize: 3 },
+            "WAirspaceProximity": { text: "2.5km", unit: "", baseSize: 1.5 },
+            "WCompDistanceToGoal": { text: "18.2", unit: "km", baseSize: 2 },
+            "WCompGlideToGoal": { text: "7.2", unit: "", baseSize: 2 },
+            "WCompAltitudeOverGoal": { text: "+450", unit: "m", baseSize: 2 },
+            "WCompTimeToStart": { text: "12:30", unit: "", baseSize: 2 },
+            "WCompTimeAtStart": { text: "00:15", unit: "", baseSize: 2 },
+            "WNextTurnpointDistance": { text: "5.8", unit: "km", baseSize: 2 },
+            "WNextTurnpointAlt": { text: "1650", unit: "m", baseSize: 2 },
+            "WNextTurnpointGlideTo": { text: "9.2", unit: "", baseSize: 2 },
+            "WNextTurnpointTimeOfArrival": { text: "15:45", unit: "", baseSize: 1.8 },
+            "WVerticalGraph": { icon: "📈", baseSize: 2 },
+            "WSideView": { icon: "⛰️", baseSize: 2 },
+            "WAltitudeDataGraph": { icon: "📊", baseSize: 2 },
+            "WFreeText": { text: "TEXT", unit: "", baseSize: 2 },
+            "WButtonZoomOut": { icon: "🔍➖", baseSize: 1.75 },
+            "WButtonZoomIn": { icon: "🔍➕", baseSize: 1.75 },
+            "WButtonNavigPrev": { icon: "◀️", baseSize: 2.5 },
+            "WButtonNavigNext": { icon: "▶️", baseSize: 2.5 },
+        };
+
+        const XCTrackViewer = () => {
+            const [configData, setConfigData] = useState(null);
+            const [orientation, setOrientation] = useState('landscape');
+            const [selectedWidget, setSelectedWidget] = useState(null);
+            const [selectedPage, setSelectedPage] = useState(0);
+            const [showGrid, setShowGrid] = useState(true);
+            const [snapEnabled, setSnapEnabled] = useState(true);
+            const [resolutionIndex, setResolutionIndex] = useState(0);
+            const [dragState, setDragState] = useState(null);
+            const [isDragOver, setIsDragOver] = useState(false);
+            const [copiedWidget, setCopiedWidget] = useState(null);
+            const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
+            const [widgetFilter, setWidgetFilter] = useState('');
+            
+            // Undo/Redo history
+            const [history, setHistory] = useState([]);
+            const [historyIndex, setHistoryIndex] = useState(-1);
+            const [undoMessage, setUndoMessage] = useState('');
+            
+            // Community states
+            const [user, setUser] = useState(null);
+            const [showCommunityModal, setShowCommunityModal] = useState(false);
+            const [communityConfigs, setCommunityConfigs] = useState([]);
+            const [communityFilter, setCommunityFilter] = useState('all');
+            const [communitySortBy, setCommunitySortBy] = useState('upvotes');
+            
+            const screenRef = useRef(null);
+            const fileInputRef = useRef(null);
+
+            // Système de langue avec persistance
+            const [language, setLanguage] = useState(() => {
+                const saved = localStorage.getItem('xctrackEditorLang');
+                return saved || (navigator.language.startsWith('fr') ? 'fr' : 'en');
             });
 
-            // Listen for auth changes
-            supabase.auth.onAuthStateChange((event, session) => {
-                console.log('Auth event:', event, session);
-                updateUI(session?.user);
-            });
-        }
+            const toggleLanguage = () => {
+                const newLang = language === 'fr' ? 'en' : 'fr';
+                setLanguage(newLang);
+                localStorage.setItem('xctrackEditorLang', newLang);
+            };
 
-        function updateUI(user) {
-            if (user) {
-                statusDiv.innerHTML = '<p>✅ Connecté: <strong>' + user.email + '</strong></p>';
-                signInBtn.style.display = 'none';
-                signOutBtn.style.display = 'inline-block';
-            } else {
-                statusDiv.innerHTML = '<p>❌ Non connecté</p>';
-                signInBtn.style.display = 'inline-block';
-                signOutBtn.style.display = 'none';
-            }
-        }
-
-        signInBtn.addEventListener('click', async function() {
-            console.log('Sign in button clicked');
-            try {
-                const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google'
-                });
-                console.log('SignIn result:', data, error);
-                if (error) {
-                    alert('Erreur: ' + error.message);
+            const lang = language;
+            
+            // Traductions
+            const t = {
+                fr: {
+                    title: "XCTrack Layout Editor",
+                    subtitle: "Visualisez et éditez vos layouts XCTrack",
+                    loadFile: "Chargez votre fichier de configuration",
+                    dropFile: "Glissez-déposez votre fichier .xcfg ici",
+                    selectFile: "Sélectionner un fichier",
+                    config: "Configuration",
+                    undo: "Undo",
+                    redo: "Redo",
+                    resolution: "Résolution",
+                    orientation: "Orientation",
+                    landscape: "Paysage",
+                    portrait: "Portrait",
+                    showGrid: "Afficher la grille",
+                    snapToGrid: "Magnétisme grille",
+                    export: "Exporter xcfg file",
+                    widgetLibrary: "Bibliothèque de widgets",
+                    pages: "Pages",
+                    selectedWidget: "Widget sélectionné",
+                    noWidget: "Aucun widget sélectionné.",
+                    clickWidget: "Cliquez sur un widget pour le modifier.",
+                    ctrlClickTip: "Astuce : Utilisez",
+                    ctrlClickTip2: "pour sélectionner des widgets superposés",
+                    copy: "Copier",
+                    duplicate: "Dupliquer",
+                    delete: "Supprimer",
+                    deselect: "Désélectionner",
+                    widgetCopied: "Widget copié :",
+                    pasteCenter: "Coller au centre",
+                    totalPages: "Total pages:",
+                    totalWidgets: "Total widgets:",
+                    widgets: "widgets",
+                    moveUp: "Monter la page",
+                    moveDown: "Descendre la page",
+                    deletePage: "Supprimer cette page",
+                    tips: "💡 Astuces",
+                    tip1: "Ctrl+Click pour sélectionner des widgets superposés",
+                    tip2: "Utilisez Google Drive comme pont entre Android et l'éditeur",
+                    tip3: "Ctrl+Z pour annuler, Ctrl+Y pour rétablir",
+                    tip4: "Activez le magnétisme grille pour un alignement parfait",
+                    tip5: "Copiez des widgets entre pages avec Ctrl+C / Ctrl+V",
+                    filterWidgets: "Filtrer les widgets...",
+                    importConfig: "Importer une configuration",
+                    importDesc: "Glissez-déposez votre fichier .xcfg ici",
+                    importDescOr: "ou cliquez pour parcourir",
+                    createConfig: "Créer une nouvelle configuration",
+                    createDesc: "Commencez avec une page vide",
+                    createDescAnd: "et ajoutez vos widgets",
+                    newConfig: "Nouvelle configuration",
+                    importButton: "📂 Importer xcfg file",
+                    exportButton: "💾 Exporter xcfg file",
+                    addPage: "➕ Ajouter une page",
+                    noPageFound: "Aucune page trouvée pour cette orientation",
+                    reloadFile: "Recharger le fichier",
+                    page: "Page",
+                    // Community Library
+                    community: "Bibliothèque Communauté",
+                    signIn: "Se connecter",
+                    signInWith: "Se connecter avec",
+                    signOut: "Se déconnecter",
+                    myConfigs: "Mes Configs",
+                    saveToCloud: "💾 Sauvegarder dans le cloud",
+                    browseConfigs: "📂 Parcourir la communauté",
+                    uploadConfig: "Partager cette config",
+                    configName: "Nom de la configuration",
+                    configDescription: "Description (optionnel)",
+                    category: "Catégorie",
+                    categoryCross: "🏔️ Cross-country",
+                    categoryCompete: "🏁 Compétition",
+                    categoryVersatile: "🎯 Polyvalent",
+                    categoryCasual: "☀️ Thermique/Loisir",
+                    categoryExperimental: "🆕 Expérimental",
+                    upload: "Partager",
+                    cancel: "Annuler",
+                    popular: "Populaire",
+                    recent: "Récent",
+                    mostDownloaded: "Plus téléchargé",
+                    upvote: "👍 Vote",
+                    download: "⬇️ Télécharger",
+                    downloads: "téléchargements",
+                    by: "par",
+                    anonymous: "Anonyme",
+                    signInToUpload: "Connectez-vous pour sauvegarder vos configs",
+                    signInToVote: "Connectez-vous pour voter",
+                    uploadSuccess: "Configuration partagée avec succès !",
+                    uploadError: "Erreur lors du partage",
+                    deleteConfig: "Supprimer",
+                    editConfig: "Modifier",
+                    confirmDelete: "Supprimer cette configuration ?",
+                },
+                en: {
+                    title: "XCTrack Layout Editor",
+                    subtitle: "View and edit your XCTrack layouts",
+                    loadFile: "Load your configuration file",
+                    dropFile: "Drag and drop your .xcfg file here",
+                    selectFile: "Select a file",
+                    config: "Configuration",
+                    undo: "Undo",
+                    redo: "Redo",
+                    resolution: "Resolution",
+                    orientation: "Orientation",
+                    landscape: "Landscape",
+                    portrait: "Portrait",
+                    showGrid: "Show grid",
+                    snapToGrid: "Snap to grid",
+                    export: "Export xcfg file",
+                    widgetLibrary: "Widget Library",
+                    pages: "Pages",
+                    selectedWidget: "Selected Widget",
+                    noWidget: "No widget selected.",
+                    clickWidget: "Click on a widget to edit it.",
+                    ctrlClickTip: "Tip: Use",
+                    ctrlClickTip2: "to select overlapping widgets",
+                    copy: "Copy",
+                    duplicate: "Duplicate",
+                    delete: "Delete",
+                    deselect: "Deselect",
+                    widgetCopied: "Widget copied:",
+                    pasteCenter: "Paste at center",
+                    totalPages: "Total pages:",
+                    totalWidgets: "Total widgets:",
+                    widgets: "widgets",
+                    moveUp: "Move page up",
+                    moveDown: "Move page down",
+                    deletePage: "Delete this page",
+                    tips: "💡 Tips",
+                    tip1: "Ctrl+Click to select overlapping widgets",
+                    tip2: "Use Google Drive as a bridge between Android and the editor",
+                    tip3: "Ctrl+Z to undo, Ctrl+Y to redo",
+                    tip4: "Enable snap to grid for perfect alignment",
+                    tip5: "Copy widgets between pages with Ctrl+C / Ctrl+V",
+                    filterWidgets: "Filter widgets...",
+                    importConfig: "Import a configuration",
+                    importDesc: "Drag and drop your .xcfg file here",
+                    importDescOr: "or click to browse",
+                    createConfig: "Create a new configuration",
+                    createDesc: "Start with an empty page",
+                    createDescAnd: "and add your widgets",
+                    newConfig: "New configuration",
+                    importButton: "📂 Import xcfg file",
+                    exportButton: "💾 Export xcfg file",
+                    addPage: "➕ Add page",
+                    noPageFound: "No page found for this orientation",
+                    reloadFile: "Reload file",
+                    page: "Page",
+                    // Community Library
+                    community: "Community Library",
+                    signIn: "Sign in",
+                    signInWith: "Sign in with",
+                    signOut: "Sign out",
+                    myConfigs: "My Configs",
+                    saveToCloud: "💾 Save to cloud",
+                    browseConfigs: "📂 Browse community",
+                    uploadConfig: "Share this config",
+                    configName: "Configuration name",
+                    configDescription: "Description (optional)",
+                    category: "Category",
+                    categoryCross: "🏔️ Cross-country",
+                    categoryCompete: "🏁 Competition",
+                    categoryVersatile: "🎯 Versatile",
+                    categoryCasual: "☀️ Thermal/Casual",
+                    categoryExperimental: "🆕 Experimental",
+                    upload: "Share",
+                    cancel: "Cancel",
+                    popular: "Popular",
+                    recent: "Recent",
+                    mostDownloaded: "Most Downloaded",
+                    upvote: "👍 Upvote",
+                    download: "⬇️ Download",
+                    downloads: "downloads",
+                    by: "by",
+                    anonymous: "Anonymous",
+                    signInToUpload: "Sign in to save your configs",
+                    signInToVote: "Sign in to vote",
+                    uploadSuccess: "Configuration shared successfully!",
+                    uploadError: "Error sharing configuration",
+                    deleteConfig: "Delete",
+                    editConfig: "Edit",
+                    confirmDelete: "Delete this configuration?",
                 }
-            } catch (e) {
-                console.error('Sign in error:', e);
-                alert('Erreur: ' + e.message);
-            }
-        });
+            }[lang];
 
-        signOutBtn.addEventListener('click', async function() {
-            console.log('Sign out button clicked');
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                alert('Erreur: ' + error.message);
+            const currentResolution = RESOLUTION_PRESETS[resolutionIndex];
+
+            const loadConfig = (jsonText) => {
+                try {
+                    const data = JSON.parse(jsonText);
+                    setConfigData(data);
+                    setSelectedWidget(null);
+                    setSelectedPage(0);
+                    // Initialiser l'historique
+                    setHistory([data]);
+                    setHistoryIndex(0);
+                } catch (e) {
+                    alert('Erreur de parsing JSON : ' + e.message);
+                }
+            };
+
+            // Fonction pour ajouter une action dans l'historique
+            const pushHistory = (newConfig, actionName = '') => {
+                const newHistory = history.slice(0, historyIndex + 1);
+                newHistory.push(JSON.parse(JSON.stringify(newConfig))); // Deep clone
+                
+                // Limiter l'historique à 50 actions
+                if (newHistory.length > 50) {
+                    newHistory.shift();
+                } else {
+                    setHistoryIndex(historyIndex + 1);
+                }
+                
+                setHistory(newHistory);
+                
+                // Afficher le message d'action
+                if (actionName) {
+                    showUndoMessage(actionName);
+                }
+            };
+
+            // Fonction pour afficher un message temporaire
+            const showUndoMessage = (message) => {
+                setUndoMessage(message);
+                setTimeout(() => setUndoMessage(''), 2000);
+            };
+
+            // Undo
+            const undo = () => {
+                if (historyIndex > 0) {
+                    const newIndex = historyIndex - 1;
+                    setHistoryIndex(newIndex);
+                    setConfigData(JSON.parse(JSON.stringify(history[newIndex])));
+                    localStorage.setItem('xctrackConfig', JSON.stringify(history[newIndex]));
+                    showUndoMessage('Action annulée');
+                    setSelectedWidget(null);
+                }
+            };
+
+            // Redo
+            const redo = () => {
+                if (historyIndex < history.length - 1) {
+                    const newIndex = historyIndex + 1;
+                    setHistoryIndex(newIndex);
+                    setConfigData(JSON.parse(JSON.stringify(history[newIndex])));
+                    localStorage.setItem('xctrackConfig', JSON.stringify(history[newIndex]));
+                    showUndoMessage('Action rétablie');
+                    setSelectedWidget(null);
+                }
+            };
+
+            // Check auth session on mount
+            useEffect(() => {
+                if (!supabase) return;
+                
+                // Get current session
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                    setUser(session?.user ?? null);
+                });
+
+                // Listen for auth changes
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+                    setUser(session?.user ?? null);
+                });
+
+                return () => subscription.unsubscribe();
+            }, []);
+
+            useEffect(() => {
+                const savedConfig = localStorage.getItem('xctrackConfig');
+                if (savedConfig) {
+                    loadConfig(savedConfig);
+                }
+            }, []);
+
+            const allPages = useMemo(() => {
+                if (!configData?.layout) return null;
+                return configData.layout[orientation] || [];
+            }, [configData, orientation]);
+
+            const gridSize = useMemo(() => {
+                const sizes = calculateGridSize(currentResolution);
+                if (orientation === 'landscape') {
+                    return { horizontal: sizes.horizontal, vertical: sizes.vertical };
+                } else {
+                    return { horizontal: sizes.vertical, vertical: sizes.horizontal };
+                }
+            }, [currentResolution, orientation]);
+
+            const gridCols = orientation === 'landscape' ? currentResolution.gridCols : currentResolution.gridRows;
+            const gridRows = orientation === 'landscape' ? currentResolution.gridRows : currentResolution.gridCols;
+
+            const screenDimensions = useMemo(() => {
+                const scale = 0.3;
+                if (orientation === 'portrait') {
+                    return { 
+                        width: currentResolution.height * scale, 
+                        height: currentResolution.width * scale 
+                    };
+                } else {
+                    return { 
+                        width: currentResolution.width * scale, 
+                        height: currentResolution.height * scale 
+                    };
+                }
+            }, [orientation, currentResolution]);
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const text = event.target.result;
+                        loadConfig(text);
+                        localStorage.setItem('xctrackConfig', text);
+                    };
+                    reader.readAsText(file);
+                }
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragOver(false);
+                
+                const file = e.dataTransfer.files[0];
+                if (file && (file.name.endsWith('.xcfg') || file.name.endsWith('.json'))) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const text = event.target.result;
+                        loadConfig(text);
+                        localStorage.setItem('xctrackConfig', text);
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert('Veuillez déposer un fichier .xcfg ou .json');
+                }
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragOver(true);
+            };
+
+            const handleDragLeave = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragOver(false);
+            };
+
+            const handleMouseDown = (e, pageIdx, widgetIndex, handleType) => {
+                e.stopPropagation();
+                setSelectedWidget(widgetIndex);
+                setSelectedPage(pageIdx);
+                
+                const widget = allPages[pageIdx].widgets[widgetIndex];
+                const rect = e.currentTarget.closest('.phone-screen').getBoundingClientRect();
+                
+                setDragState({
+                    type: handleType,
+                    pageIndex: pageIdx,
+                    widgetIndex,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    originalWidget: { ...widget },
+                    screenRect: rect
+                });
+            };
+
+            const handleMouseMove = (e) => {
+                if (!dragState) return;
+                
+                const deltaX = e.clientX - dragState.startX;
+                const deltaY = e.clientY - dragState.startY;
+                
+                const rect = dragState.screenRect;
+                const deltaXNorm = (deltaX / rect.width) * 10000;
+                const deltaYNorm = (deltaY / rect.height) * 10000;
+                
+                const widget = { ...dragState.originalWidget };
+                
+                if (dragState.type === 'move') {
+                    const newX1 = snapToGrid(widget.X1 + deltaXNorm, gridSize.horizontal, snapEnabled);
+                    const newY1 = snapToGrid(widget.Y1 + deltaYNorm, gridSize.vertical, snapEnabled);
+                    const width = widget.X2 - widget.X1;
+                    const height = widget.Y2 - widget.Y1;
+                    
+                    widget.X1 = Math.max(0, Math.min(10000 - width, newX1));
+                    widget.Y1 = Math.max(0, Math.min(10000 - height, newY1));
+                    widget.X2 = widget.X1 + width;
+                    widget.Y2 = widget.Y1 + height;
+                } else {
+                    const minSize = Math.max(gridSize.horizontal, gridSize.vertical);
+                    
+                    if (dragState.type.includes('n')) {
+                        widget.Y1 = snapToGrid(
+                            Math.max(0, Math.min(widget.Y2 - minSize, widget.Y1 + deltaYNorm)), 
+                            gridSize.vertical, 
+                            snapEnabled
+                        );
+                    }
+                    if (dragState.type.includes('s')) {
+                        widget.Y2 = snapToGrid(
+                            Math.max(widget.Y1 + minSize, Math.min(10000, widget.Y2 + deltaYNorm)), 
+                            gridSize.vertical, 
+                            snapEnabled
+                        );
+                    }
+                    if (dragState.type.includes('w')) {
+                        widget.X1 = snapToGrid(
+                            Math.max(0, Math.min(widget.X2 - minSize, widget.X1 + deltaXNorm)), 
+                            gridSize.horizontal, 
+                            snapEnabled
+                        );
+                    }
+                    if (dragState.type.includes('e')) {
+                        widget.X2 = snapToGrid(
+                            Math.max(widget.X1 + minSize, Math.min(10000, widget.X2 + deltaXNorm)), 
+                            gridSize.horizontal, 
+                            snapEnabled
+                        );
+                    }
+                }
+                
+                updateWidget(dragState.pageIndex, dragState.widgetIndex, widget);
+            };
+
+            const handleMouseUp = () => {
+                if (dragState) {
+                    // Sauvegarder dans l'historique à la fin du drag
+                    const actionType = dragState.type === 'move' ? 'Déplacement' : 'Redimensionnement';
+                    pushHistory(configData, actionType);
+                }
+                setDragState(null);
+            };
+
+            useEffect(() => {
+                if (dragState) {
+                    window.addEventListener('mousemove', handleMouseMove);
+                    window.addEventListener('mouseup', handleMouseUp);
+                    return () => {
+                        window.removeEventListener('mousemove', handleMouseMove);
+                        window.removeEventListener('mouseup', handleMouseUp);
+                    };
+                }
+            }, [dragState, configData]);
+
+            const updateWidget = (pageIdx, widgetIndex, newWidget) => {
+                const newConfigData = { ...configData };
+                newConfigData.layout[orientation][pageIdx].widgets[widgetIndex] = newWidget;
+                setConfigData(newConfigData);
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            const deleteWidget = (pageIdx, widgetIndex) => {
+                const newConfigData = { ...configData };
+                const widgetName = getWidgetName(newConfigData.layout[orientation][pageIdx].widgets[widgetIndex].CLASS);
+                newConfigData.layout[orientation][pageIdx].widgets.splice(widgetIndex, 1);
+                setConfigData(newConfigData);
+                setSelectedWidget(null);
+                pushHistory(newConfigData, `Suppression ${widgetName}`);
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            const copyWidget = () => {
+                if (selectedWidget === null || selectedPage === null) return;
+                const widget = allPages[selectedPage].widgets[selectedWidget];
+                setCopiedWidget({ ...widget });
+            };
+
+            const pasteWidget = (targetPageIdx = null) => {
+                if (!copiedWidget) return;
+                
+                const pageIdx = targetPageIdx !== null ? targetPageIdx : selectedPage;
+                
+                const centerX = 5000;
+                const centerY = 5000;
+                
+                const widgetWidth = copiedWidget.X2 - copiedWidget.X1;
+                const widgetHeight = copiedWidget.Y2 - copiedWidget.Y1;
+                
+                const newWidget = {
+                    ...copiedWidget,
+                    X1: snapToGrid(centerX - widgetWidth / 2, gridSize.horizontal, snapEnabled),
+                    Y1: snapToGrid(centerY - widgetHeight / 2, gridSize.vertical, snapEnabled),
+                };
+                newWidget.X2 = newWidget.X1 + widgetWidth;
+                newWidget.Y2 = newWidget.Y1 + widgetHeight;
+                
+                if (newWidget.X2 > 10000) {
+                    const overflow = newWidget.X2 - 10000;
+                    newWidget.X1 -= overflow;
+                    newWidget.X2 -= overflow;
+                }
+                if (newWidget.Y2 > 10000) {
+                    const overflow = newWidget.Y2 - 10000;
+                    newWidget.Y1 -= overflow;
+                    newWidget.Y2 -= overflow;
+                }
+                
+                const newConfigData = { ...configData };
+                newConfigData.layout[orientation][pageIdx].widgets.push(newWidget);
+                setConfigData(newConfigData);
+                setSelectedWidget(newConfigData.layout[orientation][pageIdx].widgets.length - 1);
+                setSelectedPage(pageIdx);
+                pushHistory(newConfigData, `Collage ${getWidgetName(newWidget.CLASS)}`);
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            const duplicateWidget = () => {
+                copyWidget();
+                setTimeout(() => pasteWidget(), 10);
+            };
+
+            const addWidgetFromLibrary = (widgetKey) => {
+                const template = WIDGET_LIBRARY[widgetKey];
+                if (!template || selectedPage === null) return;
+                
+                // Taille par défaut : 8×8 cellules de grille
+                const widgetWidth = gridSize.horizontal * 8;
+                const widgetHeight = gridSize.vertical * 8;
+                
+                const centerX = 5000;
+                const centerY = 5000;
+                
+                const newWidget = {
+                    ...template,
+                    X1: snapToGrid(centerX - widgetWidth / 2, gridSize.horizontal, true),
+                    Y1: snapToGrid(centerY - widgetHeight / 2, gridSize.vertical, true),
+                };
+                newWidget.X2 = newWidget.X1 + widgetWidth;
+                newWidget.Y2 = newWidget.Y1 + widgetHeight;
+                
+                const newConfigData = { ...configData };
+                newConfigData.layout[orientation][selectedPage].widgets.push(newWidget);
+                setConfigData(newConfigData);
+                setSelectedWidget(newConfigData.layout[orientation][selectedPage].widgets.length - 1);
+                pushHistory(newConfigData, `Ajout ${widgetKey}`);
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            const addNewPage = (pageType) => {
+                const newConfigData = { ...configData };
+                const newPage = {
+                    CLASS: pageType.CLASS,
+                    navigations: pageType.navigations,
+                    widgets: []
+                };
+                newConfigData.layout[orientation].push(newPage);
+                setConfigData(newConfigData);
+                setSelectedPage(newConfigData.layout[orientation].length - 1);
+                pushHistory(newConfigData, `Nouvelle page ${pageType.name}`);
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            const deletePage = (pageIdx) => {
+                if (allPages.length <= 1) {
+                    alert("Impossible de supprimer la dernière page !");
+                    return;
+                }
+                
+                const newConfigData = { ...configData };
+                const pageName = getWidgetName(newConfigData.layout[orientation][pageIdx].CLASS);
+                newConfigData.layout[orientation].splice(pageIdx, 1);
+                setConfigData(newConfigData);
+                setSelectedWidget(null);
+                setSelectedPage(Math.max(0, pageIdx - 1));
+                pushHistory(newConfigData, `Suppression page ${pageName}`);
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            const movePageUp = (pageIdx) => {
+                if (pageIdx === 0) return;
+                
+                const newConfigData = { ...configData };
+                const pages = newConfigData.layout[orientation];
+                [pages[pageIdx - 1], pages[pageIdx]] = [pages[pageIdx], pages[pageIdx - 1]];
+                
+                setConfigData(newConfigData);
+                setSelectedPage(pageIdx - 1);
+                pushHistory(newConfigData, 'Réorganisation pages');
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            const movePageDown = (pageIdx) => {
+                if (pageIdx === allPages.length - 1) return;
+                
+                const newConfigData = { ...configData };
+                const pages = newConfigData.layout[orientation];
+                [pages[pageIdx], pages[pageIdx + 1]] = [pages[pageIdx + 1], pages[pageIdx]];
+                
+                setConfigData(newConfigData);
+                setSelectedPage(pageIdx + 1);
+                pushHistory(newConfigData, 'Réorganisation pages');
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfigData));
+            };
+
+            // Fonction pour obtenir le contenu preview d'un widget
+            const getWidgetPreview = (widget, width, height) => {
+                const widgetKey = widget.CLASS.split('.').pop(); // Extraire WSpeed, WAltitude, etc.
+                
+                // Gérer les variantes de boutons selon leur type
+                let previewKey = widgetKey;
+                if (widgetKey === 'WButtonZoom') {
+                    previewKey = widget.type === 'ACTION_ZOOM_IN' ? 'WButtonZoomIn' : 'WButtonZoomOut';
+                } else if (widgetKey === 'WButtonNavig') {
+                    previewKey = widget.type === 'ACTION_NEXT_WAYPOINT' ? 'WButtonNavigNext' : 'WButtonNavigPrev';
+                }
+                
+                const preview = WIDGET_PREVIEWS[previewKey];
+                
+                if (!preview) return null;
+                
+                // Taille de police = 60% de la hauteur du widget * facteur de base
+                const fontSize = Math.max(10, height * 0.6 * (preview.baseSize / 2.5)); // Normalisé sur baseSize 2.5
+                const unitSize = fontSize * 0.35;
+                
+                return { ...preview, fontSize, unitSize };
+            };
+
+            // Fonction pour trouver les widgets à une position donnée (pour Ctrl+Click)
+            const getWidgetsAtPosition = (pageIdx, clientX, clientY, screenRect) => {
+                if (!allPages[pageIdx]) return [];
+                
+                const relX = ((clientX - screenRect.left) / screenRect.width) * 10000;
+                const relY = ((clientY - screenRect.top) / screenRect.height) * 10000;
+                
+                const overlapping = [];
+                allPages[pageIdx].widgets.forEach((widget, idx) => {
+                    if (relX >= widget.X1 && relX <= widget.X2 && 
+                        relY >= widget.Y1 && relY <= widget.Y2) {
+                        overlapping.push(idx);
+                    }
+                });
+                
+                return overlapping;
+            };
+
+            // Gestion des raccourcis clavier
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    // Ignorer si on est dans un input/textarea
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    
+                    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                    const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+                    
+                    if (cmdOrCtrl && e.key === 'z' && !e.shiftKey) {
+                        e.preventDefault();
+                        undo();
+                    } else if (cmdOrCtrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                        e.preventDefault();
+                        redo();
+                    } else if (cmdOrCtrl && e.key === 'c') {
+                        e.preventDefault();
+                        copyWidget();
+                    } else if (cmdOrCtrl && e.key === 'v') {
+                        e.preventDefault();
+                        pasteWidget();
+                    } else if (cmdOrCtrl && e.key === 'd') {
+                        e.preventDefault();
+                        duplicateWidget();
+                    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                        if (selectedWidget !== null && selectedPage !== null) {
+                            e.preventDefault();
+                            deleteWidget(selectedPage, selectedWidget);
+                        }
+                    }
+                };
+                
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [selectedWidget, selectedPage, copiedWidget, configData, orientation, historyIndex]);
+
+            const exportConfig = async () => {
+                const dataStr = JSON.stringify(configData, null, 2);
+                
+                // Vérifier si l'API File System Access est disponible
+                if ('showSaveFilePicker' in window) {
+                    try {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: 'xctrack-layout-edited.xcfg',
+                            types: [{
+                                description: 'XCTrack Configuration',
+                                accept: { 'application/json': ['.xcfg'] }
+                            }]
+                        });
+                        const writable = await handle.createWritable();
+                        await writable.write(dataStr);
+                        await writable.close();
+                    } catch (err) {
+                        // User cancelled or error - silently ignore
+                        if (err.name !== 'AbortError') {
+                            console.error('Save error:', err);
+                        }
+                    }
+                } else {
+                    // Fallback pour les navigateurs qui ne supportent pas l'API
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(dataBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'xctrack-layout-edited.xcfg';
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }
+            };
+
+            const createNewConfig = () => {
+                const newConfig = {
+                    "CLASS": "org.xcontest.XCTrack.model.preferences.Preferences",
+                    "layout": {
+                        "landscape": [
+                            {
+                                "CLASS": "org.xcontest.XCTrack.widget.wp.WPEmpty",
+                                "navigations": "all",
+                                "widgets": []
+                            }
+                        ],
+                        "portrait": [
+                            {
+                                "CLASS": "org.xcontest.XCTrack.widget.wp.WPEmpty",
+                                "navigations": "all",
+                                "widgets": []
+                            }
+                        ]
+                    }
+                };
+                setConfigData(newConfig);
+                localStorage.setItem('xctrackConfig', JSON.stringify(newConfig));
+                pushHistory(newConfig, 'Nouvelle configuration');
+            };
+
+            // Community functions
+            function signInWithGoogle() {
+                if (!supabase) return;
+                supabase.auth.signInWithOAuth({ provider: 'google' });
             }
-        });
+
+            function signOut() {
+                if (!supabase) return;
+                supabase.auth.signOut();
+            }
+
+            async function saveToCloud(name, description, category) {
+                if (!supabase || !user || !configData) return;
+                
+                const result = await supabase.from('configs').insert({
+                    user_id: user.id,
+                    user_email: user.email,
+                    name: name,
+                    description: description,
+                    config_json: configData,
+                    category: category
+                });
+
+                if (result.error) {
+                    alert(t.uploadError + ': ' + result.error.message);
+                } else {
+                    alert(t.uploadSuccess);
+                    setShowCommunityModal(false);
+                }
+            }
+
+            async function loadCommunityConfigs() {
+                if (!supabase) return;
+                
+                let query = supabase.from('configs').select('*');
+                
+                if (communityFilter !== 'all') {
+                    query = query.eq('category', communityFilter);
+                }
+                
+                if (communitySortBy === 'upvotes') {
+                    query = query.order('upvotes', { ascending: false });
+                } else if (communitySortBy === 'downloads') {
+                    query = query.order('downloads', { ascending: false });
+                } else {
+                    query = query.order('created_at', { ascending: false });
+                }
+                
+                const result = await query.limit(20);
+                if (!result.error && result.data) {
+                    setCommunityConfigs(result.data);
+                }
+            }
+
+            async function downloadConfig(config) {
+                if (!supabase) return;
+                
+                await supabase.from('configs').update({ 
+                    downloads: (config.downloads || 0) + 1 
+                }).eq('id', config.id);
+                
+                setConfigData(config.config_json);
+                localStorage.setItem('xctrackConfig', JSON.stringify(config.config_json));
+                setShowCommunityModal(false);
+            }
+
+            if (!configData) {
+                return (
+                    <div className="container">
+                        <div className="header">
+                            {/* Language switch */}
+                            <button 
+                                className="lang-switch"
+                                onClick={toggleLanguage}
+                                title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+                            >
+                                {lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
+                            </button>
+
+                            {/* GitHub link */}
+                            <a 
+                                href="https://github.com/fidozbox-dev/XCTrackLayoutEditor" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="github-link"
+                                title="View on GitHub"
+                            >
+                                <svg className="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                                GitHub
+                            </a>
+                            <h1>{t.title}</h1>
+                            <p>{t.subtitle}</p>
+                        </div>
+                        <div className="viewer" style={{ display: 'flex', gap: '30px', justifyContent: 'center', padding: '40px 20px' }}>
+                            {/* Option 1: Importer */}
+                            <div 
+                                className={`drop-zone ${isDragOver ? 'drag-over' : ''}`}
+                                onDrop={handleDrop}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onClick={() => fileInputRef.current?.click()}
+                                style={{ flex: '1', maxWidth: '400px' }}
+                            >
+                                <h2>📂 {t.importConfig}</h2>
+                                <p>{t.importDesc}<br/>{t.importDescOr}</p>
+                                <button>{t.selectFile}</button>
+                                <input 
+                                    ref={fileInputRef}
+                                    type="file" 
+                                    accept=".xcfg,.json"
+                                    onChange={handleFileUpload}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+
+                            {/* Option 2: Créer nouvelle config */}
+                            <div 
+                                className="drop-zone"
+                                style={{ 
+                                    flex: '1', 
+                                    maxWidth: '400px',
+                                    cursor: 'pointer',
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    color: 'white'
+                                }}
+                                onClick={createNewConfig}
+                            >
+                                <h2>✨ {t.createConfig}</h2>
+                                <p>{t.createDesc}<br/>{t.createDescAnd}</p>
+                                <button style={{ 
+                                    background: 'white', 
+                                    color: '#667eea',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {t.newConfig}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            console.log('Config loaded:', configData);
+            console.log('Orientation:', orientation);
+            console.log('All pages:', allPages);
+
+            if (!allPages || allPages.length === 0) {
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <h1>XCTrack Layout Editor</h1>
+                        </div>
+                        <div style={{ 
+                            background: '#fee2e2', 
+                            border: '2px solid #ef4444', 
+                            borderRadius: '8px', 
+                            padding: '20px', 
+                            color: '#991b1b', 
+                            textAlign: 'center' 
+                        }}>
+                            <h2>{t.noPageFound}</h2>
+                            <button onClick={() => setConfigData(null)} style={{ marginTop: '20px' }}>
+                                {t.reloadFile}
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const selectedWidgetData = (selectedWidget !== null && selectedPage !== null) 
+                ? allPages[selectedPage]?.widgets[selectedWidget] 
+                : null;
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        {/* Language switch */}
+                        <button 
+                            className="lang-switch"
+                            onClick={toggleLanguage}
+                            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+                        >
+                            {lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
+                        </button>
+                        
+                        {/* GitHub link */}
+                        <a 
+                            href="https://github.com/fidozbox-dev/XCTrackLayoutEditor" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="github-link"
+                            title="View on GitHub"
+                        >
+                            <svg className="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            GitHub
+                        </a>
+                        <h1>{t.title}</h1>
+                        <p>{t.subtitle}</p>
+                    </div>
+
+                    <div className="main-layout">
+                        <div className="sidebar">
+                            <div className="controls">
+                                <h3>⚙️ {t.config}</h3>
+
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button 
+                                        onClick={undo}
+                                        disabled={historyIndex <= 0}
+                                        style={{ 
+                                            flex: 1,
+                                            opacity: historyIndex <= 0 ? 0.5 : 1,
+                                            cursor: historyIndex <= 0 ? 'not-allowed' : 'pointer'
+                                        }}
+                                        title="Annuler (Ctrl+Z)"
+                                    >
+                                        ↶ Undo
+                                    </button>
+                                    <button 
+                                        onClick={redo}
+                                        disabled={historyIndex >= history.length - 1}
+                                        style={{ 
+                                            flex: 1,
+                                            opacity: historyIndex >= history.length - 1 ? 0.5 : 1,
+                                            cursor: historyIndex >= history.length - 1 ? 'not-allowed' : 'pointer'
+                                        }}
+                                        title="Rétablir (Ctrl+Y)"
+                                    >
+                                        ↷ Redo
+                                    </button>
+                                </div>
+                                
+                                <div className="control-group">
+                                    <label>{t.resolution}</label>
+                                    <select 
+                                        value={resolutionIndex} 
+                                        onChange={(e) => setResolutionIndex(parseInt(e.target.value))}
+                                    >
+                                        {RESOLUTION_PRESETS.map((preset, idx) => (
+                                            <option key={idx} value={idx}>
+                                                {preset.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="control-group">
+                                    <label>{t.orientation}</label>
+                                    <select 
+                                        value={orientation} 
+                                        onChange={(e) => {
+                                            setOrientation(e.target.value);
+                                            setSelectedWidget(null);
+                                            setSelectedPage(0);
+                                        }}
+                                    >
+                                        <option value="landscape">{t.landscape}</option>
+                                        <option value="portrait">{t.portrait}</option>
+                                    </select>
+                                </div>
+
+                                <div className="control-group checkbox">
+                                    <input 
+                                        type="checkbox" 
+                                        id="showGrid"
+                                        checked={showGrid}
+                                        onChange={(e) => setShowGrid(e.target.checked)}
+                                    />
+                                    <label htmlFor="showGrid">
+                                        {t.showGrid} ({gridCols}×{gridRows})
+                                    </label>
+                                </div>
+
+                                <div className="control-group checkbox">
+                                    <input 
+                                        type="checkbox" 
+                                        id="snapEnabled"
+                                        checked={snapEnabled}
+                                        onChange={(e) => setSnapEnabled(e.target.checked)}
+                                    />
+                                    <label htmlFor="snapEnabled">
+                                        {t.snapToGrid}
+                                    </label>
+                                </div>
+
+                                <button 
+                                    onClick={() => fileInputRef.current?.click()} 
+                                    className="full-width import-btn"
+                                >
+                                    {t.importButton}
+                                </button>
+                                <input 
+                                    ref={fileInputRef}
+                                    type="file" 
+                                    accept=".xcfg,.json"
+                                    onChange={handleFileUpload}
+                                    style={{ display: 'none' }}
+                                />
+
+                                <button onClick={exportConfig} className="full-width export-btn">
+                                    {t.exportButton}
+                                </button>
+
+                                {/* Community Section */}
+                                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #e5e7eb' }}>
+                                    <h3 style={{ margin: '0 0 10px 0', fontSize: '0.95rem' }}>☁️ {t.community}</h3>
+                                    {user ? (
+                                        <>
+                                            <div style={{ fontSize: '0.85rem', marginBottom: '10px', color: '#666' }}>
+                                                👤 {user.email}
+                                            </div>
+                                            <button 
+                                                onClick={() => setShowCommunityModal(true)} 
+                                                className="full-width"
+                                                style={{ marginBottom: '8px' }}
+                                            >
+                                                {t.saveToCloud}
+                                            </button>
+                                            <button 
+                                                onClick={signOut}
+                                                className="full-width"
+                                                style={{ background: '#ef4444', fontSize: '0.9rem' }}
+                                            >
+                                                {t.signOut}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button 
+                                            onClick={signInWithGoogle}
+                                            className="full-width"
+                                            style={{ background: '#4285f4', color: 'white' }}
+                                        >
+                                            🔐 {t.signInWith} Google
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Bibliothèque de widgets */}
+                            <div className="widget-library">
+                                <h3 style={{ cursor: 'pointer' }} onClick={() => setShowWidgetLibrary(!showWidgetLibrary)}>
+                                    📚 {t.widgetLibrary} {showWidgetLibrary ? '▼' : '▶'}
+                                </h3>
+                                {showWidgetLibrary && (
+                                    <>
+                                        <input
+                                            type="text"
+                                            placeholder={t.filterWidgets}
+                                            value={widgetFilter}
+                                            onChange={(e) => setWidgetFilter(e.target.value)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '8px',
+                                                marginBottom: '10px',
+                                                border: '1px solid #d1d5db',
+                                                borderRadius: '6px',
+                                                fontSize: '0.9rem'
+                                            }}
+                                        />
+                                        <div 
+                                            className="widget-library-grid"
+                                            style={{
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '6px',
+                                                padding: '10px'
+                                            }}
+                                        >
+                                        {/* Data/Metrics */}
+                                        {(() => {
+                                            const widgets = ['WAltitude', 'WAltitudeAboveGround', 'WAltitudeMaximum', 'WSpeed', 'WXCSpeed', 'WVerticalSpeed', 'WGlide', 'WWindSpeed', 'WTime', 'WAirTime'];
+                                            const filtered = widgets.filter(w => {
+                                                const name = w.startsWith('W') ? w.substring(1).toLowerCase() : w.toLowerCase();
+                                                return name.includes(widgetFilter.toLowerCase());
+                                            });
+                                            if (filtered.length === 0) return null;
+                                            return (
+                                                <>
+                                                    <div style={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: '#374151', 
+                                                        marginTop: '10px',
+                                                        marginBottom: '5px',
+                                                        fontSize: '0.9rem',
+                                                        borderBottom: '1px solid #e5e7eb',
+                                                        paddingBottom: '3px'
+                                                    }}>
+                                                        📊 Data / Metrics
+                                                    </div>
+                                                    {filtered.map(widgetKey => {
+                                                        const displayName = widgetKey.startsWith('W') ? widgetKey.substring(1) : widgetKey;
+                                                        return (
+                                                            <div
+                                                                key={widgetKey}
+                                                                className="widget-library-item"
+                                                                onClick={() => addWidgetFromLibrary(widgetKey)}
+                                                                title={`Cliquer pour ajouter ${displayName}`}
+                                                            >
+                                                                + {displayName}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            );
+                                        })()}
+
+                                        {/* Navigation */}
+                                        {(() => {
+                                            const widgets = ['WNextTurnpointDistance', 'WNextTurnpointAlt', 'WNextTurnpointGlideTo', 'WNextTurnpointTimeOfArrival'];
+                                            const filtered = widgets.filter(w => {
+                                                const name = w.startsWith('W') ? w.substring(1).toLowerCase() : w.toLowerCase();
+                                                return name.includes(widgetFilter.toLowerCase());
+                                            });
+                                            if (filtered.length === 0) return null;
+                                            return (
+                                                <>
+                                                    <div style={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: '#374151', 
+                                                        marginTop: '15px',
+                                                        marginBottom: '5px',
+                                                        fontSize: '0.9rem',
+                                                        borderBottom: '1px solid #e5e7eb',
+                                                        paddingBottom: '3px'
+                                                    }}>
+                                                        🎯 Navigation
+                                                    </div>
+                                                    {filtered.map(widgetKey => {
+                                                        const displayName = widgetKey.startsWith('W') ? widgetKey.substring(1) : widgetKey;
+                                                        return (
+                                                            <div
+                                                                key={widgetKey}
+                                                                className="widget-library-item"
+                                                                onClick={() => addWidgetFromLibrary(widgetKey)}
+                                                                title={`Cliquer pour ajouter ${displayName}`}
+                                                            >
+                                                                + {displayName}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            );
+                                        })()}
+
+                                        {/* Competition */}
+                                        {(() => {
+                                            const widgets = ['WCompDistanceToGoal', 'WCompGlideToGoal', 'WCompAltitudeOverGoal', 'WCompTimeToStart', 'WCompTimeAtStart'];
+                                            const filtered = widgets.filter(w => {
+                                                const name = w.startsWith('W') ? w.substring(1).toLowerCase() : w.toLowerCase();
+                                                return name.includes(widgetFilter.toLowerCase());
+                                            });
+                                            if (filtered.length === 0) return null;
+                                            return (
+                                                <>
+                                                    <div style={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: '#374151', 
+                                                        marginTop: '15px',
+                                                        marginBottom: '5px',
+                                                        fontSize: '0.9rem',
+                                                        borderBottom: '1px solid #e5e7eb',
+                                                        paddingBottom: '3px'
+                                                    }}>
+                                                        🏁 Competition
+                                                    </div>
+                                                    {filtered.map(widgetKey => {
+                                                        const displayName = widgetKey.startsWith('W') ? widgetKey.substring(1) : widgetKey;
+                                                        return (
+                                                            <div
+                                                                key={widgetKey}
+                                                                className="widget-library-item"
+                                                                onClick={() => addWidgetFromLibrary(widgetKey)}
+                                                                title={`Cliquer pour ajouter ${displayName}`}
+                                                            >
+                                                                + {displayName}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            );
+                                        })()}
+
+                                        {/* Maps/Visual */}
+                                        {(() => {
+                                            const widgets = ['WXCAssistant', 'WThermalAssistant', 'WCompMap', 'WCompass', 'WSideView', 'WAltitudeDataGraph'];
+                                            const filtered = widgets.filter(w => {
+                                                const name = w.startsWith('W') ? w.substring(1).toLowerCase() : w.toLowerCase();
+                                                return name.includes(widgetFilter.toLowerCase());
+                                            });
+                                            if (filtered.length === 0) return null;
+                                            return (
+                                                <>
+                                                    <div style={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: '#374151', 
+                                                        marginTop: '15px',
+                                                        marginBottom: '5px',
+                                                        fontSize: '0.9rem',
+                                                        borderBottom: '1px solid #e5e7eb',
+                                                        paddingBottom: '3px'
+                                                    }}>
+                                                        🗺️ Maps / Visual
+                                                    </div>
+                                                    {filtered.map(widgetKey => {
+                                                        const displayName = widgetKey.startsWith('W') ? widgetKey.substring(1) : widgetKey;
+                                                        return (
+                                                            <div
+                                                                key={widgetKey}
+                                                                className="widget-library-item"
+                                                                onClick={() => addWidgetFromLibrary(widgetKey)}
+                                                                title={`Cliquer pour ajouter ${displayName}`}
+                                                            >
+                                                                + {displayName}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            );
+                                        })()}
+
+                                        {/* Graphs/Stats */}
+                                        {(() => {
+                                            const widgets = ['WVerticalGraph', 'WThermalAltGain', 'WOptiResult'];
+                                            const filtered = widgets.filter(w => {
+                                                const name = w.startsWith('W') ? w.substring(1).toLowerCase() : w.toLowerCase();
+                                                return name.includes(widgetFilter.toLowerCase());
+                                            });
+                                            if (filtered.length === 0) return null;
+                                            return (
+                                                <>
+                                                    <div style={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: '#374151', 
+                                                        marginTop: '15px',
+                                                        marginBottom: '5px',
+                                                        fontSize: '0.9rem',
+                                                        borderBottom: '1px solid #e5e7eb',
+                                                        paddingBottom: '3px'
+                                                    }}>
+                                                        📈 Graphs / Stats
+                                                    </div>
+                                                    {filtered.map(widgetKey => {
+                                                        const displayName = widgetKey.startsWith('W') ? widgetKey.substring(1) : widgetKey;
+                                                        return (
+                                                            <div
+                                                                key={widgetKey}
+                                                                className="widget-library-item"
+                                                                onClick={() => addWidgetFromLibrary(widgetKey)}
+                                                                title={`Cliquer pour ajouter ${displayName}`}
+                                                            >
+                                                                + {displayName}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            );
+                                        })()}
+
+                                        {/* UI/Controls */}
+                                        {(() => {
+                                            const widgets = ['WStatusLine', 'WFreeText', 'WButtonZoomOut', 'WButtonZoomIn', 'WButtonNavigPrev', 'WButtonNavigNext', 'WAirspaceProximity'];
+                                            const filtered = widgets.filter(w => {
+                                                const name = w.startsWith('W') ? w.substring(1).toLowerCase() : w.toLowerCase();
+                                                return name.includes(widgetFilter.toLowerCase());
+                                            });
+                                            if (filtered.length === 0) return null;
+                                            return (
+                                                <>
+                                                    <div style={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: '#374151', 
+                                                        marginTop: '15px',
+                                                        marginBottom: '5px',
+                                                        fontSize: '0.9rem',
+                                                        borderBottom: '1px solid #e5e7eb',
+                                                        paddingBottom: '3px'
+                                                    }}>
+                                                        ⚙️ UI / Controls
+                                                    </div>
+                                                    {filtered.map(widgetKey => {
+                                                        const displayName = widgetKey.startsWith('W') ? widgetKey.substring(1) : widgetKey;
+                                                        return (
+                                                            <div
+                                                                key={widgetKey}
+                                                                className="widget-library-item"
+                                                                onClick={() => addWidgetFromLibrary(widgetKey)}
+                                                                title={`Cliquer pour ajouter ${displayName}`}
+                                                            >
+                                                                + {displayName}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            );
+                                        })()}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Gestion des pages */}
+                            <div className="page-management">
+                                <h3>📄 {t.pages}</h3>
+                                <div className="page-type-buttons">
+                                    {PAGE_TYPES.map((pageType, idx) => (
+                                        <button
+                                            key={idx}
+                                            className="page-type-btn"
+                                            onClick={() => addNewPage(pageType)}
+                                        >
+                                            ➕ {pageType.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Info widget sélectionné */}
+                            <div className="widget-info-panel">
+                                <h3>📦 {t.selectedWidget}</h3>
+                                {selectedWidgetData ? (
+                                    <>
+                                        <h4>{getWidgetName(selectedWidgetData.CLASS)}</h4>
+                                        <div className="coords">
+                                            <div>X1: {selectedWidgetData.X1}</div>
+                                            <div>Y1: {selectedWidgetData.Y1}</div>
+                                            <div>X2: {selectedWidgetData.X2}</div>
+                                            <div>Y2: {selectedWidgetData.Y2}</div>
+                                        </div>
+                                        <div className="action-buttons">
+                                            <button onClick={copyWidget}>
+                                                📋 Copier (Ctrl+C)
+                                            </button>
+                                            <button onClick={duplicateWidget}>
+                                                📑 Dupliquer (Ctrl+D)
+                                            </button>
+                                            <button 
+                                                className="delete-btn"
+                                                onClick={() => deleteWidget(selectedPage, selectedWidget)}
+                                            >
+                                                🗑️ Supprimer (Del)
+                                            </button>
+                                            <button onClick={() => setSelectedWidget(null)}>
+                                                ✕ Désélectionner
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="no-selection">
+                                        {copiedWidget ? (
+                                            <>
+                                                <p>Widget copié : <strong>{getWidgetName(copiedWidget.CLASS)}</strong></p>
+                                                <button 
+                                                    onClick={() => pasteWidget()}
+                                                    style={{ marginTop: '10px' }}
+                                                >
+                                                    📋 Coller au centre (Ctrl+V)
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {t.noWidget}<br/>
+                                                {t.clickWidget}
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Tips */}
+                            <div style={{
+                                background: '#f0f9ff',
+                                border: '1px solid #bae6fd',
+                                borderRadius: '8px',
+                                padding: '15px',
+                                marginTop: '20px'
+                            }}>
+                                <h3 style={{ margin: '0 0 12px 0', color: '#0369a1', fontSize: '1rem' }}>
+                                    {t.tips}
+                                </h3>
+                                <ul style={{ 
+                                    margin: 0, 
+                                    paddingLeft: '20px',
+                                    fontSize: '0.85rem',
+                                    color: '#0c4a6e',
+                                    lineHeight: '1.6'
+                                }}>
+                                    <li>{t.tip1}</li>
+                                    <li>{t.tip2}</li>
+                                    <li>{t.tip3}</li>
+                                    <li>{t.tip4}</li>
+                                    <li>{t.tip5}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="viewer">
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center' }}>
+                                {allPages.map((page, pageIdx) => (
+                                    <div key={pageIdx} style={{ 
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '15px'
+                                    }}>
+                                        {/* Titre et boutons */}
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center',
+                                            gap: '10px',
+                                            width: '100%'
+                                        }}>
+                                            <h3 style={{ 
+                                                color: '#374151', 
+                                                fontSize: '1.2rem',
+                                                margin: 0
+                                            }}>
+                                                {t.page} {pageIdx + 1} - {getWidgetName(page.CLASS)}
+                                                <span style={{ 
+                                                    fontSize: '0.9rem', 
+                                                    color: '#6b7280',
+                                                    marginLeft: '10px'
+                                                }}>
+                                                    ({page.widgets?.length || 0} widgets)
+                                                </span>
+                                            </h3>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={() => movePageUp(pageIdx)}
+                                                    disabled={pageIdx === 0}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        background: pageIdx === 0 ? '#d1d5db' : '#3b82f6',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: pageIdx === 0 ? 'not-allowed' : 'pointer',
+                                                        fontWeight: '600',
+                                                        fontSize: '0.9rem'
+                                                    }}
+                                                    title="Monter la page"
+                                                >
+                                                    ↑
+                                                </button>
+                                                <button
+                                                    onClick={() => movePageDown(pageIdx)}
+                                                    disabled={pageIdx === allPages.length - 1}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        background: pageIdx === allPages.length - 1 ? '#d1d5db' : '#3b82f6',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: pageIdx === allPages.length - 1 ? 'not-allowed' : 'pointer',
+                                                        fontWeight: '600',
+                                                        fontSize: '0.9rem'
+                                                    }}
+                                                    title="Descendre la page"
+                                                >
+                                                    ↓
+                                                </button>
+                                                <button
+                                                    onClick={() => deletePage(pageIdx)}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        background: '#ef4444',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontWeight: '600',
+                                                        fontSize: '0.9rem',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                    title="Supprimer cette page"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Phone container - centré indépendamment */}
+                                        <div className="phone-container">
+                                            <div 
+                                                className="phone-screen"
+                                                style={{
+                                                    width: `${screenDimensions.width}px`,
+                                                    height: `${screenDimensions.height}px`,
+                                                    cursor: 'default'
+                                                }}
+                                                onClick={() => {
+                                                    setSelectedWidget(null);
+                                                    setSelectedPage(pageIdx);
+                                                }}
+                                            >
+                                                {showGrid && (
+                                                    <div className="grid-overlay">
+                                                        {Array.from({ length: gridCols + 1 }).map((_, i) => (
+                                                            <div
+                                                                key={`v${i}`}
+                                                                className="grid-line vertical"
+                                                                style={{ left: `${(i / gridCols) * 100}%` }}
+                                                            />
+                                                        ))}
+                                                        {Array.from({ length: gridRows + 1 }).map((_, i) => (
+                                                            <div
+                                                                key={`h${i}`}
+                                                                className="grid-line horizontal"
+                                                                style={{ top: `${(i / gridRows) * 100}%` }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {page.widgets?.map((widget, idx) => {
+                                                    const x = (widget.X1 / 10000) * screenDimensions.width;
+                                                    const y = (widget.Y1 / 10000) * screenDimensions.height;
+                                                    const width = ((widget.X2 - widget.X1) / 10000) * screenDimensions.width;
+                                                    const height = ((widget.Y2 - widget.Y1) / 10000) * screenDimensions.height;
+                                                    const isSelected = selectedWidget === idx && selectedPage === pageIdx;
+                                                    
+                                                    // Obtenir le preview
+                                                    const preview = getWidgetPreview(widget, width, height);
+
+                                                    return (
+                                                        <div
+                                                            key={idx}
+                                                            className={`widget ${isSelected ? 'selected' : ''}`}
+                                                            style={{
+                                                                left: `${x}px`,
+                                                                top: `${y}px`,
+                                                                width: `${width}px`,
+                                                                height: `${height}px`,
+                                                                cursor: 'pointer',
+                                                                zIndex: isSelected ? 100 : 10
+                                                            }}
+                                                            title={widget.CLASS}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                
+                                                                // Ctrl+Click: cycle through overlapping widgets
+                                                                if (e.ctrlKey || e.metaKey) {
+                                                                    const rect = e.currentTarget.closest('.phone-screen').getBoundingClientRect();
+                                                                    const overlapping = getWidgetsAtPosition(pageIdx, e.clientX, e.clientY, rect);
+                                                                    
+                                                                    if (overlapping.length > 1) {
+                                                                        // Trouver l'index actuel et passer au suivant
+                                                                        const currentIdx = overlapping.indexOf(selectedWidget);
+                                                                        const nextIdx = (currentIdx + 1) % overlapping.length;
+                                                                        setSelectedWidget(overlapping[nextIdx]);
+                                                                        setSelectedPage(pageIdx);
+                                                                        return;
+                                                                    }
+                                                                }
+                                                                
+                                                                // Click normal
+                                                                setSelectedWidget(idx);
+                                                                setSelectedPage(pageIdx);
+                                                            }}
+                                                        >
+                                                            {/* Label du widget en haut à gauche */}
+                                                            <div className="widget-label">
+                                                                {getWidgetName(widget.CLASS)}
+                                                            </div>
+
+                                                            {/* Preview du contenu */}
+                                                            {preview && (
+                                                                <div style={{
+                                                                    position: 'absolute',
+                                                                    top: 0,
+                                                                    left: 0,
+                                                                    width: '100%',
+                                                                    height: '100%',
+                                                                    display: 'flex',
+                                                                    flexDirection: 'column',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    pointerEvents: 'none'
+                                                                }}>
+                                                                    {preview.icon ? (
+                                                                        <div style={{ fontSize: `${preview.fontSize}px` }}>
+                                                                            {preview.icon}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <>
+                                                                            <div style={{
+                                                                                display: 'flex',
+                                                                                alignItems: 'center',
+                                                                                gap: '6px'
+                                                                            }}>
+                                                                                <div style={{
+                                                                                    fontSize: `${preview.fontSize}px`,
+                                                                                    fontWeight: 'bold',
+                                                                                    color: '#374151',
+                                                                                    lineHeight: 1
+                                                                                }}>
+                                                                                    {preview.text}
+                                                                                </div>
+                                                                                {preview.unit && (
+                                                                                    preview.unit.includes('/') ? (
+                                                                                        // Affichage fraction verticale pour km/h, m/s, etc.
+                                                                                        <div style={{
+                                                                                            display: 'flex',
+                                                                                            flexDirection: 'column',
+                                                                                            alignItems: 'center',
+                                                                                            fontSize: `${preview.unitSize}px`,
+                                                                                            color: '#6b7280',
+                                                                                            lineHeight: 0.8,
+                                                                                            gap: '1px'
+                                                                                        }}>
+                                                                                            <div>{preview.unit.split('/')[0]}</div>
+                                                                                            <div style={{ 
+                                                                                                borderTop: '1px solid #6b7280',
+                                                                                                width: '100%',
+                                                                                                margin: '0'
+                                                                                            }}></div>
+                                                                                            <div>{preview.unit.split('/')[1]}</div>
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        // Affichage simple pour m, km, etc.
+                                                                                        <div style={{
+                                                                                            fontSize: `${preview.unitSize}px`,
+                                                                                            color: '#6b7280',
+                                                                                            lineHeight: 1
+                                                                                        }}>
+                                                                                            {preview.unit}
+                                                                                        </div>
+                                                                                    )
+                                                                                )}
+                                                                            </div>
+                                                                            {preview.subtext && (
+                                                                                <div style={{
+                                                                                    fontSize: `${preview.unitSize}px`,
+                                                                                    color: '#9ca3af',
+                                                                                    marginTop: '4px'
+                                                                                }}>
+                                                                                    {preview.subtext}
+                                                                                </div>
+                                                                            )}
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            {isSelected && (
+                                                                <>
+                                                                    <div 
+                                                                        className="resize-handle nw"
+                                                                        onMouseDown={(e) => handleMouseDown(e, pageIdx, idx, 'nw')}
+                                                                    />
+                                                                    <div 
+                                                                        className="resize-handle ne"
+                                                                        onMouseDown={(e) => handleMouseDown(e, pageIdx, idx, 'ne')}
+                                                                    />
+                                                                    <div 
+                                                                        className="resize-handle sw"
+                                                                        onMouseDown={(e) => handleMouseDown(e, pageIdx, idx, 'sw')}
+                                                                    />
+                                                                    <div 
+                                                                        className="resize-handle se"
+                                                                        onMouseDown={(e) => handleMouseDown(e, pageIdx, idx, 'se')}
+                                                                    />
+                                                                    
+                                                                    <div 
+                                                                        className="move-handle"
+                                                                        onMouseDown={(e) => handleMouseDown(e, pageIdx, idx, 'move')}
+                                                                    />
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Toast de notification undo/redo */}
+                    {undoMessage && (
+                        <div className="undo-toast">
+                            {undoMessage}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<XCTrackViewer />, document.getElementById('root'));
     </script>
 </body>
 </html>
