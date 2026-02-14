@@ -746,7 +746,7 @@
         }
     </style>
     <!-- Supabase Client -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div id="root"></div>
@@ -1654,10 +1654,24 @@
                 pushHistory(newConfig, 'Nouvelle configuration');
             };
 
-            // Community functions
+            // Community functions - vanilla JS style that works!
             function signInWithGoogle() {
-                if (!supabase) return;
-                supabase.auth.signInWithOAuth({ provider: 'google' });
+                if (!supabase) {
+                    alert('Supabase not loaded');
+                    return;
+                }
+                supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.href
+                    }
+                }).then(function(result) {
+                    if (result.error) {
+                        alert('Error: ' + result.error.message);
+                    }
+                }).catch(function(e) {
+                    alert('Error: ' + e.message);
+                });
             }
 
             function signOut() {
