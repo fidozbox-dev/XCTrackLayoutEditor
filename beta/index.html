@@ -996,6 +996,7 @@
             // Community states
             const [user, setUser] = useState(null);
             const [showCommunityModal, setShowCommunityModal] = useState(false);
+            const [showBrowseModal, setShowBrowseModal] = useState(false);
             const [communityConfigs, setCommunityConfigs] = useState([]);
             const [communityFilter, setCommunityFilter] = useState('all');
             const [communitySortBy, setCommunitySortBy] = useState('upvotes');
@@ -1303,6 +1304,13 @@
                     loadConfig(savedConfig);
                 }
             }, []);
+
+            // Load community configs when browse modal opens
+            useEffect(() => {
+                if (showBrowseModal) {
+                    loadCommunityConfigs();
+                }
+            }, [showBrowseModal, communityFilter, communitySortBy]);
 
             const allPages = useMemo(() => {
                 if (!configData?.layout) return null;
@@ -1994,7 +2002,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.15-multi-tags
+                            v2025.02.15-browse-community
                         </div>
                     </div>
 
@@ -2115,6 +2123,13 @@
                                                 style={{ marginBottom: '8px' }}
                                             >
                                                 {t.saveToCloud}
+                                            </button>
+                                            <button 
+                                                onClick={() => setShowBrowseModal(true)}
+                                                className="full-width"
+                                                style={{ marginBottom: '8px', background: '#10b981', color: 'white' }}
+                                            >
+                                                {t.browseConfigs}
                                             </button>
                                             <button 
                                                 onClick={signOut}
@@ -2863,6 +2878,129 @@
                                         onClick={saveToCloud}
                                     >
                                         {t.upload}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Browse Community Modal */}
+                    {showBrowseModal && (
+                        <div className="modal-overlay" onClick={() => setShowBrowseModal(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px' }}>
+                                <div className="modal-header">
+                                    📂 {t.browseConfigs}
+                                </div>
+
+                                {/* Filters and Sort */}
+                                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                                    <select 
+                                        value={communitySortBy}
+                                        onChange={(e) => setCommunitySortBy(e.target.value)}
+                                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                                    >
+                                        <option value="upvotes">{t.popular}</option>
+                                        <option value="recent">{t.recent}</option>
+                                        <option value="downloads">{t.mostDownloaded}</option>
+                                    </select>
+
+                                    <select 
+                                        value={communityFilter}
+                                        onChange={(e) => setCommunityFilter(e.target.value)}
+                                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                                    >
+                                        <option value="all">{lang === 'fr' ? 'Tous' : 'All'}</option>
+                                        <option value="cross">{t.categoryCross}</option>
+                                        <option value="compete">{t.categoryCompete}</option>
+                                        <option value="versatile">{t.categoryVersatile}</option>
+                                        <option value="casual">{t.categoryCasual}</option>
+                                        <option value="experimental">{t.categoryExperimental}</option>
+                                    </select>
+                                </div>
+
+                                {/* Configs List */}
+                                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                    {communityConfigs.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                                            {lang === 'fr' ? 'Aucune configuration trouvée' : 'No configurations found'}
+                                        </div>
+                                    ) : (
+                                        communityConfigs.map((config) => (
+                                            <div 
+                                                key={config.id}
+                                                style={{
+                                                    padding: '15px',
+                                                    marginBottom: '10px',
+                                                    border: '1px solid #e5e7eb',
+                                                    borderRadius: '8px',
+                                                    background: '#f9fafb'
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                                                    <div style={{ flex: 1 }}>
+                                                        <h4 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', color: '#1f2937' }}>
+                                                            {config.name}
+                                                        </h4>
+                                                        <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                                                            {t.by} {config.user_email?.split('@')[0] || t.anonymous}
+                                                        </div>
+                                                        {config.description && (
+                                                            <p style={{ margin: '0', fontSize: '0.9rem', color: '#4b5563' }}>
+                                                                {config.description}
+                                                            </p>
+                                                        )}
+                                                        {config.tags && config.tags.length > 0 && (
+                                                            <div style={{ display: 'flex', gap: '5px', marginTop: '8px', flexWrap: 'wrap' }}>
+                                                                {config.tags.map((tag) => (
+                                                                    <span
+                                                                        key={tag}
+                                                                        style={{
+                                                                            padding: '3px 8px',
+                                                                            background: '#e0e7ff',
+                                                                            color: '#4338ca',
+                                                                            borderRadius: '4px',
+                                                                            fontSize: '0.75rem',
+                                                                            fontWeight: '500'
+                                                                        }}
+                                                                    >
+                                                                        {tag}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => downloadConfig(config)}
+                                                        style={{
+                                                            padding: '8px 16px',
+                                                            background: '#667eea',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            cursor: 'pointer',
+                                                            fontSize: '0.9rem',
+                                                            whiteSpace: 'nowrap',
+                                                            marginLeft: '10px'
+                                                        }}
+                                                    >
+                                                        {t.download}
+                                                    </button>
+                                                </div>
+                                                <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                                                    👍 {config.upvotes || 0} • ⬇️ {config.downloads || 0} {t.downloads}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                <div className="modal-buttons" style={{ marginTop: '20px' }}>
+                                    <button 
+                                        className="btn-secondary"
+                                        onClick={() => setShowBrowseModal(false)}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {t.cancel}
                                     </button>
                                 </div>
                             </div>
