@@ -1816,7 +1816,7 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    const pages = screenRef.current.querySelectorAll('.screen');
+                    const pages = screenRef.current.querySelectorAll('.phone-screen');
                     if (pages.length === 0) return null;
                     
                     const padding = 20;
@@ -2590,7 +2590,7 @@
                             </div>
                         </div>
 
-                        <div className="viewer">
+                        <div className="viewer" ref={screenRef}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center' }}>
                                 {allPages.map((page, pageIdx) => (
                                     <div key={pageIdx} style={{ 
