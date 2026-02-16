@@ -838,6 +838,8 @@
     </style>
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- html2canvas for screenshots -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div id="root"></div>
@@ -1810,60 +1812,54 @@
 
             // Generate composite screenshot of all pages
             async function generateScreenshot() {
-                if (!screenRef.current) return null;
+                if (!screenRef.current || !window.html2canvas) return null;
                 
                 try {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
+                    // Get only pages of current orientation
                     const pages = screenRef.current.querySelectorAll('.phone-screen');
                     if (pages.length === 0) return null;
                     
                     const padding = 20;
-                    const pageWidth = 300;
-                    const pageHeight = 450;
-                    canvas.width = (pageWidth + padding) * pages.length + padding;
-                    canvas.height = pageHeight + padding * 2;
+                    const scale = 0.5; // Scale down for smaller file size
                     
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
+                    // Capture each page with html2canvas
+                    const pageCanvases = [];
                     for (let i = 0; i < pages.length; i++) {
-                        const page = pages[i];
-                        const x = padding + i * (pageWidth + padding);
-                        const y = padding;
-                        
-                        ctx.fillStyle = '#f3f4f6';
-                        ctx.fillRect(x, y, pageWidth, pageHeight);
-                        ctx.strokeStyle = '#d1d5db';
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(x, y, pageWidth, pageHeight);
-                        
-                        const widgets = page.querySelectorAll('.widget');
-                        widgets.forEach(widget => {
-                            const rect = widget.getBoundingClientRect();
-                            const pageRect = page.getBoundingClientRect();
-                            
-                            const widgetX = x + (rect.left - pageRect.left) * (pageWidth / pageRect.width);
-                            const widgetY = y + (rect.top - pageRect.top) * (pageHeight / pageRect.height);
-                            const widgetW = rect.width * (pageWidth / pageRect.width);
-                            const widgetH = rect.height * (pageHeight / pageRect.height);
-                            
-                            ctx.fillStyle = '#667eea';
-                            ctx.globalAlpha = 0.6;
-                            ctx.fillRect(widgetX, widgetY, widgetW, widgetH);
-                            ctx.globalAlpha = 1;
-                            ctx.strokeStyle = '#4338ca';
-                            ctx.lineWidth = 1;
-                            ctx.strokeRect(widgetX, widgetY, widgetW, widgetH);
+                        const pageCanvas = await html2canvas(pages[i], {
+                            scale: scale,
+                            backgroundColor: '#f3f4f6',
+                            logging: false,
+                            useCORS: true
                         });
-                        
-                        ctx.fillStyle = '#1f2937';
-                        ctx.font = '14px Arial';
-                        ctx.fillText('Page ' + (i + 1), x + 10, y + pageHeight - 10);
+                        pageCanvases.push(pageCanvas);
                     }
                     
-                    return canvas.toDataURL('image/jpeg', 0.7);
+                    // Combine all pages side by side
+                    const finalCanvas = document.createElement('canvas');
+                    const ctx = finalCanvas.getContext('2d');
+                    
+                    const pageWidth = pageCanvases[0].width;
+                    const pageHeight = pageCanvases[0].height;
+                    finalCanvas.width = (pageWidth + padding) * pageCanvases.length + padding;
+                    finalCanvas.height = pageHeight + padding * 2;
+                    
+                    // White background
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                    
+                    // Draw each page
+                    pageCanvases.forEach((pageCanvas, i) => {
+                        const x = padding + i * (pageWidth + padding);
+                        const y = padding;
+                        ctx.drawImage(pageCanvas, x, y);
+                        
+                        // Page number
+                        ctx.fillStyle = '#1f2937';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillText('Page ' + (i + 1), x + 10, y + pageHeight - 10);
+                    });
+                    
+                    return finalCanvas.toDataURL('image/jpeg', 0.6);
                 } catch (e) {
                     console.error('Screenshot error:', e);
                     return null;
@@ -2085,7 +2081,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.15-screenshot-preview
+                            v2025.02.15-html2canvas-screenshot
                         </div>
                     </div>
 
@@ -3049,10 +3045,29 @@
                                                     marginBottom: '10px',
                                                     border: '1px solid #e5e7eb',
                                                     borderRadius: '8px',
-                                                    background: '#f9fafb'
+                                                    background: '#f9fafb',
+                                                    display: 'flex',
+                                                    gap: '15px'
                                                 }}
                                             >
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                                                {/* Thumbnail */}
+                                                {config.screenshot && (
+                                                    <img
+                                                        src={config.screenshot}
+                                                        alt={config.name}
+                                                        style={{
+                                                            width: '120px',
+                                                            height: 'auto',
+                                                            borderRadius: '6px',
+                                                            border: '1px solid #d1d5db',
+                                                            cursor: 'pointer',
+                                                            objectFit: 'contain'
+                                                        }}
+                                                        onClick={() => openPreview(config)}
+                                                    />
+                                                )}
+                                                
+                                                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                                     <div style={{ flex: 1 }}>
                                                         <h4 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', color: '#1f2937' }}>
                                                             {config.name}
@@ -3102,12 +3117,13 @@
                                                         {lang === 'fr' ? '👁️ Voir' : '👁️ View'}
                                                     </button>
                                                 </div>
-                                                <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                                                    👍 {config.upvotes || 0} • ⬇️ {config.downloads || 0} {t.downloads}
-                                                </div>
                                             </div>
-                                        ))
-                                    )}
+                                            <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '8px' }}>
+                                                👍 {config.upvotes || 0} • ⬇️ {config.downloads || 0} {t.downloads}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                                 </div>
 
                                 <div className="modal-buttons" style={{ marginTop: '20px' }}>
@@ -3246,6 +3262,7 @@
                 </div>
             );
         };
+
         ReactDOM.render(<XCTrackViewer />, document.getElementById('root'));
     </script>
 </body>
