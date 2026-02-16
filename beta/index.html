@@ -3117,13 +3117,12 @@
                                                         {lang === 'fr' ? '👁️ Voir' : '👁️ View'}
                                                     </button>
                                                 </div>
+                                                <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '8px' }}>
+                                                    👍 {config.upvotes || 0} • ⬇️ {config.downloads || 0} {t.downloads}
+                                                </div>
                                             </div>
-                                            <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '8px' }}>
-                                                👍 {config.upvotes || 0} • ⬇️ {config.downloads || 0} {t.downloads}
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
+                                        ))
+                                    )}
                                 </div>
 
                                 <div className="modal-buttons" style={{ marginTop: '20px' }}>
