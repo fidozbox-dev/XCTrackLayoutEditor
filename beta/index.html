@@ -998,7 +998,7 @@
             const [showCommunityModal, setShowCommunityModal] = useState(false);
             const [showBrowseModal, setShowBrowseModal] = useState(false);
             const [communityConfigs, setCommunityConfigs] = useState([]);
-            const [communityFilter, setCommunityFilter] = useState('all');
+            const [communityFilters, setCommunityFilters] = useState([]);
             const [communitySortBy, setCommunitySortBy] = useState('upvotes');
             
             // Save modal form states
@@ -1011,6 +1011,14 @@
                     setConfigTags(configTags.filter(t => t !== tag));
                 } else {
                     setConfigTags([...configTags, tag]);
+                }
+            };
+
+            const toggleFilter = (tag) => {
+                if (communityFilters.includes(tag)) {
+                    setCommunityFilters(communityFilters.filter(t => t !== tag));
+                } else {
+                    setCommunityFilters([...communityFilters, tag]);
                 }
             };
             
@@ -1107,6 +1115,7 @@
                     categoryExperimental: "🆕 Expérimental",
                     upload: "Partager",
                     cancel: "Annuler",
+                    close: "Fermer",
                     popular: "Populaire",
                     recent: "Récent",
                     mostDownloaded: "Plus téléchargé",
@@ -1197,6 +1206,7 @@
                     categoryExperimental: "🆕 Experimental",
                     upload: "Share",
                     cancel: "Cancel",
+                    close: "Close",
                     popular: "Popular",
                     recent: "Recent",
                     mostDownloaded: "Most Downloaded",
@@ -1310,7 +1320,7 @@
                 if (showBrowseModal) {
                     loadCommunityConfigs();
                 }
-            }, [showBrowseModal, communityFilter, communitySortBy]);
+            }, [showBrowseModal, communityFilters, communitySortBy]);
 
             const allPages = useMemo(() => {
                 if (!configData?.layout) return null;
@@ -1822,7 +1832,6 @@
                 if (result.error) {
                     alert(t.uploadError + ': ' + result.error.message);
                 } else {
-                    alert(t.uploadSuccess);
                     setShowCommunityModal(false);
                     setConfigName('');
                     setConfigDescription('');
@@ -1835,8 +1844,9 @@
                 
                 let query = supabase.from('configs').select('*');
                 
-                if (communityFilter !== 'all') {
-                    query = query.eq('category', communityFilter);
+                // Filter by tags if any selected
+                if (communityFilters.length > 0) {
+                    query = query.contains('tags', communityFilters);
                 }
                 
                 if (communitySortBy === 'upvotes') {
@@ -2002,7 +2012,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.15-browse-community
+                            v2025.02.15-quick-fixes
                         </div>
                     </div>
 
@@ -2893,29 +2903,62 @@
                                 </div>
 
                                 {/* Filters and Sort */}
-                                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                                    <select 
-                                        value={communitySortBy}
-                                        onChange={(e) => setCommunitySortBy(e.target.value)}
-                                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                                    >
-                                        <option value="upvotes">{t.popular}</option>
-                                        <option value="recent">{t.recent}</option>
-                                        <option value="downloads">{t.mostDownloaded}</option>
-                                    </select>
-
-                                    <select 
-                                        value={communityFilter}
-                                        onChange={(e) => setCommunityFilter(e.target.value)}
-                                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                                    >
-                                        <option value="all">{lang === 'fr' ? 'Tous' : 'All'}</option>
-                                        <option value="cross">{t.categoryCross}</option>
-                                        <option value="compete">{t.categoryCompete}</option>
-                                        <option value="versatile">{t.categoryVersatile}</option>
-                                        <option value="casual">{t.categoryCasual}</option>
-                                        <option value="experimental">{t.categoryExperimental}</option>
-                                    </select>
+                                <div style={{ marginBottom: '20px' }}>
+                                    <div style={{ marginBottom: '10px' }}>
+                                        <label style={{ fontWeight: '500', marginBottom: '8px', display: 'block' }}>
+                                            {lang === 'fr' ? 'Trier par' : 'Sort by'}
+                                        </label>
+                                        <select 
+                                            value={communitySortBy}
+                                            onChange={(e) => setCommunitySortBy(e.target.value)}
+                                            style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db', width: '200px' }}
+                                        >
+                                            <option value="upvotes">{t.popular}</option>
+                                            <option value="recent">{t.recent}</option>
+                                            <option value="downloads">{t.mostDownloaded}</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label style={{ fontWeight: '500', marginBottom: '8px', display: 'block' }}>
+                                            {lang === 'fr' ? 'Filtrer par tags' : 'Filter by tags'}
+                                        </label>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                            {[
+                                                { value: 'cross', label: t.categoryCross },
+                                                { value: 'compete', label: t.categoryCompete },
+                                                { value: 'versatile', label: t.categoryVersatile },
+                                                { value: 'casual', label: t.categoryCasual },
+                                                { value: 'experimental', label: t.categoryExperimental }
+                                            ].map((tag) => (
+                                                <label
+                                                    key={tag.value}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '6px 10px',
+                                                        border: '2px solid',
+                                                        borderColor: communityFilters.includes(tag.value) ? '#667eea' : '#d1d5db',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        background: communityFilters.includes(tag.value) ? '#f0f4ff' : 'white',
+                                                        transition: 'all 0.2s',
+                                                        userSelect: 'none',
+                                                        fontSize: '0.9rem'
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={communityFilters.includes(tag.value)}
+                                                        onChange={() => toggleFilter(tag.value)}
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                    {tag.label}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Configs List */}
@@ -3000,7 +3043,7 @@
                                         onClick={() => setShowBrowseModal(false)}
                                         style={{ width: '100%' }}
                                     >
-                                        {t.cancel}
+                                        {t.close}
                                     </button>
                                 </div>
                             </div>
