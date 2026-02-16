@@ -751,14 +751,24 @@
 <body>
     <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useMemo, useRef, useEffect } = React;
-
-        // Supabase Configuration
+    <!-- Initialize Supabase BEFORE Babel -->
+    <script>
+        console.log('Pre-Babel: window.supabase =', window.supabase);
+        
         const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDE2MDIsImV4cCI6MjA4NjQ3NzYwMn0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
         
-        let supabase = null;
+        // Create Supabase client in global scope BEFORE React
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase client created:', window.supabaseClient);
+    </script>
+
+    <script type="text/babel">
+        const { useState, useMemo, useRef, useEffect } = React;
+
+        // Use Supabase client created before Babel
+        let supabase = window.supabaseClient || null;
+        console.log('In React: supabase =', supabase);
 
         const RESOLUTION_PRESETS = [
             { name: 'Samsung A51 (1080×2400)', width: 2400, height: 1080, gridCols: 44, gridRows: 22 },
@@ -901,20 +911,6 @@
             
             const screenRef = useRef(null);
             const fileInputRef = useRef(null);
-
-            // Initialize Supabase on mount
-            useEffect(() => {
-                if (typeof window.supabase !== 'undefined' && window.supabase) {
-                    try {
-                        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                        console.log('Supabase initialized in component:', supabase);
-                    } catch (e) {
-                        console.error('Supabase init error:', e);
-                    }
-                } else {
-                    console.warn('window.supabase not available yet');
-                }
-            }, []);
 
             // Système de langue avec persistance
             const [language, setLanguage] = useState(() => {
@@ -1880,7 +1876,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            fix: init Supabase in useEffect after component mount
+                            v2025.02.15-supabase-pre-babel
                         </div>
                     </div>
 
