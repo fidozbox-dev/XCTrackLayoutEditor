@@ -997,6 +997,8 @@
             const [user, setUser] = useState(null);
             const [showCommunityModal, setShowCommunityModal] = useState(false);
             const [showBrowseModal, setShowBrowseModal] = useState(false);
+            const [showPreviewModal, setShowPreviewModal] = useState(false);
+            const [previewConfig, setPreviewConfig] = useState(null);
             const [communityConfigs, setCommunityConfigs] = useState([]);
             const [communityFilters, setCommunityFilters] = useState([]);
             const [communitySortBy, setCommunitySortBy] = useState('upvotes');
@@ -1806,6 +1808,68 @@
                 supabase.auth.signOut();
             }
 
+            // Generate composite screenshot of all pages
+            async function generateScreenshot() {
+                if (!screenRef.current) return null;
+                
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const pages = screenRef.current.querySelectorAll('.screen');
+                    if (pages.length === 0) return null;
+                    
+                    const padding = 20;
+                    const pageWidth = 300;
+                    const pageHeight = 450;
+                    canvas.width = (pageWidth + padding) * pages.length + padding;
+                    canvas.height = pageHeight + padding * 2;
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    for (let i = 0; i < pages.length; i++) {
+                        const page = pages[i];
+                        const x = padding + i * (pageWidth + padding);
+                        const y = padding;
+                        
+                        ctx.fillStyle = '#f3f4f6';
+                        ctx.fillRect(x, y, pageWidth, pageHeight);
+                        ctx.strokeStyle = '#d1d5db';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x, y, pageWidth, pageHeight);
+                        
+                        const widgets = page.querySelectorAll('.widget');
+                        widgets.forEach(widget => {
+                            const rect = widget.getBoundingClientRect();
+                            const pageRect = page.getBoundingClientRect();
+                            
+                            const widgetX = x + (rect.left - pageRect.left) * (pageWidth / pageRect.width);
+                            const widgetY = y + (rect.top - pageRect.top) * (pageHeight / pageRect.height);
+                            const widgetW = rect.width * (pageWidth / pageRect.width);
+                            const widgetH = rect.height * (pageHeight / pageRect.height);
+                            
+                            ctx.fillStyle = '#667eea';
+                            ctx.globalAlpha = 0.6;
+                            ctx.fillRect(widgetX, widgetY, widgetW, widgetH);
+                            ctx.globalAlpha = 1;
+                            ctx.strokeStyle = '#4338ca';
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(widgetX, widgetY, widgetW, widgetH);
+                        });
+                        
+                        ctx.fillStyle = '#1f2937';
+                        ctx.font = '14px Arial';
+                        ctx.fillText('Page ' + (i + 1), x + 10, y + pageHeight - 10);
+                    }
+                    
+                    return canvas.toDataURL('image/jpeg', 0.7);
+                } catch (e) {
+                    console.error('Screenshot error:', e);
+                    return null;
+                }
+            }
+
             async function saveToCloud() {
                 if (!supabase || !user || !configData) return;
                 
@@ -1819,6 +1883,9 @@
                     return;
                 }
                 
+                // Generate screenshot
+                const screenshot = await generateScreenshot();
+                
                 const result = await supabase.from('configs').insert({
                     user_id: user.id,
                     user_email: user.email,
@@ -1826,7 +1893,8 @@
                     description: configDescription.trim() || null,
                     config_json: configData,
                     category: configTags[0],
-                    tags: configTags
+                    tags: configTags,
+                    screenshot: screenshot
                 });
 
                 if (result.error) {
@@ -1861,6 +1929,11 @@
                 if (!result.error && result.data) {
                     setCommunityConfigs(result.data);
                 }
+            }
+
+            function openPreview(config) {
+                setPreviewConfig(config);
+                setShowPreviewModal(true);
             }
 
             async function downloadConfig(config) {
@@ -2012,7 +2085,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.15-quick-fixes
+                            v2025.02.15-screenshot-preview
                         </div>
                     </div>
 
@@ -3013,7 +3086,7 @@
                                                         )}
                                                     </div>
                                                     <button
-                                                        onClick={() => downloadConfig(config)}
+                                                        onClick={() => openPreview(config)}
                                                         style={{
                                                             padding: '8px 16px',
                                                             background: '#667eea',
@@ -3026,7 +3099,7 @@
                                                             marginLeft: '10px'
                                                         }}
                                                     >
-                                                        {t.download}
+                                                        {lang === 'fr' ? '👁️ Voir' : '👁️ View'}
                                                     </button>
                                                 </div>
                                                 <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
@@ -3044,6 +3117,127 @@
                                         style={{ width: '100%' }}
                                     >
                                         {t.close}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Preview Modal */}
+                    {showPreviewModal && previewConfig && (
+                        <div className="modal-overlay" onClick={() => setShowPreviewModal(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px' }}>
+                                <div className="modal-header">
+                                    👁️ {previewConfig.name}
+                                </div>
+
+                                <div style={{ marginBottom: '15px', color: '#6b7280', fontSize: '0.9rem' }}>
+                                    {t.by} {previewConfig.user_email?.split('@')[0] || t.anonymous}
+                                </div>
+
+                                {previewConfig.description && (
+                                    <p style={{ marginBottom: '15px', color: '#4b5563' }}>
+                                        {previewConfig.description}
+                                    </p>
+                                )}
+
+                                {previewConfig.tags && previewConfig.tags.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '5px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                                        {previewConfig.tags.map((tag) => (
+                                            <span
+                                                key={tag}
+                                                style={{
+                                                    padding: '4px 10px',
+                                                    background: '#e0e7ff',
+                                                    color: '#4338ca',
+                                                    borderRadius: '4px',
+                                                    fontSize: '0.85rem',
+                                                    fontWeight: '500'
+                                                }}
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Screenshot */}
+                                {previewConfig.screenshot ? (
+                                    <div style={{ 
+                                        marginBottom: '20px', 
+                                        textAlign: 'center',
+                                        background: '#f9fafb',
+                                        padding: '20px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e5e7eb'
+                                    }}>
+                                        <img 
+                                            src={previewConfig.screenshot} 
+                                            alt="Config preview"
+                                            style={{ 
+                                                maxWidth: '100%', 
+                                                height: 'auto',
+                                                cursor: 'zoom-in',
+                                                borderRadius: '4px'
+                                            }}
+                                            onClick={(e) => {
+                                                if (e.target.style.maxWidth === '100%') {
+                                                    e.target.style.maxWidth = 'none';
+                                                    e.target.style.cursor = 'zoom-out';
+                                                } else {
+                                                    e.target.style.maxWidth = '100%';
+                                                    e.target.style.cursor = 'zoom-in';
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div style={{ 
+                                        padding: '40px', 
+                                        textAlign: 'center', 
+                                        color: '#9ca3af',
+                                        background: '#f9fafb',
+                                        borderRadius: '8px',
+                                        marginBottom: '20px'
+                                    }}>
+                                        {lang === 'fr' ? 'Pas d\'aperçu disponible' : 'No preview available'}
+                                    </div>
+                                )}
+
+                                <div style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: '20px' }}>
+                                    👍 {previewConfig.upvotes || 0} • ⬇️ {previewConfig.downloads || 0} {t.downloads}
+                                </div>
+
+                                {/* Warning and buttons */}
+                                <div style={{
+                                    background: '#fef3c7',
+                                    border: '1px solid #fbbf24',
+                                    borderRadius: '6px',
+                                    padding: '12px',
+                                    marginBottom: '20px',
+                                    fontSize: '0.9rem',
+                                    color: '#92400e'
+                                }}>
+                                    ⚠️ {lang === 'fr' 
+                                        ? 'Charger cette configuration remplacera votre configuration actuelle.' 
+                                        : 'Loading this configuration will replace your current configuration.'}
+                                </div>
+
+                                <div className="modal-buttons">
+                                    <button 
+                                        className="btn-secondary"
+                                        onClick={() => setShowPreviewModal(false)}
+                                    >
+                                        {t.cancel}
+                                    </button>
+                                    <button 
+                                        className="btn-primary"
+                                        onClick={() => {
+                                            downloadConfig(previewConfig);
+                                            setShowPreviewModal(false);
+                                        }}
+                                    >
+                                        ⬇️ {lang === 'fr' ? 'Charger cette config' : 'Load this config'}
                                     </button>
                                 </div>
                             </div>
