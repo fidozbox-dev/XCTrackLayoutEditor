@@ -1003,7 +1003,15 @@
             // Save modal form states
             const [configName, setConfigName] = useState('');
             const [configDescription, setConfigDescription] = useState('');
-            const [configCategory, setConfigCategory] = useState('versatile');
+            const [configTags, setConfigTags] = useState([]);
+            
+            const toggleTag = (tag) => {
+                if (configTags.includes(tag)) {
+                    setConfigTags(configTags.filter(t => t !== tag));
+                } else {
+                    setConfigTags([...configTags, tag]);
+                }
+            };
             
             const screenRef = useRef(null);
             const fileInputRef = useRef(null);
@@ -1788,13 +1796,19 @@
                     return;
                 }
                 
+                if (configTags.length === 0) {
+                    alert(lang === 'fr' ? 'Sélectionnez au moins un tag' : 'Select at least one tag');
+                    return;
+                }
+                
                 const result = await supabase.from('configs').insert({
                     user_id: user.id,
                     user_email: user.email,
                     name: configName.trim(),
                     description: configDescription.trim() || null,
                     config_json: configData,
-                    category: configCategory
+                    category: configTags[0],
+                    tags: configTags
                 });
 
                 if (result.error) {
@@ -1804,7 +1818,7 @@
                     setShowCommunityModal(false);
                     setConfigName('');
                     setConfigDescription('');
-                    setConfigCategory('versatile');
+                    setConfigTags([]);
                 }
             }
 
@@ -1980,7 +1994,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.15-save-modal
+                            v2025.02.15-multi-tags
                         </div>
                     </div>
 
@@ -2800,17 +2814,41 @@
                                 </div>
 
                                 <div className="form-group">
-                                    <label>{t.category} *</label>
-                                    <select
-                                        value={configCategory}
-                                        onChange={(e) => setConfigCategory(e.target.value)}
-                                    >
-                                        <option value="cross">{t.categoryCross}</option>
-                                        <option value="compete">{t.categoryCompete}</option>
-                                        <option value="versatile">{t.categoryVersatile}</option>
-                                        <option value="casual">{t.categoryCasual}</option>
-                                        <option value="experimental">{t.categoryExperimental}</option>
-                                    </select>
+                                    <label>{lang === 'fr' ? 'Tags' : 'Tags'} *</label>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '8px' }}>
+                                        {[
+                                            { value: 'cross', label: t.categoryCross },
+                                            { value: 'compete', label: t.categoryCompete },
+                                            { value: 'versatile', label: t.categoryVersatile },
+                                            { value: 'casual', label: t.categoryCasual },
+                                            { value: 'experimental', label: t.categoryExperimental }
+                                        ].map((tag) => (
+                                            <label
+                                                key={tag.value}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    padding: '8px 12px',
+                                                    border: '2px solid',
+                                                    borderColor: configTags.includes(tag.value) ? '#667eea' : '#d1d5db',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    background: configTags.includes(tag.value) ? '#f0f4ff' : 'white',
+                                                    transition: 'all 0.2s',
+                                                    userSelect: 'none'
+                                                }}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={configTags.includes(tag.value)}
+                                                    onChange={() => toggleTag(tag.value)}
+                                                    style={{ cursor: 'pointer' }}
+                                                />
+                                                <span style={{ fontSize: '0.95rem' }}>{tag.label}</span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div className="modal-buttons">
