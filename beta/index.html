@@ -744,6 +744,97 @@
                 font-size: 1.8rem;
             }
         }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
     </style>
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -908,6 +999,11 @@
             const [communityConfigs, setCommunityConfigs] = useState([]);
             const [communityFilter, setCommunityFilter] = useState('all');
             const [communitySortBy, setCommunitySortBy] = useState('upvotes');
+            
+            // Save modal form states
+            const [configName, setConfigName] = useState('');
+            const [configDescription, setConfigDescription] = useState('');
+            const [configCategory, setConfigCategory] = useState('versatile');
             
             const screenRef = useRef(null);
             const fileInputRef = useRef(null);
@@ -1684,16 +1780,21 @@
                 supabase.auth.signOut();
             }
 
-            async function saveToCloud(name, description, category) {
+            async function saveToCloud() {
                 if (!supabase || !user || !configData) return;
+                
+                if (!configName.trim()) {
+                    alert(lang === 'fr' ? 'Veuillez entrer un nom' : 'Please enter a name');
+                    return;
+                }
                 
                 const result = await supabase.from('configs').insert({
                     user_id: user.id,
                     user_email: user.email,
-                    name: name,
-                    description: description,
+                    name: configName.trim(),
+                    description: configDescription.trim() || null,
                     config_json: configData,
-                    category: category
+                    category: configCategory
                 });
 
                 if (result.error) {
@@ -1701,6 +1802,9 @@
                 } else {
                     alert(t.uploadSuccess);
                     setShowCommunityModal(false);
+                    setConfigName('');
+                    setConfigDescription('');
+                    setConfigCategory('versatile');
                 }
             }
 
@@ -1876,7 +1980,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.15-supabase-pre-babel
+                            v2025.02.15-save-modal
                         </div>
                     </div>
 
@@ -2663,6 +2767,67 @@
                     {undoMessage && (
                         <div className="undo-toast">
                             {undoMessage}
+                        </div>
+                    )}
+
+                    {/* Save to Cloud Modal */}
+                    {showCommunityModal && (
+                        <div className="modal-overlay" onClick={() => setShowCommunityModal(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    💾 {t.uploadConfig}
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label>{t.configName} *</label>
+                                    <input
+                                        type="text"
+                                        value={configName}
+                                        onChange={(e) => setConfigName(e.target.value)}
+                                        placeholder={lang === 'fr' ? 'Ex: Ma config XC' : 'Ex: My XC setup'}
+                                        maxLength={100}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>{t.configDescription}</label>
+                                    <textarea
+                                        value={configDescription}
+                                        onChange={(e) => setConfigDescription(e.target.value)}
+                                        placeholder={lang === 'fr' ? 'Décrivez votre configuration...' : 'Describe your configuration...'}
+                                        maxLength={500}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>{t.category} *</label>
+                                    <select
+                                        value={configCategory}
+                                        onChange={(e) => setConfigCategory(e.target.value)}
+                                    >
+                                        <option value="cross">{t.categoryCross}</option>
+                                        <option value="compete">{t.categoryCompete}</option>
+                                        <option value="versatile">{t.categoryVersatile}</option>
+                                        <option value="casual">{t.categoryCasual}</option>
+                                        <option value="experimental">{t.categoryExperimental}</option>
+                                    </select>
+                                </div>
+
+                                <div className="modal-buttons">
+                                    <button 
+                                        className="btn-secondary"
+                                        onClick={() => setShowCommunityModal(false)}
+                                    >
+                                        {t.cancel}
+                                    </button>
+                                    <button 
+                                        className="btn-primary"
+                                        onClick={saveToCloud}
+                                    >
+                                        {t.upload}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
