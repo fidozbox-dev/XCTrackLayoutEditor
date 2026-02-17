@@ -1299,6 +1299,11 @@
             useEffect(() => {
                 if (!supabase) return;
                 
+                // Clean up hash from URL after OAuth redirect (avoids ##double-hash bug)
+                if (window.location.hash && window.location.hash.includes('access_token')) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+                
                 // Get current session
                 supabase.auth.getSession().then(({ data: { session } }) => {
                     setUser(session?.user ?? null);
@@ -1803,14 +1808,18 @@
                     alert('Supabase not loaded');
                     return;
                 }
+                // Strip hash completely to avoid ##access_token double hash bug
+                const cleanUrl = window.location.origin + window.location.pathname;
                 supabase.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: window.location.href
+                        redirectTo: cleanUrl
                     }
                 }).then(function(result) {
                     if (result.error) {
                         alert('Error: ' + result.error.message);
+                    } else if (result.data && result.data.url) {
+                        window.location.href = result.data.url;
                     }
                 }).catch(function(e) {
                     alert('Error: ' + e.message);
@@ -2115,7 +2124,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.16-esc-delete-admin
+                            v2025.02.16-fix-double-hash
                         </div>
                     </div>
 
