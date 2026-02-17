@@ -147,7 +147,7 @@
             display: grid;
             grid-template-columns: 320px 1fr;
             gap: 16px;
-            align-items: start;
+            align-items: stretch;
         }
 
         .sidebar {
@@ -273,7 +273,8 @@
             padding: 24px;
             overflow-y: auto;
             overflow-x: hidden;
-            height: calc(100vh - 120px);
+            height: 100%;
+            min-height: calc(100vh - 120px);
         }
 
         .viewer::-webkit-scrollbar { width: 6px; }
