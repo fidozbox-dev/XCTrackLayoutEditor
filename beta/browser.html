@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XCTrack Layout Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --sky: #0ea5e9;
+            --sky-dim: #0284c7;
+            --horizon: #1e3a5f;
+            --deep: #0a1628;
+            --deeper: #060d1a;
+            --card: #111d2e;
+            --card-hover: #162540;
+            --border: rgba(14, 165, 233, 0.15);
+            --text: #e2eaf5;
+            --text-dim: #7a9bbf;
+            --cross: #34d399;
+            --compete: #f59e0b;
+            --casual: #a78bfa;
+            --experimental: #fb7185;
+            --tag-radius: 4px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--deeper);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Atmospheric background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 400px;
+            background: radial-gradient(ellipse at 50% -20%, rgba(14,165,233,0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 40px 60px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .logo-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .logo-title span {
+            color: var(--sky);
+        }
+
+        .logo-sub {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--sky);
+            color: var(--sky);
+        }
+
+        .editor-btn {
+            background: var(--sky);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .editor-btn:hover { background: var(--sky-dim); }
+
+        /* Stats bar */
+        .stats-bar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            gap: 40px;
+            padding: 20px 60px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 22, 40, 0.5);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: var(--sky);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Controls */
+        .controls {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px 60px;
+            flex-wrap: wrap;
+        }
+
+        .sort-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .sort-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .sort-btn.active, .sort-btn:hover {
+            border-color: var(--sky);
+            color: var(--sky);
+            background: rgba(14, 165, 233, 0.08);
+        }
+
+        .divider {
+            width: 1px;
+            height: 30px;
+            background: var(--border);
+        }
+
+        .tag-filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tag-btn {
+            background: transparent;
+            border: 1px solid;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            opacity: 0.5;
+        }
+
+        .tag-btn[data-tag="cross"]        { border-color: var(--cross); color: var(--cross); }
+        .tag-btn[data-tag="compete"]      { border-color: var(--compete); color: var(--compete); }
+        .tag-btn[data-tag="casual"]       { border-color: var(--casual); color: var(--casual); }
+        .tag-btn[data-tag="experimental"] { border-color: var(--experimental); color: var(--experimental); }
+
+        .tag-btn.active { opacity: 1; }
+        .tag-btn[data-tag="cross"].active        { background: rgba(52,211,153,0.12); }
+        .tag-btn[data-tag="compete"].active      { background: rgba(245,158,11,0.12); }
+        .tag-btn[data-tag="casual"].active       { background: rgba(167,139,250,0.12); }
+        .tag-btn[data-tag="experimental"].active { background: rgba(251,113,133,0.12); }
+
+        /* Grid */
+        .grid-container {
+            position: relative;
+            z-index: 10;
+            padding: 0 60px 60px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.25s;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .card:hover {
+            background: var(--card-hover);
+            border-color: rgba(14, 165, 233, 0.35);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(14,165,233,0.1);
+        }
+
+        .card-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            display: block;
+            background: var(--deep);
+        }
+
+        .card-thumb-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-dim);
+            opacity: 0.3;
+        }
+
+        .card-body {
+            padding: 14px 16px;
+        }
+
+        .card-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-author {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tag-pill {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: var(--tag-radius);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-pill.cross        { background: rgba(52,211,153,0.15); color: var(--cross); }
+        .tag-pill.compete      { background: rgba(245,158,11,0.15); color: var(--compete); }
+        .tag-pill.casual       { background: rgba(167,139,250,0.15); color: var(--casual); }
+        .tag-pill.experimental { background: rgba(251,113,133,0.15); color: var(--experimental); }
+        .tag-pill.versatile    { background: rgba(14,165,233,0.15); color: var(--sky); }
+
+        .card-stats {
+            display: flex;
+            gap: 14px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .card-stats span { display: flex; align-items: center; gap: 4px; }
+
+        /* Top contributors */
+        .contributors {
+            position: relative;
+            z-index: 10;
+            padding: 0 60px 40px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+
+        .contributors-list {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .contributor {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .contributor-rank {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            color: var(--sky);
+            width: 20px;
+        }
+
+        .contributor-name { font-weight: 500; }
+        .contributor-count { color: var(--text-dim); font-size: 0.8rem; }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 80px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            grid-column: 1/-1;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border);
+            border-top-color: var(--sky);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 13, 26, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.visible { opacity: 1; }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.visible .modal { transform: translateY(0); }
+
+        .modal-thumb {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            background: var(--deep);
+            border-radius: 12px 12px 0 0;
+            display: block;
+            cursor: zoom-in;
+        }
+
+        .modal-thumb.zoomed { cursor: zoom-out; max-height: none; }
+
+        .modal-body { padding: 28px; }
+
+        .modal-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .modal-meta {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
+        .modal-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+
+        .modal-stats {
+            display: flex;
+            gap: 24px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .warning-box {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: #fbbf24;
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+
+        .btn-primary {
+            background: var(--sky);
+            color: white;
+        }
+
+        .btn-primary:hover { background: var(--sky-dim); }
+
+        .btn-danger {
+            background: rgba(251,113,133,0.12);
+            border: 1px solid rgba(251,113,133,0.3);
+            color: #fb7185;
+        }
+
+        .btn-danger:hover { background: rgba(251,113,133,0.2); }
+
+        /* Empty state */
+        .empty {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-dim);
+            grid-column: 1/-1;
+        }
+
+        .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+        .empty-text { font-size: 0.9rem; }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .card:nth-child(1)  { animation-delay: 0.05s; }
+        .card:nth-child(2)  { animation-delay: 0.10s; }
+        .card:nth-child(3)  { animation-delay: 0.15s; }
+        .card:nth-child(4)  { animation-delay: 0.20s; }
+        .card:nth-child(5)  { animation-delay: 0.25s; }
+        .card:nth-child(6)  { animation-delay: 0.30s; }
+        .card:nth-child(7)  { animation-delay: 0.35s; }
+        .card:nth-child(8)  { animation-delay: 0.40s; }
+        .card:nth-child(9)  { animation-delay: 0.45s; }
+        .card:nth-child(10) { animation-delay: 0.50s; }
+        .card:nth-child(11) { animation-delay: 0.55s; }
+        .card:nth-child(12) { animation-delay: 0.60s; }
+
+        @media (max-width: 768px) {
+            header, .stats-bar, .controls, .grid-container, .contributors {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            .logo-title { font-size: 2.2rem; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <div class="logo-title">XCTRACK <span>LIBRARY</span></div>
+        <div class="logo-sub" id="logo-sub">Community Layout Configs</div>
+    </div>
+    <div class="header-right">
+        <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
+        <a href="./index.html" class="editor-btn">
+            ✏️ <span id="editorBtnLabel">Ouvrir l'éditeur</span>
+        </a>
+    </div>
+</header>
+
+<div class="stats-bar">
+    <div class="stat">
+        <div class="stat-value" id="totalConfigs">—</div>
+        <div class="stat-label" id="labelConfigs">Configurations</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value" id="totalContributors">—</div>
+        <div class="stat-label" id="labelContributors">Contributeurs</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value" id="totalDownloads">—</div>
+        <div class="stat-label" id="labelDownloads">Téléchargements</div>
+    </div>
+</div>
+
+<div class="controls">
+    <div class="sort-group">
+        <button class="sort-btn active" data-sort="upvotes" onclick="setSort('upvotes')">🔥 <span class="i18n-popular">Populaire</span></button>
+        <button class="sort-btn" data-sort="created_at" onclick="setSort('created_at')">⭐ <span class="i18n-recent">Récent</span></button>
+        <button class="sort-btn" data-sort="downloads" onclick="setSort('downloads')">⬇️ <span class="i18n-downloads">Téléchargé</span></button>
+    </div>
+    <div class="divider"></div>
+    <div class="tag-filters">
+        <button class="tag-btn" data-tag="cross"        onclick="toggleTagFilter('cross')">🏔️ Cross</button>
+        <button class="tag-btn" data-tag="compete"      onclick="toggleTagFilter('compete')">🏁 <span class="i18n-compete">Compétition</span></button>
+        <button class="tag-btn" data-tag="casual"       onclick="toggleTagFilter('casual')">☀️ <span class="i18n-casual">Loisir</span></button>
+        <button class="tag-btn" data-tag="experimental" onclick="toggleTagFilter('experimental')">🆕 <span class="i18n-experimental">Expérimental</span></button>
+    </div>
+</div>
+
+<div class="contributors" id="contributorsSection" style="display:none">
+    <div class="section-title" id="topContribLabel">🏆 TOP CONTRIBUTEURS</div>
+    <div class="contributors-list" id="contributorsList"></div>
+</div>
+
+<div class="grid-container">
+    <div class="grid" id="grid">
+        <div class="loading"><div class="spinner"></div><div id="loadingText">Chargement...</div></div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+    <div class="modal" id="modal">
+        <img id="modalThumb" class="modal-thumb" src="" alt="" onclick="toggleZoom(this)" style="display:none"/>
+        <div class="modal-body">
+            <div class="modal-name" id="modalName"></div>
+            <div class="modal-meta" id="modalMeta"></div>
+            <div class="modal-tags" id="modalTags"></div>
+            <div class="modal-stats" id="modalStats"></div>
+            <div class="warning-box" id="warningBox"></div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal()" id="btnClose">Fermer</button>
+                <button class="btn btn-danger" id="btnDelete" style="display:none" onclick="deleteConfig()">🗑️</button>
+                <button class="btn btn-primary" onclick="loadInEditor()" id="btnLoad">⬇️ <span id="btnLoadLabel">Charger dans l'éditeur</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDE2MDIsImV4cCI6MjA4NjQ3NzYwMn0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
+    const EDITOR_URL = './index.html';
+    const ADMIN_EMAIL = 'thrombose@gmail.com';
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let lang = localStorage.getItem('xctrackLang') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+    let sortBy = 'upvotes';
+    let activeFilters = [];
+    let currentConfig = null;
+    let currentUser = null;
+
+    const i18n = {
+        fr: {
+            logoSub: 'Bibliothèque de layouts communautaires',
+            editorBtn: 'Ouvrir l\'éditeur',
+            loading: 'Chargement...',
+            popular: 'Populaire', recent: 'Récent', downloads: 'Téléchargé',
+            compete: 'Compétition', casual: 'Loisir', experimental: 'Expérimental',
+            topContrib: '🏆 TOP CONTRIBUTEURS',
+            configs: 'Configurations', contributors: 'Contributeurs', totalDl: 'Téléchargements',
+            by: 'par', noPreview: 'Pas d\'aperçu',
+            warning: '⚠️ Charger cette configuration remplacera votre configuration actuelle dans l\'éditeur.',
+            close: 'Fermer', load: 'Charger dans l\'éditeur',
+            empty: 'Aucune configuration trouvée',
+            confirmDelete: 'Supprimer cette configuration ?',
+            upvotes: 'votes', dlCount: 'téléchargements'
+        },
+        en: {
+            logoSub: 'Community Layout Library',
+            editorBtn: 'Open editor',
+            loading: 'Loading...',
+            popular: 'Popular', recent: 'Recent', downloads: 'Downloaded',
+            compete: 'Competition', casual: 'Casual', experimental: 'Experimental',
+            topContrib: '🏆 TOP CONTRIBUTORS',
+            configs: 'Configurations', contributors: 'Contributors', totalDl: 'Downloads',
+            by: 'by', noPreview: 'No preview',
+            warning: '⚠️ Loading this configuration will replace your current configuration in the editor.',
+            close: 'Close', load: 'Load in editor',
+            empty: 'No configurations found',
+            confirmDelete: 'Delete this configuration?',
+            upvotes: 'votes', dlCount: 'downloads'
+        }
+    };
+
+    function t(key) { return i18n[lang][key] || key; }
+
+    function toggleLang() {
+        lang = lang === 'fr' ? 'en' : 'fr';
+        localStorage.setItem('xctrackLang', lang);
+        applyLang();
+    }
+
+    function applyLang() {
+        const T = i18n[lang];
+        document.getElementById('langBtn').textContent = lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+        document.getElementById('logo-sub').textContent = T.logoSub;
+        document.getElementById('editorBtnLabel').textContent = T.editorBtn;
+        document.getElementById('loadingText').textContent = T.loading;
+        document.getElementById('labelConfigs').textContent = T.configs;
+        document.getElementById('labelContributors').textContent = T.contributors;
+        document.getElementById('labelDownloads').textContent = T.totalDl;
+        document.getElementById('topContribLabel').textContent = T.topContrib;
+        document.getElementById('btnClose').textContent = T.close;
+        document.getElementById('btnLoadLabel').textContent = T.load;
+        document.querySelectorAll('.i18n-popular').forEach(el => el.textContent = T.popular);
+        document.querySelectorAll('.i18n-recent').forEach(el => el.textContent = T.recent);
+        document.querySelectorAll('.i18n-downloads').forEach(el => el.textContent = T.downloads);
+        document.querySelectorAll('.i18n-compete').forEach(el => el.textContent = T.compete);
+        document.querySelectorAll('.i18n-casual').forEach(el => el.textContent = T.casual);
+        document.querySelectorAll('.i18n-experimental').forEach(el => el.textContent = T.experimental);
+    }
+
+    function setSort(s) {
+        sortBy = s;
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === s));
+        loadConfigs();
+    }
+
+    function toggleTagFilter(tag) {
+        const btn = document.querySelector(`.tag-btn[data-tag="${tag}"]`);
+        if (activeFilters.includes(tag)) {
+            activeFilters = activeFilters.filter(t => t !== tag);
+            btn.classList.remove('active');
+        } else {
+            activeFilters.push(tag);
+            btn.classList.add('active');
+        }
+        loadConfigs();
+    }
+
+    function tagColor(tag) {
+        const map = { cross: 'cross', compete: 'compete', casual: 'casual', experimental: 'experimental', versatile: 'versatile' };
+        return map[tag] || 'cross';
+    }
+
+    function tagLabel(tag) {
+        const map = {
+            cross: '🏔️ Cross', compete: `🏁 ${t('compete')}`,
+            casual: `☀️ ${t('casual')}`, experimental: `🆕 ${t('experimental')}`,
+            versatile: '🎯 Versatile'
+        };
+        return map[tag] || tag;
+    }
+
+    async function loadConfigs() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = `<div class="loading"><div class="spinner"></div><div>${t('loading')}</div></div>`;
+
+        let query = sb.from('configs').select('id, name, user_email, tags, screenshot, upvotes, downloads, created_at');
+
+        if (activeFilters.length > 0) {
+            query = query.contains('tags', activeFilters);
+        }
+
+        const order = sortBy === 'created_at' ? { ascending: false } : { ascending: false };
+        query = query.order(sortBy, order).limit(50);
+
+        const { data, error } = await query;
+        if (error || !data) {
+            grid.innerHTML = `<div class="empty"><div class="empty-icon">🪂</div><div class="empty-text">${t('empty')}</div></div>`;
+            return;
+        }
+
+        if (data.length === 0) {
+            grid.innerHTML = `<div class="empty"><div class="empty-icon">🪂</div><div class="empty-text">${t('empty')}</div></div>`;
+            return;
+        }
+
+        grid.innerHTML = data.map((config, i) => `
+            <div class="card" onclick="openModal('${config.id}')" style="animation-delay: ${Math.min(i * 0.05, 0.6)}s">
+                ${config.screenshot
+                    ? `<img class="card-thumb" src="${config.screenshot}" alt="${config.name}" loading="lazy"/>`
+                    : `<div class="card-thumb-placeholder">🪂</div>`
+                }
+                <div class="card-body">
+                    <div class="card-name">${config.name}</div>
+                    <div class="card-author">${t('by')} ${config.user_email || '—'}</div>
+                    <div class="card-tags">
+                        ${(config.tags || []).map(tag => `<span class="tag-pill ${tagColor(tag)}">${tagLabel(tag)}</span>`).join('')}
+                    </div>
+                    <div class="card-stats">
+                        <span>👍 ${config.upvotes || 0}</span>
+                        <span>⬇️ ${config.downloads || 0}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Store data for modal
+        window._configs = data;
+    }
+
+    async function loadStats() {
+        const { data, error } = await sb.from('configs').select('user_email, downloads');
+        if (error || !data) return;
+
+        document.getElementById('totalConfigs').textContent = data.length;
+
+        const contributors = {};
+        let totalDl = 0;
+        data.forEach(c => {
+            totalDl += c.downloads || 0;
+            const u = c.user_email || 'anonymous';
+            contributors[u] = (contributors[u] || 0) + 1;
+        });
+
+        document.getElementById('totalDownloads').textContent = totalDl;
+
+        const sorted = Object.entries(contributors).sort((a, b) => b[1] - a[1]);
+        document.getElementById('totalContributors').textContent = sorted.length;
+
+        if (sorted.length > 0) {
+            const medals = ['🥇', '🥈', '🥉'];
+            document.getElementById('contributorsList').innerHTML = sorted.slice(0, 8).map(([name, count], i) => `
+                <div class="contributor">
+                    <div class="contributor-rank">${medals[i] || (i+1)}</div>
+                    <div class="contributor-name">${name}</div>
+                    <div class="contributor-count">${count} config${count > 1 ? 's' : ''}</div>
+                </div>
+            `).join('');
+            document.getElementById('contributorsSection').style.display = 'block';
+        }
+    }
+
+    async function openModal(id) {
+        // Fetch full config (including config_json)
+        const { data, error } = await sb.from('configs').select('*').eq('id', id).single();
+        if (error || !data) return;
+        currentConfig = data;
+
+        const overlay = document.getElementById('modalOverlay');
+        const thumb = document.getElementById('modalThumb');
+
+        if (data.screenshot) {
+            thumb.src = data.screenshot;
+            thumb.style.display = 'block';
+            thumb.classList.remove('zoomed');
+        } else {
+            thumb.style.display = 'none';
+        }
+
+        document.getElementById('modalName').textContent = data.name;
+        document.getElementById('modalMeta').textContent = `${t('by')} ${data.user_email || '—'}`;
+        document.getElementById('modalTags').innerHTML = (data.tags || [])
+            .map(tag => `<span class="tag-pill ${tagColor(tag)}">${tagLabel(tag)}</span>`).join('');
+        document.getElementById('modalStats').innerHTML = `
+            <span>👍 ${data.upvotes || 0} ${t('upvotes')}</span>
+            <span>⬇️ ${data.downloads || 0} ${t('dlCount')}</span>
+        `;
+        document.getElementById('warningBox').textContent = t('warning');
+
+        // Show delete if owner or admin
+        const canDelete = currentUser && (currentUser.id === data.user_id || currentUser.email === ADMIN_EMAIL);
+        document.getElementById('btnDelete').style.display = canDelete ? 'block' : 'none';
+
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('visible'));
+
+        // Increment download count on open
+        await sb.from('configs').update({ downloads: (data.downloads || 0) + 1 }).eq('id', id);
+    }
+
+    function closeModal() {
+        const overlay = document.getElementById('modalOverlay');
+        overlay.classList.remove('visible');
+        setTimeout(() => { overlay.style.display = 'none'; currentConfig = null; }, 200);
+    }
+
+    function closeModalOnBg(e) {
+        if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    function toggleZoom(img) {
+        img.classList.toggle('zoomed');
+    }
+
+    function loadInEditor() {
+        if (!currentConfig) return;
+        const json = JSON.stringify(currentConfig.config_json);
+        localStorage.setItem('xctrackConfig', json);
+        window.location.href = EDITOR_URL;
+    }
+
+    async function deleteConfig() {
+        if (!currentConfig) return;
+        if (!confirm(t('confirmDelete'))) return;
+        const { error } = await sb.from('configs').delete().eq('id', currentConfig.id);
+        if (!error) {
+            closeModal();
+            loadConfigs();
+            loadStats();
+        }
+    }
+
+    // ESC to close modal
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    // Init auth (for delete button visibility)
+    sb.auth.getSession().then(({ data: { session } }) => {
+        currentUser = session?.user ?? null;
+    });
+    sb.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user ?? null;
+    });
+
+    // Init
+    applyLang();
+    loadStats();
+    loadConfigs();
+</script>
+</body>
+</html>
