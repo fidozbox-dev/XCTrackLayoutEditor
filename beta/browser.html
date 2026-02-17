@@ -509,6 +509,16 @@
 
         .btn-danger:hover { background: rgba(251,113,133,0.2); }
 
+        .btn-vote {
+            background: rgba(14,165,233,0.08);
+            border: 1px solid rgba(14,165,233,0.25);
+            color: var(--sky);
+            min-width: 80px;
+        }
+
+        .btn-vote:hover { background: rgba(14,165,233,0.15); }
+        .btn-vote.voted { background: rgba(14,165,233,0.2); border-color: var(--sky); font-weight: 600; }
+
         /* Empty state */
         .empty {
             text-align: center;
@@ -621,6 +631,7 @@
             <div class="warning-box" id="warningBox"></div>
             <div class="modal-actions">
                 <button class="btn btn-ghost" onclick="closeModal()" id="btnClose">Fermer</button>
+                <button class="btn btn-vote" id="btnVote" onclick="toggleVote()">👍 <span id="btnVoteCount">0</span></button>
                 <button class="btn btn-danger" id="btnDelete" style="display:none" onclick="deleteConfig()">🗑️</button>
                 <button class="btn btn-primary" onclick="loadInEditor()" id="btnLoad">⬇️ <span id="btnLoadLabel">Charger dans l'éditeur</span></button>
             </div>
@@ -641,6 +652,7 @@
     let activeFilters = [];
     let currentConfig = null;
     let currentUser = null;
+    let userVotes = new Set(); // config ids the user has voted for
 
     const i18n = {
         fr: {
@@ -656,7 +668,9 @@
             close: 'Fermer', load: 'Charger dans l\'éditeur',
             empty: 'Aucune configuration trouvée',
             confirmDelete: 'Supprimer cette configuration ?',
-            upvotes: 'votes', dlCount: 'téléchargements'
+            upvotes: 'votes', dlCount: 'téléchargements',
+            voteLogin: 'Connectez-vous pour voter',
+            voted: 'Votre vote a été pris en compte !'
         },
         en: {
             logoSub: 'Community Layout Library',
@@ -671,7 +685,9 @@
             close: 'Close', load: 'Load in editor',
             empty: 'No configurations found',
             confirmDelete: 'Delete this configuration?',
-            upvotes: 'votes', dlCount: 'downloads'
+            upvotes: 'votes', dlCount: 'downloads',
+            voteLogin: 'Sign in to vote',
+            voted: 'Your vote has been counted!'
         }
     };
 
@@ -846,6 +862,10 @@
         const canDelete = currentUser && (currentUser.id === data.user_id || currentUser.email === ADMIN_EMAIL);
         document.getElementById('btnDelete').style.display = canDelete ? 'block' : 'none';
 
+        // Vote button
+        document.getElementById('btnVoteCount').textContent = data.upvotes || 0;
+        updateVoteButton();
+
         overlay.style.display = 'flex';
         requestAnimationFrame(() => overlay.classList.add('visible'));
 
@@ -867,10 +887,62 @@
         img.classList.toggle('zoomed');
     }
 
+    async function toggleVote() {
+        if (!currentUser) {
+            alert(t('voteLogin'));
+            return;
+        }
+        const id = currentConfig.id;
+        const btn = document.getElementById('btnVote');
+        const hasVoted = userVotes.has(id);
+
+        if (hasVoted) {
+            // Remove vote
+            await sb.from('upvotes').delete().eq('config_id', id).eq('user_id', currentUser.id);
+            const newCount = Math.max(0, (currentConfig.upvotes || 0) - 1);
+            await sb.from('configs').update({ upvotes: newCount }).eq('id', id);
+            currentConfig.upvotes = newCount;
+            userVotes.delete(id);
+        } else {
+            // Add vote
+            await sb.from('upvotes').insert({ config_id: id, user_id: currentUser.id });
+            const newCount = (currentConfig.upvotes || 0) + 1;
+            await sb.from('configs').update({ upvotes: newCount }).eq('id', id);
+            currentConfig.upvotes = newCount;
+            userVotes.add(id);
+        }
+
+        updateVoteButton();
+        loadConfigs(); // refresh grid
+    }
+
+    function updateVoteButton() {
+        if (!currentConfig) return;
+        const btn = document.getElementById('btnVote');
+        const hasVoted = userVotes.has(currentConfig.id);
+        btn.classList.toggle('voted', hasVoted);
+        btn.innerHTML = `${hasVoted ? '👍' : '👍'} <span id="btnVoteCount">${currentConfig.upvotes || 0}</span>`;
+    }
+
+    async function loadUserVotes() {
+        if (!currentUser) return;
+        const { data } = await sb.from('upvotes').select('config_id').eq('user_id', currentUser.id);
+        if (data) userVotes = new Set(data.map(v => v.config_id));
+    }
+
     function loadInEditor() {
         if (!currentConfig) return;
         const json = JSON.stringify(currentConfig.config_json);
         localStorage.setItem('xctrackConfig', json);
+        // Detect and save orientation from config
+        const cfg = currentConfig.config_json;
+        if (cfg?.layout) {
+            const hasLandscape = cfg.layout.landscape && cfg.layout.landscape.length > 0;
+            const hasPortrait  = cfg.layout.portrait  && cfg.layout.portrait.length  > 0;
+            // Prefer landscape if both exist, otherwise use the one that exists
+            if (hasLandscape) localStorage.setItem('xctrackOrientation', 'landscape');
+            else if (hasPortrait) localStorage.setItem('xctrackOrientation', 'portrait');
+        }
         window.location.href = EDITOR_URL;
     }
 
@@ -890,12 +962,14 @@
         if (e.key === 'Escape') closeModal();
     });
 
-    // Init auth (for delete button visibility)
+    // Init auth (for delete button visibility and votes)
     sb.auth.getSession().then(({ data: { session } }) => {
         currentUser = session?.user ?? null;
+        if (currentUser) loadUserVotes();
     });
     sb.auth.onAuthStateChange((_event, session) => {
         currentUser = session?.user ?? null;
+        if (currentUser) loadUserVotes();
     });
 
     // Init
