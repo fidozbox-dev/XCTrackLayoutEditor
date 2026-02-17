@@ -227,6 +227,22 @@
         .tag-btn[data-tag="casual"].active       { background: rgba(167,139,250,0.12); }
         .tag-btn[data-tag="experimental"].active { background: rgba(251,113,133,0.12); }
 
+        .mode-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            margin-left: 4px;
+        }
+        .mode-btn:hover, .mode-btn.and { border-color: var(--sky); color: var(--sky); background: rgba(14,165,233,0.08); }
+
         /* Grid */
         .grid-container {
             position: relative;
@@ -419,6 +435,39 @@
         }
 
         .modal-overlay.visible .modal { transform: translateY(0); }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(14, 165, 233, 0.15);
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            color: var(--sky);
+            font-size: 3rem;
+            line-height: 1;
+            width: 52px;
+            height: 80px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 101;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover { background: rgba(14, 165, 233, 0.3); }
+        .nav-arrow:disabled { opacity: 0.15; cursor: default; pointer-events: none; }
+        .nav-arrow-left  { left: 12px; }
+        .nav-arrow-right { right: 12px; }
+
+        .modal-nav-info {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-align: right;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
 
         .modal-thumb {
             width: 100%;
@@ -629,6 +678,9 @@
         <button class="tag-btn" data-tag="casual"       onclick="toggleTagFilter('casual')">☀️ <span class="i18n-casual">Loisir</span></button>
         <button class="tag-btn" data-tag="experimental" onclick="toggleTagFilter('experimental')">🆕 <span class="i18n-experimental">Expérimental</span></button>
     </div>
+    <button class="mode-btn" id="tagModeBtn" onclick="toggleTagMode()" title="OR = any tag matches / AND = all tags required">
+        <span id="tagModeLabel">OR</span>
+    </button>
 </div>
 
 <div class="contributors" id="contributorsSection" style="display:none">
@@ -644,16 +696,18 @@
 
 <!-- Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+    <button class="nav-arrow nav-arrow-left" id="arrowLeft" onclick="navigateModal(-1)">&#8249;</button>
     <div class="modal" id="modal">
         <img id="modalThumb" class="modal-thumb" src="" alt="" onclick="toggleZoom(this)" style="display:none"/>
         <div class="modal-body">
+            <div class="modal-nav-info" id="modalNavInfo"></div>
             <div class="modal-name" id="modalName"></div>
             <div class="modal-meta" id="modalMeta"></div>
             <div class="modal-tags" id="modalTags"></div>
-        <div id="editTagsSection" style="display:none; margin-bottom:16px;">
-            <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Modifier les tags</div>
-            <div id="editTagsBtns" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-        </div>
+            <div id="editTagsSection" style="display:none; margin-bottom:16px;">
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Modifier les tags</div>
+                <div id="editTagsBtns" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+            </div>
             <div class="modal-stats" id="modalStats"></div>
             <div class="warning-box" id="warningBox"></div>
             <div class="modal-actions">
@@ -664,6 +718,7 @@
             </div>
         </div>
     </div>
+    <button class="nav-arrow nav-arrow-right" id="arrowRight" onclick="navigateModal(1)">&#8250;</button>
 </div>
 
 <script>
@@ -677,9 +732,11 @@
     let lang = localStorage.getItem('xctrackLang') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
     let sortBy = 'upvotes';
     let activeFilters = [];
+    let tagMode = 'or'; // 'or' | 'and'
     let currentConfig = null;
     let currentUser = null;
-    let userVotes = new Set(); // config ids the user has voted for
+    let userVotes = new Set();
+    let currentModalIndex = -1; // index in window._configs array
 
     const i18n = {
         fr: {
@@ -752,7 +809,27 @@
         loadConfigs();
     }
 
-    function toggleTagFilter(tag) {
+    function toggleTagMode() {
+        tagMode = tagMode === 'or' ? 'and' : 'or';
+        const btn = document.getElementById('tagModeBtn');
+        document.getElementById('tagModeLabel').textContent = tagMode.toUpperCase();
+        btn.classList.toggle('and', tagMode === 'and');
+        loadConfigs();
+    }
+
+    function navigateModal(dir) {
+        if (!window._configs) return;
+        const newIndex = currentModalIndex + dir;
+        if (newIndex < 0 || newIndex >= window._configs.length) return;
+        openModalByIndex(newIndex);
+    }
+
+    function updateNavArrows() {
+        const configs = window._configs || [];
+        document.getElementById('arrowLeft').disabled  = currentModalIndex <= 0;
+        document.getElementById('arrowRight').disabled = currentModalIndex >= configs.length - 1;
+        document.getElementById('modalNavInfo').textContent = `${currentModalIndex + 1} / ${configs.length}`;
+    }
         const btn = document.querySelector(`.tag-btn[data-tag="${tag}"]`);
         if (activeFilters.includes(tag)) {
             activeFilters = activeFilters.filter(t => t !== tag);
@@ -785,25 +862,28 @@
         let query = sb.from('configs').select('id, name, user_email, tags, screenshot, upvotes, downloads, created_at');
 
         if (activeFilters.length > 0) {
-            query = query.contains('tags', activeFilters);
+            if (tagMode === 'and') {
+                // AND: must contain ALL selected tags
+                query = query.contains('tags', activeFilters);
+            } else {
+                // OR: must contain ANY of the selected tags
+                query = query.overlaps('tags', activeFilters);
+            }
         }
 
-        const order = sortBy === 'created_at' ? { ascending: false } : { ascending: false };
-        query = query.order(sortBy, order).limit(50);
+        query = query.order(sortBy, { ascending: false }).limit(50);
 
         const { data, error } = await query;
-        if (error || !data) {
+        if (error || !data || data.length === 0) {
             grid.innerHTML = `<div class="empty"><div class="empty-icon">🪂</div><div class="empty-text">${t('empty')}</div></div>`;
+            window._configs = [];
             return;
         }
 
-        if (data.length === 0) {
-            grid.innerHTML = `<div class="empty"><div class="empty-icon">🪂</div><div class="empty-text">${t('empty')}</div></div>`;
-            return;
-        }
+        window._configs = data;
 
         grid.innerHTML = data.map((config, i) => `
-            <div class="card" onclick="openModal('${config.id}')" style="animation-delay: ${Math.min(i * 0.05, 0.6)}s">
+            <div class="card" onclick="openModalByIndex(${i})" style="animation-delay: ${Math.min(i * 0.05, 0.6)}s">
                 ${config.screenshot
                     ? `<img class="card-thumb" src="${config.screenshot}" alt="${config.name}" loading="lazy"/>`
                     : `<div class="card-thumb-placeholder">🪂</div>`
@@ -821,9 +901,6 @@
                 </div>
             </div>
         `).join('');
-
-        // Store data for modal
-        window._configs = data;
     }
 
     async function loadStats() {
@@ -858,9 +935,13 @@
         }
     }
 
-    async function openModal(id) {
+    async function openModalByIndex(index) {
+        const configs = window._configs || [];
+        if (index < 0 || index >= configs.length) return;
+        currentModalIndex = index;
+
         // Fetch full config (including config_json)
-        const { data, error } = await sb.from('configs').select('*').eq('id', id).single();
+        const { data, error } = await sb.from('configs').select('*').eq('id', configs[index].id).single();
         if (error || !data) return;
         currentConfig = data;
 
@@ -888,7 +969,7 @@
         // Show delete if owner or admin
         const canDelete = currentUser && (currentUser.id === data.user_id || currentUser.email === ADMIN_EMAIL);
         document.getElementById('btnDelete').style.display = canDelete ? 'block' : 'none';
-        
+
         // Show edit tags if owner or admin
         const editSection = document.getElementById('editTagsSection');
         if (canDelete) {
@@ -902,11 +983,22 @@
         document.getElementById('btnVoteCount').textContent = data.upvotes || 0;
         updateVoteButton();
 
+        // Nav arrows
+        updateNavArrows();
+
+        // Show overlay
         overlay.style.display = 'flex';
         requestAnimationFrame(() => overlay.classList.add('visible'));
 
         // Increment download count on open
-        await sb.from('configs').update({ downloads: (data.downloads || 0) + 1 }).eq('id', id);
+        await sb.from('configs').update({ downloads: (data.downloads || 0) + 1 }).eq('id', data.id);
+    }
+
+    // Keep old openModal for compatibility
+    async function openModal(id) {
+        const configs = window._configs || [];
+        const index = configs.findIndex(c => c.id === id);
+        await openModalByIndex(index >= 0 ? index : 0);
     }
 
     function closeModal() {
@@ -1039,9 +1131,11 @@
         }
     }
 
-    // ESC to close modal
+    // ESC to close modal, arrows to navigate
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') closeModal();
+        if (e.key === 'ArrowLeft')  navigateModal(-1);
+        if (e.key === 'ArrowRight') navigateModal(1);
     });
 
     // Init auth (for delete button visibility and votes)
