@@ -696,8 +696,8 @@
             position: absolute;
             width: 12px;
             height: 12px;
-            background: var(--sky);
-            border: 2px solid var(--deeper);
+            background: #ef4444;
+            border: 2px solid white;
             border-radius: 50%;
             cursor: pointer;
             z-index: 101;
@@ -712,9 +712,9 @@
             position: absolute;
             width: 32px;
             height: 32px;
-            border: 2px dashed var(--sky);
+            border: 2px dashed #ef4444;
             border-radius: 50%;
-            background: rgba(14,165,233,0.12);
+            background: rgba(239,68,68,0.12);
             cursor: move;
             z-index: 101;
             top: 50%;
@@ -723,9 +723,7 @@
             transition: background 0.15s;
         }
 
-        .move-handle:hover {
-            background: rgba(14,165,233,0.25);
-        }
+        .move-handle:hover { background: rgba(239,68,68,0.25); }
 
         /* ── GRID ── */
         .grid-overlay {
@@ -2268,7 +2266,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.17-dark-skin-v2
+                            v2025.02.17-dark-skin-v3
                         </div>
                     </div>
 
@@ -2393,21 +2391,21 @@
                                             <button 
                                                 onClick={() => setShowBrowseModal(true)}
                                                 className="full-width"
-                                                style={{ marginBottom: '8px', background: '#10b981', color: 'white' }}
+                                                style={{ marginBottom: '8px', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', color: '#34d399' }}
                                             >
                                                 {lang === 'fr' ? '📂 Charger depuis le cloud' : '📂 Load from cloud'}
                                             </button>
                                             <button 
                                                 onClick={() => window.open('./browser.html', '_blank')}
                                                 className="full-width"
-                                                style={{ marginBottom: '8px', background: '#6366f1', color: 'white' }}
+                                                style={{ marginBottom: '8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.35)', color: '#818cf8' }}
                                             >
                                                 {lang === 'fr' ? '🌐 Library Browser' : '🌐 Library Browser'}
                                             </button>
                                             <button 
                                                 onClick={signOut}
                                                 className="full-width"
-                                                style={{ background: '#ef4444', fontSize: '0.9rem' }}
+                                                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', color: '#f87171', fontSize: '0.9rem' }}
                                             >
                                                 {t.signOut}
                                             </button>
@@ -2416,7 +2414,7 @@
                                         <button 
                                             onClick={signInWithGoogle}
                                             className="full-width"
-                                            style={{ background: '#4285f4', color: 'white' }}
+                                            style={{ background: 'rgba(66,133,244,0.15)', border: '1px solid rgba(66,133,244,0.4)', color: '#60a5fa' }}
                                         >
                                             🔐 {t.signInWith} Google
                                         </button>
@@ -3063,10 +3061,10 @@
                                                     gap: '6px',
                                                     padding: '8px 12px',
                                                     border: '2px solid',
-                                                    borderColor: configTags.includes(tag.value) ? '#667eea' : '#d1d5db',
+                                                    borderColor: configTags.includes(tag.value) ? 'var(--sky)' : 'rgba(14,165,233,0.15)',
                                                     borderRadius: '6px',
                                                     cursor: 'pointer',
-                                                    background: configTags.includes(tag.value) ? '#f0f4ff' : 'white',
+                                                    background: configTags.includes(tag.value) ? 'var(--sky-glow)' : 'var(--panel)',
                                                     transition: 'all 0.2s',
                                                     userSelect: 'none'
                                                 }}
@@ -3145,10 +3143,10 @@
                                                         gap: '6px',
                                                         padding: '6px 10px',
                                                         border: '2px solid',
-                                                        borderColor: communityFilters.includes(tag.value) ? '#667eea' : '#d1d5db',
+                                                        borderColor: communityFilters.includes(tag.value) ? 'var(--sky)' : 'rgba(14,165,233,0.15)',
                                                         borderRadius: '6px',
                                                         cursor: 'pointer',
-                                                        background: communityFilters.includes(tag.value) ? '#f0f4ff' : 'white',
+                                                        background: communityFilters.includes(tag.value) ? 'var(--sky-glow)' : 'var(--panel)',
                                                         transition: 'all 0.2s',
                                                         userSelect: 'none',
                                                         fontSize: '0.9rem'
@@ -3241,9 +3239,9 @@
                                                         onClick={() => openPreview(config)}
                                                         style={{
                                                             padding: '8px 16px',
-                                                            background: '#667eea',
-                                                            color: 'white',
-                                                            border: 'none',
+                                                            background: 'var(--sky-glow)',
+                                                            border: '1px solid var(--border-bright)',
+                                                            color: 'var(--sky)',
                                                             borderRadius: '6px',
                                                             cursor: 'pointer',
                                                             fontSize: '0.9rem',
@@ -3396,9 +3394,9 @@
                                             onClick={() => deleteConfig(previewConfig)}
                                             style={{
                                                 padding: '12px',
-                                                background: '#ef4444',
-                                                color: 'white',
-                                                border: 'none',
+                                                background: 'rgba(239,68,68,0.12)',
+                                                color: '#f87171',
+                                                border: '1px solid rgba(239,68,68,0.35)',
                                                 borderRadius: '6px',
                                                 cursor: 'pointer',
                                                 fontSize: '1rem'
