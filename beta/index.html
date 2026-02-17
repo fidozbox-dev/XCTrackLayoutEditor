@@ -1062,7 +1062,7 @@
                     snapToGrid: "Magnétisme grille",
                     export: "Exporter xcfg file",
                     widgetLibrary: "Bibliothèque de widgets",
-                    pages: "Pages",
+                    pages: "➕ Ajouter une page",
                     selectedWidget: "Widget sélectionné",
                     noWidget: "Aucun widget sélectionné.",
                     clickWidget: "Cliquez sur un widget pour le modifier.",
@@ -1152,7 +1152,7 @@
                     snapToGrid: "Snap to grid",
                     export: "Export xcfg file",
                     widgetLibrary: "Widget Library",
-                    pages: "Pages",
+                    pages: "➕ Add Page",
                     selectedWidget: "Selected Widget",
                     noWidget: "No widget selected.",
                     clickWidget: "Click on a widget to edit it.",
@@ -1235,9 +1235,19 @@
                     setConfigData(data);
                     setSelectedWidget(null);
                     setSelectedPage(0);
-                    // Initialiser l'historique
                     setHistory([data]);
                     setHistoryIndex(0);
+                    // Auto-switch to the orientation that has pages
+                    if (data?.layout) {
+                        setOrientation(prev => {
+                            const hasCurrentOrientation = (data.layout[prev] || []).length > 0;
+                            if (!hasCurrentOrientation) {
+                                const other = prev === 'landscape' ? 'portrait' : 'landscape';
+                                return (data.layout[other] || []).length > 0 ? other : prev;
+                            }
+                            return prev;
+                        });
+                    }
                 } catch (e) {
                     alert('Erreur de parsing JSON : ' + e.message);
                 }
@@ -2160,7 +2170,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.16-grid-screenshot-orientation
+                            v2025.02.16-library-browser-btn
                         </div>
                     </div>
 
@@ -2287,7 +2297,14 @@
                                                 className="full-width"
                                                 style={{ marginBottom: '8px', background: '#10b981', color: 'white' }}
                                             >
-                                                {t.browseConfigs}
+                                                {lang === 'fr' ? '📂 Charger depuis le cloud' : '📂 Load from cloud'}
+                                            </button>
+                                            <button 
+                                                onClick={() => window.open('./browser.html', '_blank')}
+                                                className="full-width"
+                                                style={{ marginBottom: '8px', background: '#6366f1', color: 'white' }}
+                                            >
+                                                {lang === 'fr' ? '🌐 Library Browser' : '🌐 Library Browser'}
                                             </button>
                                             <button 
                                                 onClick={signOut}
