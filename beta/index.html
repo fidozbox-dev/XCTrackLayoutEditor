@@ -1331,7 +1331,7 @@
             // Auto-detect tags when save modal opens
             useEffect(() => {
                 if (showCommunityModal && configData) {
-                    setConfigTags(detectTags(configData));
+                    setConfigTags(detectTags(configData, orientation));
                 }
             }, [showCommunityModal]);
 
@@ -1907,7 +1907,7 @@
                 
                 const result = await supabase.from('configs').insert({
                     user_id: user.id,
-                    user_email: maskEmail(user.email),
+                    user_email: getUsername(user.email),
                     name: autoName,
                     description: null,
                     config_json: configData,
@@ -1955,15 +1955,12 @@
 
             const isAdmin = user?.email === 'thrombose@gmail.com';
 
-            // Auto-detect tags from config pages
-            function detectTags(config) {
+            // Auto-detect tags from config pages - current orientation only
+            function detectTags(config, currentOrientation) {
                 if (!config?.layout) return ['casual'];
                 const tags = new Set();
-                const allOrientations = [
-                    ...(config.layout.landscape || []),
-                    ...(config.layout.portrait || [])
-                ];
-                allOrientations.forEach(page => {
+                const pages = config.layout[currentOrientation] || [];
+                pages.forEach(page => {
                     const cls = (page.CLASS || '').toLowerCase();
                     if (cls.includes('xcassistant')) tags.add('cross');
                     if (cls.includes('competition')) tags.add('compete');
@@ -1972,18 +1969,15 @@
                 return Array.from(tags);
             }
 
-            // Mask email: thrombose@gmail.com → thr***@gmail.com
-            function maskEmail(email) {
+            // Get username from email: thrombose@gmail.com → thrombose
+            function getUsername(email) {
                 if (!email) return 'anonymous';
-                const [local, domain] = email.split('@');
-                const masked = local.slice(0, 3) + '***';
-                return masked + '@' + domain;
+                return email.split('@')[0];
             }
 
             // Generate config name: thrombose_01
             async function generateConfigName(email) {
-                const base = email.split('@')[0];
-                // Count existing configs from this user
+                const base = getUsername(email);
                 const result = await supabase
                     .from('configs')
                     .select('id', { count: 'exact' })
@@ -2161,7 +2155,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.16-auto-name-tags
+                            v2025.02.16-simple-username
                         </div>
                     </div>
 
@@ -2974,7 +2968,7 @@
                                     fontSize: '0.9rem',
                                     color: '#4338ca'
                                 }}>
-                                    {lang === 'fr' ? 'Partagé par' : 'Shared by'} <strong>{maskEmail(user?.email)}</strong>
+                                    {lang === 'fr' ? 'Partagé par' : 'Shared by'} <strong>{getUsername(user?.email)}</strong>
                                 </div>
 
                                 <div className="form-group">
