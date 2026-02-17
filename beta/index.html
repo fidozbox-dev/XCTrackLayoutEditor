@@ -1319,6 +1319,12 @@
                 if (savedConfig) {
                     loadConfig(savedConfig);
                 }
+                // Restore orientation if set (e.g. by browser.html)
+                const savedOrientation = localStorage.getItem('xctrackOrientation');
+                if (savedOrientation) {
+                    setOrientation(savedOrientation);
+                    localStorage.removeItem('xctrackOrientation'); // consume once
+                }
             }, []);
 
             // Load community configs when browse modal opens
@@ -1840,51 +1846,50 @@
                 if (!screenRef.current || !window.html2canvas) return null;
                 
                 try {
-                    // Get only pages of current orientation
                     const pages = screenRef.current.querySelectorAll('.phone-screen');
                     if (pages.length === 0) return null;
                     
-                    const padding = 20;
-                    const scale = 0.5; // Scale down for smaller file size
-                    
-                    // Capture each page with html2canvas
+                    const n = pages.length;
+                    const scale = 0.5;
+                    const padding = 12;
+
+                    // Grid columns: ≤4 → 2 cols, 5-8 → 3 cols, 9+ → 4 cols
+                    const cols = n <= 4 ? Math.min(n, 2) : n <= 8 ? 3 : 4;
+                    const rows = Math.ceil(n / cols);
+
+                    // Capture each page
                     const pageCanvases = [];
                     for (let i = 0; i < pages.length; i++) {
-                        const pageCanvas = await html2canvas(pages[i], {
+                        const pc = await html2canvas(pages[i], {
                             scale: scale,
-                            backgroundColor: '#f3f4f6',
+                            backgroundColor: '#1a1a2e',
                             logging: false,
                             useCORS: true
                         });
-                        pageCanvases.push(pageCanvas);
+                        pageCanvases.push(pc);
                     }
-                    
-                    // Combine all pages side by side
+
+                    const pw = pageCanvases[0].width;
+                    const ph = pageCanvases[0].height;
+
                     const finalCanvas = document.createElement('canvas');
                     const ctx = finalCanvas.getContext('2d');
-                    
-                    const pageWidth = pageCanvases[0].width;
-                    const pageHeight = pageCanvases[0].height;
-                    finalCanvas.width = (pageWidth + padding) * pageCanvases.length + padding;
-                    finalCanvas.height = pageHeight + padding * 2;
-                    
-                    // White background
-                    ctx.fillStyle = '#ffffff';
+                    finalCanvas.width  = cols * pw + (cols + 1) * padding;
+                    finalCanvas.height = rows * ph + (rows + 1) * padding;
+
+                    // Dark background
+                    ctx.fillStyle = '#0a1628';
                     ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-                    
-                    // Draw each page
-                    pageCanvases.forEach((pageCanvas, i) => {
-                        const x = padding + i * (pageWidth + padding);
-                        const y = padding;
-                        ctx.drawImage(pageCanvas, x, y);
-                        
-                        // Page number
-                        ctx.fillStyle = '#1f2937';
-                        ctx.font = 'bold 16px Arial';
-                        ctx.fillText('Page ' + (i + 1), x + 10, y + pageHeight - 10);
+
+                    pageCanvases.forEach((pc, i) => {
+                        const col = i % cols;
+                        const row = Math.floor(i / cols);
+                        const x = padding + col * (pw + padding);
+                        const y = padding + row * (ph + padding);
+                        ctx.drawImage(pc, x, y);
                     });
-                    
-                    return finalCanvas.toDataURL('image/jpeg', 0.6);
+
+                    return finalCanvas.toDataURL('image/jpeg', 0.7);
                 } catch (e) {
                     console.error('Screenshot error:', e);
                     return null;
@@ -2155,7 +2160,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.16-simple-username
+                            v2025.02.16-grid-screenshot-orientation
                         </div>
                     </div>
 
