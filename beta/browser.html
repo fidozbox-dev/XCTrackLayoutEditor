@@ -519,6 +519,29 @@
         .btn-vote:hover { background: rgba(14,165,233,0.15); }
         .btn-vote.voted { background: rgba(14,165,233,0.2); border-color: var(--sky); font-weight: 600; }
 
+        .edit-tag-btn {
+            padding: 5px 12px;
+            border-radius: 4px;
+            border: 1px solid;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: transparent;
+            opacity: 0.35;
+            transition: all 0.15s;
+        }
+        .edit-tag-btn.active { opacity: 1; }
+        .edit-tag-btn[data-tag="cross"]        { border-color: var(--cross); color: var(--cross); }
+        .edit-tag-btn[data-tag="compete"]      { border-color: var(--compete); color: var(--compete); }
+        .edit-tag-btn[data-tag="casual"]       { border-color: var(--casual); color: var(--casual); }
+        .edit-tag-btn[data-tag="experimental"] { border-color: var(--experimental); color: var(--experimental); }
+        .edit-tag-btn[data-tag="cross"].active        { background: rgba(52,211,153,0.12); }
+        .edit-tag-btn[data-tag="compete"].active      { background: rgba(245,158,11,0.12); }
+        .edit-tag-btn[data-tag="casual"].active       { background: rgba(167,139,250,0.12); }
+        .edit-tag-btn[data-tag="experimental"].active { background: rgba(251,113,133,0.12); }
+
         /* Empty state */
         .empty {
             text-align: center;
@@ -627,6 +650,10 @@
             <div class="modal-name" id="modalName"></div>
             <div class="modal-meta" id="modalMeta"></div>
             <div class="modal-tags" id="modalTags"></div>
+        <div id="editTagsSection" style="display:none; margin-bottom:16px;">
+            <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Modifier les tags</div>
+            <div id="editTagsBtns" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+        </div>
             <div class="modal-stats" id="modalStats"></div>
             <div class="warning-box" id="warningBox"></div>
             <div class="modal-actions">
@@ -861,6 +888,15 @@
         // Show delete if owner or admin
         const canDelete = currentUser && (currentUser.id === data.user_id || currentUser.email === ADMIN_EMAIL);
         document.getElementById('btnDelete').style.display = canDelete ? 'block' : 'none';
+        
+        // Show edit tags if owner or admin
+        const editSection = document.getElementById('editTagsSection');
+        if (canDelete) {
+            editSection.style.display = 'block';
+            renderEditTags();
+        } else {
+            editSection.style.display = 'none';
+        }
 
         // Vote button
         document.getElementById('btnVoteCount').textContent = data.upvotes || 0;
@@ -943,7 +979,53 @@
             if (hasLandscape) localStorage.setItem('xctrackOrientation', 'landscape');
             else if (hasPortrait) localStorage.setItem('xctrackOrientation', 'portrait');
         }
-        window.location.href = EDITOR_URL;
+        window.open(EDITOR_URL, '_blank');
+    }
+
+    const ALL_TAGS = ['cross', 'compete', 'casual', 'experimental'];
+    const TAG_LABELS = { cross: '🏔️ Cross', compete: '🏁', casual: '☀️', experimental: '🆕' };
+
+    let editingTags = [];
+
+    function renderEditTags() {
+        editingTags = [...(currentConfig.tags || [])];
+        const container = document.getElementById('editTagsBtns');
+        container.innerHTML = ALL_TAGS.map(tag => `
+            <button class="edit-tag-btn ${editingTags.includes(tag) ? 'active' : ''}"
+                    data-tag="${tag}"
+                    onclick="toggleEditTag('${tag}')">
+                ${TAG_LABELS[tag]} ${tagLabel(tag).replace(/^[^\s]+\s/, '')}
+            </button>
+        `).join('');
+    }
+
+    function toggleEditTag(tag) {
+        if (editingTags.includes(tag)) {
+            if (editingTags.length === 1) return; // at least 1 tag required
+            editingTags = editingTags.filter(t => t !== tag);
+        } else {
+            editingTags.push(tag);
+        }
+        // Update buttons
+        document.querySelectorAll('.edit-tag-btn').forEach(btn => {
+            btn.classList.toggle('active', editingTags.includes(btn.dataset.tag));
+        });
+        // Auto-save
+        saveTagEdit();
+    }
+
+    async function saveTagEdit() {
+        if (!currentConfig) return;
+        const { error } = await sb.from('configs')
+            .update({ tags: editingTags, category: editingTags[0] })
+            .eq('id', currentConfig.id);
+        if (!error) {
+            currentConfig.tags = editingTags;
+            // Refresh tag pills in modal
+            document.getElementById('modalTags').innerHTML = editingTags
+                .map(tag => `<span class="tag-pill ${tagColor(tag)}">${tagLabel(tag)}</span>`).join('');
+            loadConfigs();
+        }
     }
 
     async function deleteConfig() {
