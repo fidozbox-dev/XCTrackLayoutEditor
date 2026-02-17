@@ -1326,6 +1326,18 @@
                 }
             }, [showBrowseModal, communityFilters, communitySortBy]);
 
+            // ESC key to close any open modal
+            useEffect(() => {
+                function handleKeyDown(e) {
+                    if (e.key !== 'Escape') return;
+                    if (showPreviewModal) { setShowPreviewModal(false); return; }
+                    if (showBrowseModal)  { setShowBrowseModal(false);  return; }
+                    if (showCommunityModal) { setShowCommunityModal(false); return; }
+                }
+                document.addEventListener('keydown', handleKeyDown);
+                return () => document.removeEventListener('keydown', handleKeyDown);
+            }, [showPreviewModal, showBrowseModal, showCommunityModal]);
+
             const allPages = useMemo(() => {
                 if (!configData?.layout) return null;
                 return configData.layout[orientation] || [];
@@ -1932,6 +1944,28 @@
                 setShowPreviewModal(true);
             }
 
+            const isAdmin = user?.email === 'thrombose@gmail.com';
+
+            function canEdit(config) {
+                return user && (user.id === config.user_id || isAdmin);
+            }
+
+            async function deleteConfig(config) {
+                if (!supabase || !canEdit(config)) return;
+                const confirmMsg = lang === 'fr' 
+                    ? 'Supprimer cette configuration ?' 
+                    : 'Delete this configuration?';
+                if (!window.confirm(confirmMsg)) return;
+                
+                const result = await supabase.from('configs').delete().eq('id', config.id);
+                if (result.error) {
+                    alert('Error: ' + result.error.message);
+                } else {
+                    setShowPreviewModal(false);
+                    loadCommunityConfigs();
+                }
+            }
+
             async function downloadConfig(config) {
                 if (!supabase) return;
                 
@@ -2081,7 +2115,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.15-html2canvas-screenshot
+                            v2025.02.16-esc-delete-admin
                         </div>
                     </div>
 
@@ -3254,6 +3288,23 @@
                                     >
                                         ⬇️ {lang === 'fr' ? 'Charger cette config' : 'Load this config'}
                                     </button>
+                                    {canEdit(previewConfig) && (
+                                        <button 
+                                            onClick={() => deleteConfig(previewConfig)}
+                                            style={{
+                                                padding: '12px',
+                                                background: '#ef4444',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '1rem'
+                                            }}
+                                            title={lang === 'fr' ? 'Supprimer' : 'Delete'}
+                                        >
+                                            🗑️
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
