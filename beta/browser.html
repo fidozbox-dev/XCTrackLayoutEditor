@@ -830,6 +830,8 @@
         document.getElementById('arrowRight').disabled = currentModalIndex >= configs.length - 1;
         document.getElementById('modalNavInfo').textContent = `${currentModalIndex + 1} / ${configs.length}`;
     }
+
+    function toggleTagFilter(tag) {
         const btn = document.querySelector(`.tag-btn[data-tag="${tag}"]`);
         if (activeFilters.includes(tag)) {
             activeFilters = activeFilters.filter(t => t !== tag);
