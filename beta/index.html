@@ -1114,7 +1114,6 @@
                     category: "Catégorie",
                     categoryCross: "🏔️ Cross-country",
                     categoryCompete: "🏁 Compétition",
-                    categoryVersatile: "🎯 Polyvalent",
                     categoryCasual: "☀️ Thermique/Loisir",
                     categoryExperimental: "🆕 Expérimental",
                     upload: "Partager",
@@ -1205,7 +1204,6 @@
                     category: "Category",
                     categoryCross: "🏔️ Cross-country",
                     categoryCompete: "🏁 Competition",
-                    categoryVersatile: "🎯 Versatile",
                     categoryCasual: "☀️ Thermal/Casual",
                     categoryExperimental: "🆕 Experimental",
                     upload: "Share",
@@ -1329,6 +1327,13 @@
                     loadCommunityConfigs();
                 }
             }, [showBrowseModal, communityFilters, communitySortBy]);
+
+            // Auto-detect tags when save modal opens
+            useEffect(() => {
+                if (showCommunityModal && configData) {
+                    setConfigTags(detectTags(configData));
+                }
+            }, [showCommunityModal]);
 
             // ESC key to close any open modal
             useEffect(() => {
@@ -1889,24 +1894,22 @@
             async function saveToCloud() {
                 if (!supabase || !user || !configData) return;
                 
-                if (!configName.trim()) {
-                    alert(lang === 'fr' ? 'Veuillez entrer un nom' : 'Please enter a name');
-                    return;
-                }
-                
                 if (configTags.length === 0) {
                     alert(lang === 'fr' ? 'Sélectionnez au moins un tag' : 'Select at least one tag');
                     return;
                 }
+                
+                // Generate auto name
+                const autoName = await generateConfigName(user.email);
                 
                 // Generate screenshot
                 const screenshot = await generateScreenshot();
                 
                 const result = await supabase.from('configs').insert({
                     user_id: user.id,
-                    user_email: user.email,
-                    name: configName.trim(),
-                    description: configDescription.trim() || null,
+                    user_email: maskEmail(user.email),
+                    name: autoName,
+                    description: null,
                     config_json: configData,
                     category: configTags[0],
                     tags: configTags,
@@ -1917,8 +1920,6 @@
                     alert(t.uploadError + ': ' + result.error.message);
                 } else {
                     setShowCommunityModal(false);
-                    setConfigName('');
-                    setConfigDescription('');
                     setConfigTags([]);
                 }
             }
@@ -1953,6 +1954,43 @@
             }
 
             const isAdmin = user?.email === 'thrombose@gmail.com';
+
+            // Auto-detect tags from config pages
+            function detectTags(config) {
+                if (!config?.layout) return ['casual'];
+                const tags = new Set();
+                const allOrientations = [
+                    ...(config.layout.landscape || []),
+                    ...(config.layout.portrait || [])
+                ];
+                allOrientations.forEach(page => {
+                    const cls = (page.CLASS || '').toLowerCase();
+                    if (cls.includes('xcassistant')) tags.add('cross');
+                    if (cls.includes('competition')) tags.add('compete');
+                });
+                if (tags.size === 0) tags.add('casual');
+                return Array.from(tags);
+            }
+
+            // Mask email: thrombose@gmail.com → thr***@gmail.com
+            function maskEmail(email) {
+                if (!email) return 'anonymous';
+                const [local, domain] = email.split('@');
+                const masked = local.slice(0, 3) + '***';
+                return masked + '@' + domain;
+            }
+
+            // Generate config name: thrombose_01
+            async function generateConfigName(email) {
+                const base = email.split('@')[0];
+                // Count existing configs from this user
+                const result = await supabase
+                    .from('configs')
+                    .select('id', { count: 'exact' })
+                    .eq('user_id', user.id);
+                const count = (result.count || 0) + 1;
+                return base + '_' + String(count).padStart(2, '0');
+            }
 
             function canEdit(config) {
                 return user && (user.id === config.user_id || isAdmin);
@@ -2123,7 +2161,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.16-fix-hash-timing
+                            v2025.02.16-auto-name-tags
                         </div>
                     </div>
 
@@ -2927,35 +2965,33 @@
                                 <div className="modal-header">
                                     💾 {t.uploadConfig}
                                 </div>
-                                
-                                <div className="form-group">
-                                    <label>{t.configName} *</label>
-                                    <input
-                                        type="text"
-                                        value={configName}
-                                        onChange={(e) => setConfigName(e.target.value)}
-                                        placeholder={lang === 'fr' ? 'Ex: Ma config XC' : 'Ex: My XC setup'}
-                                        maxLength={100}
-                                    />
+
+                                <div style={{ 
+                                    padding: '12px', 
+                                    background: '#f0f4ff', 
+                                    borderRadius: '6px',
+                                    marginBottom: '20px',
+                                    fontSize: '0.9rem',
+                                    color: '#4338ca'
+                                }}>
+                                    {lang === 'fr' ? 'Partagé par' : 'Shared by'} <strong>{maskEmail(user?.email)}</strong>
                                 </div>
 
                                 <div className="form-group">
-                                    <label>{t.configDescription}</label>
-                                    <textarea
-                                        value={configDescription}
-                                        onChange={(e) => setConfigDescription(e.target.value)}
-                                        placeholder={lang === 'fr' ? 'Décrivez votre configuration...' : 'Describe your configuration...'}
-                                        maxLength={500}
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label>{lang === 'fr' ? 'Tags' : 'Tags'} *</label>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '8px' }}>
+                                    <label>Tags *</label>
+                                    <div style={{ 
+                                        fontSize: '0.8rem', 
+                                        color: '#6b7280', 
+                                        marginBottom: '10px' 
+                                    }}>
+                                        {lang === 'fr' 
+                                            ? '✨ Détectés automatiquement depuis vos pages - modifiez si besoin'
+                                            : '✨ Auto-detected from your pages - edit if needed'}
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                         {[
                                             { value: 'cross', label: t.categoryCross },
                                             { value: 'compete', label: t.categoryCompete },
-                                            { value: 'versatile', label: t.categoryVersatile },
                                             { value: 'casual', label: t.categoryCasual },
                                             { value: 'experimental', label: t.categoryExperimental }
                                         ].map((tag) => (
@@ -3038,7 +3074,6 @@
                                             {[
                                                 { value: 'cross', label: t.categoryCross },
                                                 { value: 'compete', label: t.categoryCompete },
-                                                { value: 'versatile', label: t.categoryVersatile },
                                                 { value: 'casual', label: t.categoryCasual },
                                                 { value: 'experimental', label: t.categoryExperimental }
                                             ].map((tag) => (
