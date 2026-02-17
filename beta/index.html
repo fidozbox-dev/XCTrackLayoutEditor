@@ -1299,14 +1299,13 @@
             useEffect(() => {
                 if (!supabase) return;
                 
-                // Clean up hash from URL after OAuth redirect (avoids ##double-hash bug)
-                if (window.location.hash && window.location.hash.includes('access_token')) {
-                    window.history.replaceState(null, '', window.location.pathname);
-                }
-                
-                // Get current session
+                // Get current session (Supabase reads hash automatically)
                 supabase.auth.getSession().then(({ data: { session } }) => {
                     setUser(session?.user ?? null);
+                    // Clean up hash AFTER Supabase has read it
+                    if (window.location.hash && window.location.hash.includes('access_token')) {
+                        window.history.replaceState(null, '', window.location.pathname);
+                    }
                 });
 
                 // Listen for auth changes
@@ -2124,7 +2123,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.16-fix-double-hash
+                            v2025.02.16-fix-hash-timing
                         </div>
                     </div>
 
