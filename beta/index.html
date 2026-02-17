@@ -691,6 +691,230 @@
         .page-list-item:hover { border-color: var(--border-bright); }
         .page-list-item.active { border-color: var(--sky); background: var(--sky-glow); }
 
+        /* ── RESIZE & MOVE HANDLES ── */
+        .resize-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--sky);
+            border: 2px solid var(--deeper);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        .resize-handle.nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .resize-handle.ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+        .move-handle {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border: 2px dashed var(--sky);
+            border-radius: 50%;
+            background: rgba(14,165,233,0.12);
+            cursor: move;
+            z-index: 101;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: background 0.15s;
+        }
+
+        .move-handle:hover {
+            background: rgba(14,165,233,0.25);
+        }
+
+        /* ── GRID ── */
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .grid-line {
+            position: absolute;
+            background: rgba(14,165,233,0.08);
+        }
+
+        .grid-line.vertical  { width: 1px; height: 100%; }
+        .grid-line.horizontal { height: 1px; width: 100%; }
+
+        /* ── WIDGET PREVIEW TEXT (light on dark screen) ── */
+        .widget-preview-value {
+            color: #e2eaf5;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .widget-preview-unit {
+            color: #7baabf;
+            line-height: 1;
+        }
+
+        /* ── WIDGET INFO PANEL ── */
+        .widget-info-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+
+        .widget-info-panel h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .widget-info-panel h4 {
+            color: var(--sky);
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .widget-info-panel .coords {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-bottom: 14px;
+            padding: 10px;
+            background: var(--panel);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .widget-info-panel .no-selection {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 16px;
+            font-size: 0.85rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-buttons button { width: 100%; }
+
+        .delete-btn {
+            background: rgba(239,68,68,0.12) !important;
+            border: 1px solid rgba(239,68,68,0.35) !important;
+            color: var(--red) !important;
+        }
+        .delete-btn:hover { background: rgba(239,68,68,0.22) !important; }
+
+        .export-btn {
+            background: rgba(16,185,129,0.12) !important;
+            border: 1px solid rgba(16,185,129,0.35) !important;
+            color: var(--green) !important;
+        }
+        .export-btn:hover { background: rgba(16,185,129,0.22) !important; }
+
+        .import-btn {
+            background: rgba(99,102,241,0.12) !important;
+            border: 1px solid rgba(99,102,241,0.35) !important;
+            color: #818cf8 !important;
+        }
+        .import-btn:hover { background: rgba(99,102,241,0.22) !important; }
+
+        /* ── WIDGET LIBRARY WRAPPER ── */
+        .widget-library {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .widget-library h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .widget-library-section-title {
+            font-weight: 600;
+            color: var(--text-dim);
+            margin-top: 12px;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+        }
+
+        /* ── TIPS BOX ── */
+        .tips-box {
+            background: rgba(14,165,233,0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+        }
+
+        .tips-box h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            color: var(--sky);
+            margin-bottom: 10px;
+        }
+
+        .tips-box ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header-title {
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .page-header-sub {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-left: 8px;
+        }
+
+        .page-btn {
+            padding: 5px 10px !important;
+            font-size: 0.85rem !important;
+        }
+
+        .page-btn-up   { background: rgba(14,165,233,0.1) !important; border: 1px solid var(--border) !important; color: var(--sky) !important; }
+        .page-btn-down { background: rgba(14,165,233,0.1) !important; border: 1px solid var(--border) !important; color: var(--sky) !important; }
+        .page-btn-del  { background: rgba(239,68,68,0.1)  !important; border: 1px solid rgba(239,68,68,0.3) !important; color: var(--red) !important; }
+        .page-btn-up:hover   { background: rgba(14,165,233,0.2) !important; }
+        .page-btn-down:hover { background: rgba(14,165,233,0.2) !important; }
+        .page-btn-del:hover  { background: rgba(239,68,68,0.2)  !important; }
+        .page-btn-up:disabled, .page-btn-down:disabled { opacity: 0.25 !important; cursor: not-allowed !important; }
+
         /* ── SCROLLBARS ── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -1964,16 +2188,17 @@
                                     flex: '1', 
                                     maxWidth: '400px',
                                     cursor: 'pointer',
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    color: 'white'
+                                    background: 'linear-gradient(135deg, rgba(14,165,233,0.15) 0%, rgba(99,102,241,0.15) 100%)',
+                                    borderColor: 'rgba(14,165,233,0.4)'
                                 }}
                                 onClick={createNewConfig}
                             >
                                 <h2>✨ {t.createConfig}</h2>
                                 <p>{t.createDesc}<br/>{t.createDescAnd}</p>
                                 <button style={{ 
-                                    background: 'white', 
-                                    color: '#667eea',
+                                    background: 'var(--sky)',
+                                    color: 'white',
+                                    border: 'none',
                                     fontWeight: 'bold'
                                 }}>
                                     {t.newConfig}
@@ -2043,7 +2268,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.17-dark-skin
+                            v2025.02.17-dark-skin-v2
                         </div>
                     </div>
 
@@ -2151,11 +2376,11 @@
                                 </button>
 
                                 {/* Community Section */}
-                                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #e5e7eb' }}>
-                                    <h3 style={{ margin: '0 0 10px 0', fontSize: '0.95rem' }}>☁️ {t.community}</h3>
+                                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
+                                    <h3 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '2px', color: 'var(--text-dim)' }}>☁️ {t.community}</h3>
                                     {user ? (
                                         <>
-                                            <div style={{ fontSize: '0.85rem', marginBottom: '10px', color: '#666' }}>
+                                            <div style={{ fontSize: '0.85rem', marginBottom: '10px', color: 'var(--text-dim)' }}>
                                                 👤 {user.email}
                                             </div>
                                             <button 
@@ -2223,7 +2448,7 @@
                                         <div 
                                             className="widget-library-grid"
                                             style={{
-                                                border: '1px solid #e5e7eb',
+                                                border: '1px solid rgba(14,165,233,0.12)',
                                                 borderRadius: '6px',
                                                 padding: '10px'
                                             }}
@@ -2240,11 +2465,11 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#374151', 
+                                                        color: '#d4e4f5', 
                                                         marginTop: '10px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
-                                                        borderBottom: '1px solid #e5e7eb',
+                                                        borderBottom: '1px solid rgba(14,165,233,0.12)',
                                                         paddingBottom: '3px'
                                                     }}>
                                                         📊 Data / Metrics
@@ -2278,11 +2503,11 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#374151', 
+                                                        color: '#d4e4f5', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
-                                                        borderBottom: '1px solid #e5e7eb',
+                                                        borderBottom: '1px solid rgba(14,165,233,0.12)',
                                                         paddingBottom: '3px'
                                                     }}>
                                                         🎯 Navigation
@@ -2316,11 +2541,11 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#374151', 
+                                                        color: '#d4e4f5', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
-                                                        borderBottom: '1px solid #e5e7eb',
+                                                        borderBottom: '1px solid rgba(14,165,233,0.12)',
                                                         paddingBottom: '3px'
                                                     }}>
                                                         🏁 Competition
@@ -2354,11 +2579,11 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#374151', 
+                                                        color: '#d4e4f5', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
-                                                        borderBottom: '1px solid #e5e7eb',
+                                                        borderBottom: '1px solid rgba(14,165,233,0.12)',
                                                         paddingBottom: '3px'
                                                     }}>
                                                         🗺️ Maps / Visual
@@ -2392,11 +2617,11 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#374151', 
+                                                        color: '#d4e4f5', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
-                                                        borderBottom: '1px solid #e5e7eb',
+                                                        borderBottom: '1px solid rgba(14,165,233,0.12)',
                                                         paddingBottom: '3px'
                                                     }}>
                                                         📈 Graphs / Stats
@@ -2430,11 +2655,11 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#374151', 
+                                                        color: '#d4e4f5', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
-                                                        borderBottom: '1px solid #e5e7eb',
+                                                        borderBottom: '1px solid rgba(14,165,233,0.12)',
                                                         paddingBottom: '3px'
                                                     }}>
                                                         ⚙️ UI / Controls
@@ -2501,8 +2726,10 @@
                                             >
                                                 🗑️ Supprimer (Del)
                                             </button>
-                                            <button onClick={() => setSelectedWidget(null)}>
-                                                ✕ Désélectionner
+                                            <button onClick={() => setSelectedWidget(null)}
+                                                style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-dim)', whiteSpace: 'normal', textAlign: 'center' }}
+                                            >
+                                                ✕ {lang === 'fr' ? 'Désélectionner' : 'Deselect'}
                                             </button>
                                         </div>
                                     </>
@@ -2529,23 +2756,9 @@
                             </div>
 
                             {/* Tips */}
-                            <div style={{
-                                background: '#f0f9ff',
-                                border: '1px solid #bae6fd',
-                                borderRadius: '8px',
-                                padding: '15px',
-                                marginTop: '20px'
-                            }}>
-                                <h3 style={{ margin: '0 0 12px 0', color: '#0369a1', fontSize: '1rem' }}>
-                                    {t.tips}
-                                </h3>
-                                <ul style={{ 
-                                    margin: 0, 
-                                    paddingLeft: '20px',
-                                    fontSize: '0.85rem',
-                                    color: '#0c4a6e',
-                                    lineHeight: '1.6'
-                                }}>
+                            <div className="tips-box">
+                                <h3>{t.tips}</h3>
+                                <ul>
                                     <li>{t.tip1}</li>
                                     <li>{t.tip2}</li>
                                     <li>{t.tip3}</li>
@@ -2572,72 +2785,30 @@
                                             gap: '10px',
                                             width: '100%'
                                         }}>
-                                            <h3 style={{ 
-                                                color: '#374151', 
-                                                fontSize: '1.2rem',
-                                                margin: 0
-                                            }}>
-                                                {t.page} {pageIdx + 1} - {getWidgetName(page.CLASS)}
-                                                <span style={{ 
-                                                    fontSize: '0.9rem', 
-                                                    color: '#6b7280',
-                                                    marginLeft: '10px'
-                                                }}>
+                                            <h3 className="page-header-title">
+                                                {t.page} {pageIdx + 1} — {getWidgetName(page.CLASS)}
+                                                <span className="page-header-sub">
                                                     ({page.widgets?.length || 0} widgets)
                                                 </span>
                                             </h3>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                            <div style={{ display: 'flex', gap: '6px' }}>
                                                 <button
+                                                    className="page-btn page-btn-up"
                                                     onClick={() => movePageUp(pageIdx)}
                                                     disabled={pageIdx === 0}
-                                                    style={{
-                                                        padding: '6px 12px',
-                                                        background: pageIdx === 0 ? '#d1d5db' : '#3b82f6',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: pageIdx === 0 ? 'not-allowed' : 'pointer',
-                                                        fontWeight: '600',
-                                                        fontSize: '0.9rem'
-                                                    }}
-                                                    title="Monter la page"
-                                                >
-                                                    ↑
-                                                </button>
+                                                    title={t.moveUp}
+                                                >↑</button>
                                                 <button
+                                                    className="page-btn page-btn-down"
                                                     onClick={() => movePageDown(pageIdx)}
                                                     disabled={pageIdx === allPages.length - 1}
-                                                    style={{
-                                                        padding: '6px 12px',
-                                                        background: pageIdx === allPages.length - 1 ? '#d1d5db' : '#3b82f6',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: pageIdx === allPages.length - 1 ? 'not-allowed' : 'pointer',
-                                                        fontWeight: '600',
-                                                        fontSize: '0.9rem'
-                                                    }}
-                                                    title="Descendre la page"
-                                                >
-                                                    ↓
-                                                </button>
+                                                    title={t.moveDown}
+                                                >↓</button>
                                                 <button
+                                                    className="page-btn page-btn-del"
                                                     onClick={() => deletePage(pageIdx)}
-                                                    style={{
-                                                        padding: '6px 12px',
-                                                        background: '#ef4444',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontWeight: '600',
-                                                        fontSize: '0.9rem',
-                                                        whiteSpace: 'nowrap'
-                                                    }}
-                                                    title="Supprimer cette page"
-                                                >
-                                                    🗑️
-                                                </button>
+                                                    title={t.deletePage}
+                                                >🗑️</button>
                                             </div>
                                         </div>
                                         
@@ -2753,7 +2924,7 @@
                                                                                 <div style={{
                                                                                     fontSize: `${preview.fontSize}px`,
                                                                                     fontWeight: 'bold',
-                                                                                    color: '#374151',
+                                                                                    color: '#d4e4f5',
                                                                                     lineHeight: 1
                                                                                 }}>
                                                                                     {preview.text}
@@ -2766,7 +2937,7 @@
                                                                                             flexDirection: 'column',
                                                                                             alignItems: 'center',
                                                                                             fontSize: `${preview.unitSize}px`,
-                                                                                            color: '#6b7280',
+                                                                                            color: '#6b8fae',
                                                                                             lineHeight: 0.8,
                                                                                             gap: '1px'
                                                                                         }}>
@@ -2782,7 +2953,7 @@
                                                                                         // Affichage simple pour m, km, etc.
                                                                                         <div style={{
                                                                                             fontSize: `${preview.unitSize}px`,
-                                                                                            color: '#6b7280',
+                                                                                            color: '#6b8fae',
                                                                                             lineHeight: 1
                                                                                         }}>
                                                                                             {preview.unit}
@@ -2793,7 +2964,7 @@
                                                                             {preview.subtext && (
                                                                                 <div style={{
                                                                                     fontSize: `${preview.unitSize}px`,
-                                                                                    color: '#9ca3af',
+                                                                                    color: '#4a6580',
                                                                                     marginTop: '4px'
                                                                                 }}>
                                                                                     {preview.subtext}
@@ -2857,11 +3028,11 @@
 
                                 <div style={{ 
                                     padding: '12px', 
-                                    background: '#f0f4ff', 
+                                    background: 'rgba(99,102,241,0.08)', 
                                     borderRadius: '6px',
                                     marginBottom: '20px',
                                     fontSize: '0.9rem',
-                                    color: '#4338ca'
+                                    color: '#7ba7e0'
                                 }}>
                                     {lang === 'fr' ? 'Partagé par' : 'Shared by'} <strong>{getUsername(user?.email)}</strong>
                                 </div>
@@ -2870,7 +3041,7 @@
                                     <label>Tags *</label>
                                     <div style={{ 
                                         fontSize: '0.8rem', 
-                                        color: '#6b7280', 
+                                        color: '#6b8fae', 
                                         marginBottom: '10px' 
                                     }}>
                                         {lang === 'fr' 
@@ -2999,7 +3170,7 @@
                                 {/* Configs List */}
                                 <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                                     {communityConfigs.length === 0 ? (
-                                        <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                                        <div style={{ textAlign: 'center', padding: '40px', color: '#6b8fae' }}>
                                             {lang === 'fr' ? 'Aucune configuration trouvée' : 'No configurations found'}
                                         </div>
                                     ) : (
@@ -3009,9 +3180,9 @@
                                                 style={{
                                                     padding: '15px',
                                                     marginBottom: '10px',
-                                                    border: '1px solid #e5e7eb',
+                                                    border: '1px solid rgba(14,165,233,0.12)',
                                                     borderRadius: '8px',
-                                                    background: '#f9fafb',
+                                                    background: 'var(--panel)',
                                                     display: 'flex',
                                                     gap: '15px'
                                                 }}
@@ -3035,14 +3206,14 @@
                                                 
                                                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                                     <div style={{ flex: 1 }}>
-                                                        <h4 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', color: '#1f2937' }}>
+                                                        <h4 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', color: '#d4e4f5' }}>
                                                             {config.name}
                                                         </h4>
-                                                        <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '8px' }}>
+                                                        <div style={{ fontSize: '0.85rem', color: '#6b8fae', marginBottom: '8px' }}>
                                                             {t.by} {config.user_email?.split('@')[0] || t.anonymous}
                                                         </div>
                                                         {config.description && (
-                                                            <p style={{ margin: '0', fontSize: '0.9rem', color: '#4b5563' }}>
+                                                            <p style={{ margin: '0', fontSize: '0.9rem', color: '#8aaccc' }}>
                                                                 {config.description}
                                                             </p>
                                                         )}
@@ -3054,7 +3225,7 @@
                                                                         style={{
                                                                             padding: '3px 8px',
                                                                             background: '#e0e7ff',
-                                                                            color: '#4338ca',
+                                                                            color: '#7ba7e0',
                                                                             borderRadius: '4px',
                                                                             fontSize: '0.75rem',
                                                                             fontWeight: '500'
@@ -3083,7 +3254,7 @@
                                                         {lang === 'fr' ? '👁️ Voir' : '👁️ View'}
                                                     </button>
                                                 </div>
-                                                <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '8px' }}>
+                                                <div style={{ fontSize: '0.8rem', color: '#4a6580', marginTop: '8px' }}>
                                                     👍 {config.upvotes || 0} • ⬇️ {config.downloads || 0} {t.downloads}
                                                 </div>
                                             </div>
@@ -3112,12 +3283,12 @@
                                     👁️ {previewConfig.name}
                                 </div>
 
-                                <div style={{ marginBottom: '15px', color: '#6b7280', fontSize: '0.9rem' }}>
+                                <div style={{ marginBottom: '15px', color: '#6b8fae', fontSize: '0.9rem' }}>
                                     {t.by} {previewConfig.user_email?.split('@')[0] || t.anonymous}
                                 </div>
 
                                 {previewConfig.description && (
-                                    <p style={{ marginBottom: '15px', color: '#4b5563' }}>
+                                    <p style={{ marginBottom: '15px', color: '#8aaccc' }}>
                                         {previewConfig.description}
                                     </p>
                                 )}
@@ -3130,7 +3301,7 @@
                                                 style={{
                                                     padding: '4px 10px',
                                                     background: '#e0e7ff',
-                                                    color: '#4338ca',
+                                                    color: '#7ba7e0',
                                                     borderRadius: '4px',
                                                     fontSize: '0.85rem',
                                                     fontWeight: '500'
@@ -3147,10 +3318,10 @@
                                     <div style={{ 
                                         marginBottom: '20px', 
                                         textAlign: 'center',
-                                        background: '#f9fafb',
+                                        background: 'var(--panel)',
                                         padding: '20px',
                                         borderRadius: '8px',
-                                        border: '1px solid #e5e7eb'
+                                        border: '1px solid rgba(14,165,233,0.12)'
                                     }}>
                                         <img 
                                             src={previewConfig.screenshot} 
@@ -3176,8 +3347,8 @@
                                     <div style={{ 
                                         padding: '40px', 
                                         textAlign: 'center', 
-                                        color: '#9ca3af',
-                                        background: '#f9fafb',
+                                        color: '#4a6580',
+                                        background: 'var(--panel)',
                                         borderRadius: '8px',
                                         marginBottom: '20px'
                                     }}>
@@ -3185,19 +3356,19 @@
                                     </div>
                                 )}
 
-                                <div style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: '20px' }}>
+                                <div style={{ fontSize: '0.85rem', color: '#4a6580', marginBottom: '20px' }}>
                                     👍 {previewConfig.upvotes || 0} • ⬇️ {previewConfig.downloads || 0} {t.downloads}
                                 </div>
 
                                 {/* Warning and buttons */}
                                 <div style={{
-                                    background: '#fef3c7',
-                                    border: '1px solid #fbbf24',
+                                    background: 'rgba(245,158,11,0.08)',
+                                    border: '1px solid rgba(245,158,11,0.3)',
                                     borderRadius: '6px',
                                     padding: '12px',
                                     marginBottom: '20px',
                                     fontSize: '0.9rem',
-                                    color: '#92400e'
+                                    color: '#fbbf24'
                                 }}>
                                     ⚠️ {lang === 'fr' 
                                         ? 'Charger cette configuration remplacera votre configuration actuelle.' 
