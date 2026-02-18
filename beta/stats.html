@@ -221,9 +221,71 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabaseClient.co';
+        const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk2MzczOTgsImV4cCI6MjA1NTIxMzM5OH0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
-        const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let supabaseClient;
+
+        // Wait for Supabase SDK to load with polling
+        function waitForSupabase() {
+            const maxAttempts = 50; // 5 seconds max
+            let attempts = 0;
+            
+            const checkInterval = setInterval(() => {
+                attempts++;
+                console.log('Checking for Supabase SDK...', attempts);
+                
+                if (window.supabase) {
+                    clearInterval(checkInterval);
+                    console.log('Supabase SDK loaded!');
+                    initApp();
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    showError('Supabase SDK failed to load');
+                }
+            }, 100);
+        }
+        
+        function initApp() {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Supabase client created');
+            
+            // Check session on load
+            supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    loadAnalytics();
+                } else {
+                    // Trigger sign in
+                    supabaseClient.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.href
+                        }
+                    });
+                }
+            });
+            
+            // Auth redirect handler
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') {
+                    loadAnalytics();
+                } else if (event === 'SIGNED_OUT' || !session) {
+                    supabaseClient.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.href
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Start checking when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForSupabase);
+        } else {
+            waitForSupabase();
+        }
 
         async function loadAnalytics() {
             try {
@@ -410,36 +472,6 @@
             document.getElementById('error').textContent = '❌ ' + msg;
             document.getElementById('error').style.display = 'block';
         }
-
-        // Auth redirect handler
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
-                loadAnalytics();
-            } else if (event === 'SIGNED_OUT' || !session) {
-                // Redirect to sign in
-                supabaseClient.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: window.location.origin + window.location.pathname
-                    }
-                });
-            }
-        });
-
-        // Check session on load
-        supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                loadAnalytics();
-            } else {
-                // Trigger sign in
-                supabaseClient.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: window.location.origin + window.location.pathname
-                    }
-                });
-            }
-        });
     </script>
 </body>
 </html>
