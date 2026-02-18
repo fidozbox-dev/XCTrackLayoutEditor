@@ -221,14 +221,14 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabase.co';
+        const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabaseClient.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk2MzczOTgsImV4cCI6MjA1NTIxMzM5OH0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function loadAnalytics() {
             try {
                 // Check auth
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user || user.email !== 'thrombose@gmail.com') {
                     showError('Access denied - Admin only');
                     return;
@@ -412,12 +412,12 @@
         }
 
         // Auth redirect handler
-        supabase.auth.onAuthStateChange((event, session) => {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN') {
                 loadAnalytics();
             } else if (event === 'SIGNED_OUT' || !session) {
                 // Redirect to sign in
-                supabase.auth.signInWithOAuth({
+                supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
                         redirectTo: window.location.origin + window.location.pathname
@@ -427,12 +427,12 @@
         });
 
         // Check session on load
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 loadAnalytics();
             } else {
                 // Trigger sign in
-                supabase.auth.signInWithOAuth({
+                supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
                         redirectTo: window.location.origin + window.location.pathname
