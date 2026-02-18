@@ -66,16 +66,16 @@
             --amber: #d97706;
             --radius: 8px;
             
-            /* Phone screen - light blue like XCTrack */
-            --phone-bg: #dbeafe;
-            --phone-bezel: #94a3b8;
+            /* Phone screen - light blue like XCTrack, bezel stays dark */
+            --phone-bg: #e0f2fe;
+            --phone-bezel: #0a0f1a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: var(--deeper);
+            background: #040910;
             min-height: 100vh;
             padding: 16px;
             color: var(--text);
@@ -143,9 +143,16 @@
         .github-link:hover { border-color: var(--sky); color: var(--sky); }
         .github-icon { width: 18px; height: 18px; }
 
-        .lang-switch, .lang-toggle {
+        .header-buttons {
             position: absolute;
-            top: 0; left: 0;
+            top: 0;
+            left: 0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-switch, .lang-toggle {
+            position: relative;
         }
 
         .lang-toggle {
@@ -339,6 +346,11 @@
             transition: all 0.15s;
             overflow: hidden;
         }
+        
+        [data-theme="light"] .widget {
+            border: 1px solid rgba(100,116,139,0.25);
+            background: rgba(148,163,184,0.04);
+        }
 
         .widget:hover {
             background: rgba(14,165,233,0.14);
@@ -346,12 +358,24 @@
             z-index: 10;
             box-shadow: 0 0 12px rgba(14,165,233,0.2);
         }
+        
+        [data-theme="light"] .widget:hover {
+            background: rgba(100,116,139,0.12);
+            border-color: #0284c7;
+            box-shadow: 0 0 8px rgba(2,132,199,0.15);
+        }
 
         .widget.selected {
             border-color: var(--sky) !important;
             background: rgba(14,165,233,0.18) !important;
             box-shadow: 0 0 0 2px var(--sky), 0 0 20px rgba(14,165,233,0.3) !important;
             z-index: 20;
+        }
+        
+        [data-theme="light"] .widget.selected {
+            border-color: #0284c7 !important;
+            background: rgba(2,132,199,0.12) !important;
+            box-shadow: 0 0 0 2px #0284c7, 0 0 15px rgba(2,132,199,0.2) !important;
         }
 
         .widget-label {
@@ -769,8 +793,11 @@
 
         .grid-line {
             position: absolute;
-            background: rgba(14,165,233,0.08);
         }
+        
+        /* Grid visibility by theme */
+        .grid-line { background: rgba(14,165,233,0.08); }
+        [data-theme="light"] .grid-line { background: rgba(100,116,139,0.15); }
 
         .grid-line.vertical  { width: 1px; height: 100%; }
         .grid-line.horizontal { height: 1px; width: 100%; }
@@ -2292,24 +2319,25 @@
             return (
                 <div className="container">
                     <div className="header">
-                        {/* Theme switch */}
-                        <button 
-                            className="lang-switch"
-                            onClick={toggleTheme}
-                            title="Toggle theme"
-                            style={{ marginRight: '8px' }}
-                        >
-                            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-                        </button>
-                        
-                        {/* Language switch */}
-                        <button 
-                            className="lang-switch"
-                            onClick={toggleLanguage}
-                            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
-                        >
-                            {lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
-                        </button>
+                        <div className="header-buttons">
+                            {/* Theme switch */}
+                            <button 
+                                className="lang-switch"
+                                onClick={toggleTheme}
+                                title="Toggle theme"
+                            >
+                                {theme === 'dark' ? '☀️' : '🌙'}
+                            </button>
+                            
+                            {/* Language switch */}
+                            <button 
+                                className="lang-switch"
+                                onClick={toggleLanguage}
+                                title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+                            >
+                                {lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
+                            </button>
+                        </div>
                         
                         {/* GitHub link */}
                         <a 
