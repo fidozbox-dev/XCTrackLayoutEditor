@@ -260,12 +260,18 @@
                 console.log('Auth state change:', event, session ? 'session exists' : 'no session');
                 if (event === 'SIGNED_IN' && session) {
                     console.log('User signed in, loading analytics...');
+                    // Clear hash before loading
+                    if (window.location.hash) {
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                    }
                     loadAnalytics();
                 } else if (event === 'INITIAL_SESSION' && !session && window.location.hash) {
                     // OAuth callback failed (expired token), clear hash and retry
                     console.log('OAuth token expired or invalid, clearing hash and retrying...');
-                    window.location.hash = '';
-                    window.location.reload();
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
                 }
             });
             
@@ -278,8 +284,10 @@
                     // Clear bad hash and reload
                     if (window.location.hash) {
                         console.log('Error with hash present, clearing and retrying...');
-                        window.location.hash = '';
-                        window.location.reload();
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 100);
                         return;
                     }
                 }
@@ -313,11 +321,11 @@
                     } else {
                         // We have a hash but no session - probably expired
                         console.log('Hash present but no session - token likely expired');
-                        document.getElementById('loading').innerHTML = '<p>Token expired, reloading...</p>';
+                        document.getElementById('loading').innerHTML = '<p>Token expired, clearing...</p>';
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
                         setTimeout(() => {
-                            window.location.hash = '';
                             window.location.reload();
-                        }, 1000);
+                        }, 100);
                     }
                 }
             });
