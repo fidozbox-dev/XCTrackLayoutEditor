@@ -39,6 +39,36 @@
             --red: #ef4444;
             --amber: #f59e0b;
             --radius: 8px;
+            
+            /* Phone screen */
+            --phone-bg: #111827;
+            --phone-bezel: #0a0f1a;
+        }
+
+        /* Light theme */
+        [data-theme="light"] {
+            --sky: #0284c7;
+            --sky-dim: #0369a1;
+            --sky-glow: rgba(2,132,199,0.08);
+            --deep: #ffffff;
+            --deeper: #f8fafc;
+            --card: #ffffff;
+            --card-hover: #f1f5f9;
+            --panel: #f1f5f9;
+            --border: #e2e8f0;
+            --border-bright: #cbd5e1;
+            --text: #1e293b;
+            --text-dim: #475569;
+            --text-muted: #94a3b8;
+            --green: #059669;
+            --green-dim: #047857;
+            --red: #dc2626;
+            --amber: #d97706;
+            --radius: 8px;
+            
+            /* Phone screen - light blue like XCTrack */
+            --phone-bg: #dbeafe;
+            --phone-bezel: #94a3b8;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -287,7 +317,7 @@
         /* ── PHONE ── */
         .phone-container {
             position: relative;
-            background: #0a0f1a;
+            background: var(--phone-bezel);
             border-radius: 16px;
             padding: 12px;
             box-shadow: 0 0 0 1px rgba(14,165,233,0.2), 0 20px 60px rgba(0,0,0,0.6);
@@ -296,7 +326,7 @@
 
         .phone-screen {
             position: relative;
-            background: #111827;
+            background: var(--phone-bg);
             border-radius: 6px;
             overflow: hidden;
         }
@@ -330,7 +360,7 @@
             font-size: 0.65rem;
             font-weight: 600;
             color: var(--sky);
-            background: rgba(6,13,26,0.85);
+            background: var(--card);
             padding: 1px 5px;
             border-radius: 3px;
             pointer-events: none;
@@ -339,6 +369,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            border: 1px solid var(--border);
         }
 
         /* ── WIDGET EDITOR ── */
@@ -1138,6 +1169,23 @@
                 setLanguage(newLang);
                 localStorage.setItem('xctrackEditorLang', newLang);
             };
+
+            // Système de thème avec persistance
+            const [theme, setTheme] = useState(() => {
+                const saved = localStorage.getItem('xctrackEditorTheme');
+                return saved || 'dark';
+            });
+
+            const toggleTheme = () => {
+                const newTheme = theme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+                localStorage.setItem('xctrackEditorTheme', newTheme);
+            };
+
+            // Apply theme to body
+            useEffect(() => {
+                document.body.setAttribute('data-theme', theme);
+            }, [theme]);
 
             const lang = language;
             
@@ -2244,6 +2292,16 @@
             return (
                 <div className="container">
                     <div className="header">
+                        {/* Theme switch */}
+                        <button 
+                            className="lang-switch"
+                            onClick={toggleTheme}
+                            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                            style={{ marginRight: '8px' }}
+                        >
+                            {theme === 'dark' ? '☀️' : '🌙'}
+                        </button>
+                        
                         {/* Language switch */}
                         <button 
                             className="lang-switch"
@@ -2269,7 +2327,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.17-dark-skin-v3
+                            v2025.02.17-theme-switcher
                         </div>
                     </div>
 
@@ -2466,7 +2524,7 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#d4e4f5', 
+                                                        color: theme === 'dark' ? '#d4e4f5' : '#1e293b', 
                                                         marginTop: '10px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
@@ -2504,7 +2562,7 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#d4e4f5', 
+                                                        color: theme === 'dark' ? '#d4e4f5' : '#1e293b', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
@@ -2542,7 +2600,7 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#d4e4f5', 
+                                                        color: theme === 'dark' ? '#d4e4f5' : '#1e293b', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
@@ -2580,7 +2638,7 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#d4e4f5', 
+                                                        color: theme === 'dark' ? '#d4e4f5' : '#1e293b', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
@@ -2618,7 +2676,7 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#d4e4f5', 
+                                                        color: theme === 'dark' ? '#d4e4f5' : '#1e293b', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
@@ -2656,7 +2714,7 @@
                                                 <>
                                                     <div style={{ 
                                                         fontWeight: 'bold', 
-                                                        color: '#d4e4f5', 
+                                                        color: theme === 'dark' ? '#d4e4f5' : '#1e293b', 
                                                         marginTop: '15px',
                                                         marginBottom: '5px',
                                                         fontSize: '0.9rem',
@@ -2925,7 +2983,7 @@
                                                                                 <div style={{
                                                                                     fontSize: `${preview.fontSize}px`,
                                                                                     fontWeight: 'bold',
-                                                                                    color: '#d4e4f5',
+                                                                                    color: theme === 'dark' ? '#d4e4f5' : '#1e293b',
                                                                                     lineHeight: 1
                                                                                 }}>
                                                                                     {preview.text}
@@ -2938,7 +2996,7 @@
                                                                                             flexDirection: 'column',
                                                                                             alignItems: 'center',
                                                                                             fontSize: `${preview.unitSize}px`,
-                                                                                            color: '#6b8fae',
+                                                                                            color: theme === 'dark' ? '#6b8fae' : '#64748b',
                                                                                             lineHeight: 0.8,
                                                                                             gap: '1px'
                                                                                         }}>
@@ -2954,7 +3012,7 @@
                                                                                         // Affichage simple pour m, km, etc.
                                                                                         <div style={{
                                                                                             fontSize: `${preview.unitSize}px`,
-                                                                                            color: '#6b8fae',
+                                                                                            color: theme === 'dark' ? '#6b8fae' : '#64748b',
                                                                                             lineHeight: 1
                                                                                         }}>
                                                                                             {preview.unit}
@@ -3042,7 +3100,7 @@
                                     <label>Tags *</label>
                                     <div style={{ 
                                         fontSize: '0.8rem', 
-                                        color: '#6b8fae', 
+                                        color: theme === 'dark' ? '#6b8fae' : '#64748b', 
                                         marginBottom: '10px' 
                                     }}>
                                         {lang === 'fr' 
@@ -3171,7 +3229,7 @@
                                 {/* Configs List */}
                                 <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                                     {communityConfigs.length === 0 ? (
-                                        <div style={{ textAlign: 'center', padding: '40px', color: '#6b8fae' }}>
+                                        <div style={{ textAlign: 'center', padding: '40px', color: theme === 'dark' ? '#6b8fae' : '#64748b' }}>
                                             {lang === 'fr' ? 'Aucune configuration trouvée' : 'No configurations found'}
                                         </div>
                                     ) : (
@@ -3207,10 +3265,10 @@
                                                 
                                                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                                     <div style={{ flex: 1 }}>
-                                                        <h4 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', color: '#d4e4f5' }}>
+                                                        <h4 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', color: theme === 'dark' ? '#d4e4f5' : '#1e293b' }}>
                                                             {config.name}
                                                         </h4>
-                                                        <div style={{ fontSize: '0.85rem', color: '#6b8fae', marginBottom: '8px' }}>
+                                                        <div style={{ fontSize: '0.85rem', color: theme === 'dark' ? '#6b8fae' : '#64748b', marginBottom: '8px' }}>
                                                             {t.by} {config.user_email?.split('@')[0] || t.anonymous}
                                                         </div>
                                                         {config.description && (
@@ -3284,7 +3342,7 @@
                                     👁️ {previewConfig.name}
                                 </div>
 
-                                <div style={{ marginBottom: '15px', color: '#6b8fae', fontSize: '0.9rem' }}>
+                                <div style={{ marginBottom: '15px', color: theme === 'dark' ? '#6b8fae' : '#64748b', fontSize: '0.9rem' }}>
                                     {t.by} {previewConfig.user_email?.split('@')[0] || t.anonymous}
                                 </div>
 
