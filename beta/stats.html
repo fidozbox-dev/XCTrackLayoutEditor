@@ -250,32 +250,39 @@
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             console.log('Supabase client created');
             
-            // Check session on load
-            supabaseClient.auth.getSession().then(({ data: { session } }) => {
-                if (session) {
+            // Handle OAuth callback (hash in URL)
+            if (window.location.hash) {
+                console.log('OAuth callback detected, hash:', window.location.hash.substring(0, 50) + '...');
+            }
+            
+            // Auth redirect handler (must be set up first)
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                console.log('Auth state change:', event, session ? 'session exists' : 'no session');
+                if (event === 'SIGNED_IN' && session) {
+                    console.log('User signed in, loading analytics...');
                     loadAnalytics();
-                } else {
-                    // Trigger sign in
-                    supabaseClient.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: {
-                            redirectTo: window.location.href
-                        }
-                    });
                 }
             });
             
-            // Auth redirect handler
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_IN') {
+            // Check existing session
+            supabaseClient.auth.getSession().then(({ data: { session }, error }) => {
+                console.log('Current session:', session ? 'exists' : 'none', 'error:', error);
+                if (session) {
                     loadAnalytics();
-                } else if (event === 'SIGNED_OUT' || !session) {
-                    supabaseClient.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: {
-                            redirectTo: window.location.href
-                        }
-                    });
+                } else {
+                    // Only trigger login if we're not in the middle of OAuth callback
+                    if (!window.location.hash) {
+                        console.log('No session and no callback, triggering login...');
+                        document.getElementById('loading').innerHTML = '<p>Redirecting to Google login...</p>';
+                        setTimeout(() => {
+                            supabaseClient.auth.signInWithOAuth({
+                                provider: 'google',
+                                options: {
+                                    redirectTo: window.location.origin + window.location.pathname
+                                }
+                            });
+                        }, 1000);
+                    }
                 }
             });
         }
@@ -290,9 +297,30 @@
         async function loadAnalytics() {
             try {
                 // Check auth
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user || user.email !== 'thrombose@gmail.com') {
-                    showError('Access denied - Admin only');
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
+                console.log('Auth user:', user);
+                console.log('Auth error:', error);
+                
+                if (error) {
+                    showError('Auth error: ' + error.message);
+                    return;
+                }
+                
+                if (!user) {
+                    console.log('No user, redirecting to login...');
+                    await supabaseClient.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.href
+                        }
+                    });
+                    return;
+                }
+                
+                console.log('User email:', user.email);
+                
+                if (user.email !== 'thrombose@gmail.com') {
+                    showError('Access denied - Admin only (your email: ' + user.email + ')');
                     return;
                 }
 
