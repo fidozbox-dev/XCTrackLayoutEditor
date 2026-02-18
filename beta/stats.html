@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XCTrack Editor - Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <style>
+        :root {
+            --deep: #060d1a;
+            --card: #0d1b2e;
+            --border: rgba(14,165,233,0.12);
+            --text: #d4e4f5;
+            --text-dim: #6b8fae;
+            --sky: #0ea5e9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background: #040910;
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--sky);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--sky);
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card h2 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-dim);
+        }
+
+        .error {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(14,165,233,0.15);
+            color: var(--sky);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Analytics Dashboard</h1>
+            <p class="subtitle">XCTrack Layout Editor - Admin only</p>
+        </header>
+
+        <div id="loading" class="loading">
+            <p>Loading analytics...</p>
+        </div>
+
+        <div id="error" style="display: none;" class="error"></div>
+
+        <div id="content" style="display: none;">
+            <!-- KPIs -->
+            <div class="grid">
+                <div class="card">
+                    <h2>Total Sessions</h2>
+                    <div class="metric-value" id="total-sessions">-</div>
+                    <div class="metric-label">Last 30 days</div>
+                </div>
+                <div class="card">
+                    <h2>Configs Created</h2>
+                    <div class="metric-value" id="configs-created">-</div>
+                    <div class="metric-label">Last 30 days</div>
+                </div>
+                <div class="card">
+                    <h2>Configs Uploaded</h2>
+                    <div class="metric-value" id="configs-uploaded">-</div>
+                    <div class="metric-label">To library</div>
+                </div>
+                <div class="card">
+                    <h2>Downloads</h2>
+                    <div class="metric-value" id="downloads">-</div>
+                    <div class="metric-label">From library</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-card">
+                <h2>Events Over Time (Last 7 Days)</h2>
+                <canvas id="chart-timeline"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h2>Event Types Distribution</h2>
+                <canvas id="chart-events"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h2>Theme & Language Preferences</h2>
+                <canvas id="chart-preferences"></canvas>
+            </div>
+
+            <!-- Top Events Table -->
+            <div class="card">
+                <h2>Recent Events</h2>
+                <table id="events-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Event</th>
+                            <th>User</th>
+                            <th>Metadata</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ovhbpujablpfunnpkuxh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGJwdWphYmxwZnVubnBrdXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk2MzczOTgsImV4cCI6MjA1NTIxMzM5OH0.3wKwiUyUMOKR3RFIlFPlLFiQFwrH6aOf7NQ8OKvLZ0U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadAnalytics() {
+            try {
+                // Check auth
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user || user.email !== 'thrombose@gmail.com') {
+                    showError('Access denied - Admin only');
+                    return;
+                }
+
+                // Load KPIs
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                // Total sessions
+                const { count: sessionCount } = await supabase
+                    .from('analytics_sessions')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('started_at', thirtyDaysAgo.toISOString());
+                document.getElementById('total-sessions').textContent = sessionCount || 0;
+
+                // Configs created
+                const { count: createdCount } = await supabase
+                    .from('analytics_events')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_type', 'config_created')
+                    .gte('created_at', thirtyDaysAgo.toISOString());
+                document.getElementById('configs-created').textContent = createdCount || 0;
+
+                // Configs uploaded
+                const { count: uploadedCount } = await supabase
+                    .from('analytics_events')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_type', 'config_uploaded')
+                    .gte('created_at', thirtyDaysAgo.toISOString());
+                document.getElementById('configs-uploaded').textContent = uploadedCount || 0;
+
+                // Downloads
+                const { count: downloadCount } = await supabase
+                    .from('analytics_events')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_type', 'config_downloaded')
+                    .gte('created_at', thirtyDaysAgo.toISOString());
+                document.getElementById('downloads').textContent = downloadCount || 0;
+
+                // Load events for charts
+                const { data: events } = await supabase
+                    .from('analytics_events')
+                    .select('*')
+                    .gte('created_at', thirtyDaysAgo.toISOString())
+                    .order('created_at', { ascending: true });
+
+                createTimelineChart(events);
+                createEventsChart(events);
+                
+                // Load sessions for preferences
+                const { data: sessions } = await supabase
+                    .from('analytics_sessions')
+                    .select('theme, lang')
+                    .gte('started_at', thirtyDaysAgo.toISOString());
+                createPreferencesChart(sessions);
+
+                // Load recent events
+                const { data: recentEvents } = await supabase
+                    .from('analytics_events')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+                populateEventsTable(recentEvents);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function createTimelineChart(events) {
+            // Group by date
+            const byDate = {};
+            events.forEach(e => {
+                const date = e.created_at.split('T')[0];
+                byDate[date] = (byDate[date] || 0) + 1;
+            });
+
+            const labels = Object.keys(byDate).sort();
+            const data = labels.map(l => byDate[l]);
+
+            new Chart(document.getElementById('chart-timeline'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Events',
+                        data,
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14,165,233,0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#6b8fae' }, grid: { color: 'rgba(14,165,233,0.1)' } },
+                        x: { ticks: { color: '#6b8fae' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function createEventsChart(events) {
+            const byType = {};
+            events.forEach(e => {
+                byType[e.event_type] = (byType[e.event_type] || 0) + 1;
+            });
+
+            new Chart(document.getElementById('chart-events'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(byType),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(byType),
+                        backgroundColor: '#0ea5e9'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#6b8fae' }, grid: { color: 'rgba(14,165,233,0.1)' } },
+                        x: { ticks: { color: '#6b8fae' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function createPreferencesChart(sessions) {
+            const themeCount = { dark: 0, light: 0 };
+            const langCount = { fr: 0, en: 0 };
+
+            sessions.forEach(s => {
+                if (s.theme) themeCount[s.theme] = (themeCount[s.theme] || 0) + 1;
+                if (s.lang) langCount[s.lang] = (langCount[s.lang] || 0) + 1;
+            });
+
+            new Chart(document.getElementById('chart-preferences'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Dark Theme', 'Light Theme', 'Français', 'English'],
+                    datasets: [{
+                        data: [themeCount.dark, themeCount.light, langCount.fr, langCount.en],
+                        backgroundColor: ['#0ea5e9', '#6366f1', '#10b981', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#d4e4f5' } }
+                    }
+                }
+            });
+        }
+
+        function populateEventsTable(events) {
+            const tbody = document.querySelector('#events-table tbody');
+            tbody.innerHTML = events.map(e => `
+                <tr>
+                    <td>${new Date(e.created_at).toLocaleString()}</td>
+                    <td><span class="badge">${e.event_type}</span></td>
+                    <td>${e.user_id ? '✅ Auth' : '👤 Anon'}</td>
+                    <td>${JSON.stringify(e.metadata || {})}</td>
+                </tr>
+            `).join('');
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').textContent = '❌ ' + msg;
+            document.getElementById('error').style.display = 'block';
+        }
+
+        // Auth redirect handler
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                loadAnalytics();
+            } else if (event === 'SIGNED_OUT' || !session) {
+                // Redirect to sign in
+                supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+            }
+        });
+
+        // Check session on load
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                loadAnalytics();
+            } else {
+                // Trigger sign in
+                supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
