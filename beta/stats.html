@@ -291,14 +291,25 @@
                     if (!window.location.hash) {
                         console.log('No session and no callback, triggering login...');
                         document.getElementById('loading').innerHTML = '<p>Redirecting to Google login...</p>';
-                        setTimeout(() => {
-                            supabaseClient.auth.signInWithOAuth({
-                                provider: 'google',
-                                options: {
-                                    redirectTo: window.location.origin + window.location.pathname
-                                }
-                            });
-                        }, 1000);
+                        
+                        // Try OAuth
+                        supabaseClient.auth.signInWithOAuth({
+                            provider: 'google',
+                            options: {
+                                redirectTo: window.location.origin + window.location.pathname
+                            }
+                        }).then(({ data, error }) => {
+                            console.log('OAuth result:', data, error);
+                            if (error) {
+                                showError('OAuth error: ' + error.message);
+                            } else if (data?.url) {
+                                console.log('Redirecting to:', data.url);
+                                window.location.href = data.url;
+                            }
+                        }).catch(err => {
+                            console.error('OAuth exception:', err);
+                            showError('OAuth failed: ' + err.message);
+                        });
                     } else {
                         // We have a hash but no session - probably expired
                         console.log('Hash present but no session - token likely expired');
