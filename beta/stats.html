@@ -261,12 +261,29 @@
                 if (event === 'SIGNED_IN' && session) {
                     console.log('User signed in, loading analytics...');
                     loadAnalytics();
+                } else if (event === 'INITIAL_SESSION' && !session && window.location.hash) {
+                    // OAuth callback failed (expired token), clear hash and retry
+                    console.log('OAuth token expired or invalid, clearing hash and retrying...');
+                    window.location.hash = '';
+                    window.location.reload();
                 }
             });
             
             // Check existing session
             supabaseClient.auth.getSession().then(({ data: { session }, error }) => {
                 console.log('Current session:', session ? 'exists' : 'none', 'error:', error);
+                
+                if (error) {
+                    console.error('Session error:', error);
+                    // Clear bad hash and reload
+                    if (window.location.hash) {
+                        console.log('Error with hash present, clearing and retrying...');
+                        window.location.hash = '';
+                        window.location.reload();
+                        return;
+                    }
+                }
+                
                 if (session) {
                     loadAnalytics();
                 } else {
@@ -281,6 +298,14 @@
                                     redirectTo: window.location.origin + window.location.pathname
                                 }
                             });
+                        }, 1000);
+                    } else {
+                        // We have a hash but no session - probably expired
+                        console.log('Hash present but no session - token likely expired');
+                        document.getElementById('loading').innerHTML = '<p>Token expired, reloading...</p>';
+                        setTimeout(() => {
+                            window.location.hash = '';
+                            window.location.reload();
                         }, 1000);
                     }
                 }
