@@ -1133,6 +1133,54 @@
         };
 
         const XCTrackViewer = () => {
+            // ── ANALYTICS SYSTEM ──
+            const getOrCreateSessionId = () => {
+                let sessionId = sessionStorage.getItem('xctrack_session_id');
+                if (!sessionId) {
+                    sessionId = crypto.randomUUID();
+                    sessionStorage.setItem('xctrack_session_id', sessionId);
+                }
+                return sessionId;
+            };
+
+            const trackEvent = async (eventType, metadata = {}) => {
+                try {
+                    const sessionId = getOrCreateSessionId();
+                    const userId = user?.id || null;
+                    
+                    await supabase.from('analytics_events').insert({
+                        event_type: eventType,
+                        user_id: userId,
+                        session_id: sessionId,
+                        metadata: metadata
+                    });
+                } catch (error) {
+                    // Silent fail - analytics shouldn't break the app
+                    console.debug('Analytics error:', error);
+                }
+            };
+
+            const updateSession = async () => {
+                try {
+                    const sessionId = getOrCreateSessionId();
+                    const userId = user?.id || null;
+                    
+                    // Upsert session (insert or update)
+                    await supabase.from('analytics_sessions').upsert({
+                        session_id: sessionId,
+                        user_id: userId,
+                        last_activity_at: new Date().toISOString(),
+                        theme: theme,
+                        lang: language,
+                        user_agent: navigator.userAgent
+                    }, {
+                        onConflict: 'session_id'
+                    });
+                } catch (error) {
+                    console.debug('Session update error:', error);
+                }
+            };
+
             const [configData, setConfigData] = useState(null);
             const [orientation, setOrientation] = useState('landscape');
             const [selectedWidget, setSelectedWidget] = useState(null);
@@ -1213,6 +1261,28 @@
             useEffect(() => {
                 document.body.setAttribute('data-theme', theme);
             }, [theme]);
+
+            // Analytics: Track page view on mount
+            useEffect(() => {
+                trackEvent('page_view');
+                updateSession();
+            }, []);
+
+            // Analytics: Track theme changes
+            useEffect(() => {
+                if (theme) {
+                    trackEvent('theme_switched', { theme });
+                    updateSession();
+                }
+            }, [theme]);
+
+            // Analytics: Track language changes
+            useEffect(() => {
+                if (language) {
+                    trackEvent('lang_switched', { lang: language });
+                    updateSession();
+                }
+            }, [language]);
 
             const lang = language;
             
@@ -1402,7 +1472,7 @@
 
             const currentResolution = RESOLUTION_PRESETS[resolutionIndex];
 
-            const loadConfig = (jsonText) => {
+            const loadConfig = (jsonText, source = 'import') => {
                 try {
                     const data = JSON.parse(jsonText);
                     setConfigData(data);
@@ -1420,6 +1490,11 @@
                             }
                             return prev;
                         });
+                    }
+                    
+                    // Track import (don't track on initial localStorage load)
+                    if (source !== 'localStorage') {
+                        trackEvent('config_imported', { source });
                     }
                 } catch (e) {
                     alert('Erreur de parsing JSON : ' + e.message);
@@ -1500,7 +1575,7 @@
             useEffect(() => {
                 const savedConfig = localStorage.getItem('xctrackConfig');
                 if (savedConfig) {
-                    loadConfig(savedConfig);
+                    loadConfig(savedConfig, 'localStorage');
                 }
                 // Restore orientation if set (e.g. by browser.html)
                 const savedOrientation = localStorage.getItem('xctrackOrientation');
@@ -1968,6 +2043,9 @@
                     link.click();
                     URL.revokeObjectURL(url);
                 }
+                
+                // Track export
+                trackEvent('config_exported');
             };
 
             const createNewConfig = () => {
@@ -1993,6 +2071,7 @@
                 setConfigData(newConfig);
                 localStorage.setItem('xctrackConfig', JSON.stringify(newConfig));
                 pushHistory(newConfig, 'Nouvelle configuration');
+                trackEvent('config_created', { source: 'new' });
             };
 
             // Community functions - vanilla JS style that works!
@@ -2109,6 +2188,7 @@
                 } else {
                     setShowCommunityModal(false);
                     setConfigTags([]);
+                    trackEvent('config_uploaded', { tags: configTags });
                 }
             }
 
@@ -2204,6 +2284,11 @@
                 setConfigData(config.config_json);
                 localStorage.setItem('xctrackConfig', JSON.stringify(config.config_json));
                 setShowCommunityModal(false);
+                
+                trackEvent('config_downloaded', { 
+                    config_id: config.id,
+                    tags: config.tags 
+                });
             }
 
             if (!configData) {
