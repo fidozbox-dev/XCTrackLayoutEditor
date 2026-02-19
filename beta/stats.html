@@ -316,14 +316,14 @@
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
                 // Total sessions
-                const { count: sessionCount } = await supabase
+                const { count: sessionCount } = await supabaseClient
                     .from('analytics_sessions')
                     .select('*', { count: 'exact', head: true })
                     .gte('started_at', thirtyDaysAgo.toISOString());
                 document.getElementById('total-sessions').textContent = sessionCount || 0;
 
                 // Configs created
-                const { count: createdCount } = await supabase
+                const { count: createdCount } = await supabaseClient
                     .from('analytics_events')
                     .select('*', { count: 'exact', head: true })
                     .eq('event_type', 'config_created')
@@ -331,7 +331,7 @@
                 document.getElementById('configs-created').textContent = createdCount || 0;
 
                 // Configs uploaded
-                const { count: uploadedCount } = await supabase
+                const { count: uploadedCount } = await supabaseClient
                     .from('analytics_events')
                     .select('*', { count: 'exact', head: true })
                     .eq('event_type', 'config_uploaded')
@@ -339,7 +339,7 @@
                 document.getElementById('configs-uploaded').textContent = uploadedCount || 0;
 
                 // Downloads
-                const { count: downloadCount } = await supabase
+                const { count: downloadCount } = await supabaseClient
                     .from('analytics_events')
                     .select('*', { count: 'exact', head: true })
                     .eq('event_type', 'config_downloaded')
@@ -347,7 +347,7 @@
                 document.getElementById('downloads').textContent = downloadCount || 0;
 
                 // Load events for charts
-                const { data: events } = await supabase
+                const { data: events } = await supabaseClient
                     .from('analytics_events')
                     .select('*')
                     .gte('created_at', thirtyDaysAgo.toISOString())
@@ -357,14 +357,14 @@
                 createEventsChart(events);
                 
                 // Load sessions for preferences
-                const { data: sessions } = await supabase
+                const { data: sessions } = await supabaseClient
                     .from('analytics_sessions')
                     .select('theme, lang')
                     .gte('started_at', thirtyDaysAgo.toISOString());
                 createPreferencesChart(sessions);
 
                 // Load recent events
-                const { data: recentEvents } = await supabase
+                const { data: recentEvents } = await supabaseClient
                     .from('analytics_events')
                     .select('*')
                     .order('created_at', { ascending: false })
