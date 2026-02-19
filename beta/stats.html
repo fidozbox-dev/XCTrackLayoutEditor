@@ -250,83 +250,26 @@
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             console.log('Supabase client created');
             
-            // Handle OAuth callback (hash in URL)
+            // Clear any hash on arrival (don't try to process OAuth callbacks)
             if (window.location.hash) {
-                console.log('OAuth callback detected, hash:', window.location.hash.substring(0, 50) + '...');
+                console.log('Clearing hash from URL');
+                history.replaceState(null, '', window.location.pathname + window.location.search);
             }
             
-            // Auth redirect handler (must be set up first)
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                console.log('Auth state change:', event, session ? 'session exists' : 'no session');
-                if (event === 'SIGNED_IN' && session) {
-                    console.log('User signed in, loading analytics...');
-                    // Clear hash before loading
-                    if (window.location.hash) {
-                        history.replaceState(null, '', window.location.pathname + window.location.search);
-                    }
-                    loadAnalytics();
-                } else if (event === 'INITIAL_SESSION' && !session && window.location.hash) {
-                    // OAuth callback failed (expired token), clear hash and retry
-                    console.log('OAuth token expired or invalid, clearing hash and retrying...');
-                    history.replaceState(null, '', window.location.pathname + window.location.search);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 100);
-                }
-            });
-            
-            // Check existing session
+            // Just check for existing session (shared with index.html)
             supabaseClient.auth.getSession().then(({ data: { session }, error }) => {
                 console.log('Current session:', session ? 'exists' : 'none', 'error:', error);
                 
                 if (error) {
-                    console.error('Session error:', error);
-                    // Clear bad hash and reload
-                    if (window.location.hash) {
-                        console.log('Error with hash present, clearing and retrying...');
-                        history.replaceState(null, '', window.location.pathname + window.location.search);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 100);
-                        return;
-                    }
+                    showError('Session error: ' + error.message);
+                    return;
                 }
                 
                 if (session) {
+                    console.log('Session found, loading analytics...');
                     loadAnalytics();
                 } else {
-                    // Only trigger login if we're not in the middle of OAuth callback
-                    if (!window.location.hash) {
-                        console.log('No session and no callback, triggering login...');
-                        document.getElementById('loading').innerHTML = '<p>Redirecting to Google login...</p>';
-                        
-                        // Try OAuth
-                        supabaseClient.auth.signInWithOAuth({
-                            provider: 'google',
-                            options: {
-                                redirectTo: window.location.origin + window.location.pathname
-                            }
-                        }).then(({ data, error }) => {
-                            console.log('OAuth result:', data, error);
-                            if (error) {
-                                showError('OAuth error: ' + error.message);
-                            } else if (data?.url) {
-                                console.log('Redirecting to:', data.url);
-                                window.location.href = data.url;
-                            }
-                        }).catch(err => {
-                            console.error('OAuth exception:', err);
-                            showError('OAuth failed: ' + err.message);
-                        });
-                    } else {
-                        // We have a hash but no session - probably expired
-                        console.log('Hash present but no session - token likely expired');
-                        document.getElementById('loading').innerHTML = '<p>Token expired, clearing...</p>';
-                        history.replaceState(null, '', window.location.pathname + window.location.search);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 100);
-                    }
+                    showError('No active session. Please sign in on the main editor first: <a href="./index.html" style="color: #0ea5e9">Go to Editor</a>');
                 }
             });
         }
