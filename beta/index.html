@@ -1212,6 +1212,7 @@
             // CSS Live Editor
             const [showCSSEditor, setShowCSSEditor] = useState(false);
             const [liveCSS, setLiveCSS] = useState('');
+            const [cssSearch, setCSSSearch] = useState('');
             
             // Save modal form states
             const [configName, setConfigName] = useState('');
@@ -3669,32 +3670,129 @@
                     {/* CSS Live Editor Modal */}
                     {showCSSEditor && (
                         <div className="modal-backdrop" onClick={() => setShowCSSEditor(false)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px', height: '80vh' }}>
-                                <h2>🎨 CSS Live Editor</h2>
-                                <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: '16px' }}>
-                                    Edit CSS in real-time. Changes apply instantly. Press Ctrl+Shift+C to toggle.
-                                </p>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} 
+                                style={{ 
+                                    maxWidth: '95vw', 
+                                    width: '95vw',
+                                    height: '90vh',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}>
+                                <div style={{ marginBottom: '12px' }}>
+                                    <h2 style={{ marginBottom: '4px' }}>🎨 CSS Live Editor</h2>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+                                        Edit CSS in real-time. Changes apply instantly. Press <kbd style={{ 
+                                            padding: '2px 6px', 
+                                            background: 'var(--panel)', 
+                                            border: '1px solid var(--border)', 
+                                            borderRadius: '3px',
+                                            fontFamily: 'monospace'
+                                        }}>Ctrl+Shift+C</kbd> to toggle.
+                                    </p>
+                                </div>
 
-                                <textarea
-                                    value={liveCSS}
-                                    onChange={(e) => setLiveCSS(e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        height: 'calc(100% - 140px)',
-                                        fontFamily: "'Courier New', monospace",
-                                        fontSize: '0.85rem',
-                                        padding: '12px',
-                                        background: 'var(--panel)',
-                                        color: 'var(--text)',
-                                        border: '1px solid var(--border)',
-                                        borderRadius: '6px',
-                                        resize: 'none',
-                                        marginBottom: '16px'
-                                    }}
-                                    spellCheck="false"
-                                />
+                                <div style={{ display: 'flex', gap: '12px', flex: 1, minHeight: 0 }}>
+                                    {/* Left: CSS Editor */}
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'space-between',
+                                            marginBottom: '8px'
+                                        }}>
+                                            <div style={{ 
+                                                fontSize: '0.75rem', 
+                                                color: 'var(--text-dim)',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                fontWeight: '600'
+                                            }}>
+                                                CSS Code ({liveCSS.split('\n').length} lines)
+                                            </div>
+                                            <input 
+                                                type="text"
+                                                placeholder="Search CSS... (Ctrl+F)"
+                                                value={cssSearch}
+                                                onChange={(e) => setCSSSearch(e.target.value)}
+                                                style={{
+                                                    padding: '4px 8px',
+                                                    fontSize: '0.75rem',
+                                                    background: 'var(--panel)',
+                                                    border: '1px solid var(--border)',
+                                                    borderRadius: '4px',
+                                                    color: 'var(--text)',
+                                                    width: '200px'
+                                                }}
+                                            />
+                                        </div>
+                                        <textarea
+                                            value={liveCSS}
+                                            onChange={(e) => setLiveCSS(e.target.value)}
+                                            style={{
+                                                flex: 1,
+                                                fontFamily: "'Courier New', monospace",
+                                                fontSize: '0.8rem',
+                                                lineHeight: '1.5',
+                                                padding: '12px',
+                                                background: 'var(--deeper)',
+                                                color: 'var(--text)',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: '6px',
+                                                resize: 'none',
+                                                overflowY: 'auto',
+                                                tabSize: 4
+                                            }}
+                                            spellCheck="false"
+                                            placeholder="/* Your CSS here */"
+                                        />
+                                    </div>
 
-                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    {/* Right: Live Preview */}
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                        <div style={{ 
+                                            marginBottom: '8px', 
+                                            fontSize: '0.75rem', 
+                                            color: 'var(--text-dim)',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.5px',
+                                            fontWeight: '600'
+                                        }}>
+                                            Live Preview
+                                        </div>
+                                        <div style={{
+                                            flex: 1,
+                                            background: 'var(--deeper)',
+                                            border: '1px solid var(--border)',
+                                            borderRadius: '6px',
+                                            padding: '20px',
+                                            overflowY: 'auto',
+                                            fontSize: '0.85rem',
+                                            color: 'var(--text-dim)'
+                                        }}>
+                                            <div style={{ marginBottom: '16px' }}>
+                                                <div style={{ 
+                                                    background: 'var(--card)', 
+                                                    border: '1px solid var(--border)',
+                                                    borderRadius: 'var(--radius)',
+                                                    padding: '16px'
+                                                }}>
+                                                    <h3 style={{ color: 'var(--sky)', marginBottom: '8px' }}>Preview Panel</h3>
+                                                    <p style={{ color: 'var(--text)' }}>This shows how your CSS affects the interface.</p>
+                                                    <button style={{ marginTop: '12px' }}>Sample Button</button>
+                                                </div>
+                                            </div>
+                                            <div style={{ 
+                                                fontSize: '0.75rem', 
+                                                color: 'var(--text-muted)',
+                                                fontStyle: 'italic'
+                                            }}>
+                                                💡 Tip: Look at the main editor behind this modal to see real-time changes!
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                                     <button onClick={exportCSSToClipboard} style={{ background: 'var(--sky)', color: 'white' }}>
                                         📋 Copy CSS
                                     </button>
