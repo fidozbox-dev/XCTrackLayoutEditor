@@ -2065,8 +2065,10 @@
 
             // CSS Live Editor functions
             const extractCurrentCSS = () => {
-                const styleTag = document.querySelector('style');
-                return styleTag ? styleTag.textContent : '';
+                // Get all style tags and find the main one (not #live-css)
+                const styleTags = Array.from(document.querySelectorAll('style'));
+                const mainStyle = styleTags.find(tag => tag.id !== 'live-css');
+                return mainStyle ? mainStyle.textContent : '';
             };
 
             const applyCSSLive = (css) => {
