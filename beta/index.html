@@ -1209,6 +1209,10 @@
             const [communityFilters, setCommunityFilters] = useState([]);
             const [communitySortBy, setCommunitySortBy] = useState('upvotes');
             
+            // CSS Live Editor
+            const [showCSSEditor, setShowCSSEditor] = useState(false);
+            const [liveCSS, setLiveCSS] = useState('');
+            
             // Save modal form states
             const [configName, setConfigName] = useState('');
             const [configDescription, setConfigDescription] = useState('');
@@ -1978,11 +1982,21 @@
             // Gestion des raccourcis clavier
             useEffect(() => {
                 const handleKeyDown = (e) => {
-                    // Ignorer si on est dans un input/textarea
-                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    // Ignorer si on est dans un input/textarea (sauf pour CSS editor toggle)
+                    const isInputField = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
                     
                     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
                     const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+                    
+                    // CSS Editor toggle (works everywhere)
+                    if (cmdOrCtrl && e.shiftKey && e.key === 'C') {
+                        e.preventDefault();
+                        setShowCSSEditor(prev => !prev);
+                        return;
+                    }
+                    
+                    // Skip other shortcuts if in input field
+                    if (isInputField) return;
                     
                     if (cmdOrCtrl && e.key === 'z' && !e.shiftKey) {
                         e.preventDefault();
@@ -2047,6 +2061,73 @@
                 // Track export
                 trackEvent('config_exported');
             };
+
+            // CSS Live Editor functions
+            const extractCurrentCSS = () => {
+                const styleTag = document.querySelector('style');
+                return styleTag ? styleTag.textContent : '';
+            };
+
+            const applyCSSLive = (css) => {
+                let liveStyleTag = document.getElementById('live-css');
+                if (!liveStyleTag) {
+                    liveStyleTag = document.createElement('style');
+                    liveStyleTag.id = 'live-css';
+                    document.head.appendChild(liveStyleTag);
+                }
+                liveStyleTag.textContent = css;
+            };
+
+            const exportCSSToClipboard = () => {
+                navigator.clipboard.writeText(liveCSS).then(() => {
+                    alert('✅ CSS copied to clipboard!');
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('❌ Failed to copy CSS');
+                });
+            };
+
+            const saveCSS = () => {
+                localStorage.setItem('xctrackEditorCustomCSS', liveCSS);
+                alert('💾 CSS saved to localStorage');
+            };
+
+            const loadSavedCSS = () => {
+                const saved = localStorage.getItem('xctrackEditorCustomCSS');
+                if (saved) {
+                    setLiveCSS(saved);
+                    applyCSSLive(saved);
+                    alert('📂 CSS loaded from localStorage');
+                } else {
+                    alert('ℹ️ No saved CSS found');
+                }
+            };
+
+            const resetCSS = () => {
+                const original = extractCurrentCSS();
+                setLiveCSS(original);
+                const liveStyleTag = document.getElementById('live-css');
+                if (liveStyleTag) {
+                    liveStyleTag.remove();
+                }
+                localStorage.removeItem('xctrackEditorCustomCSS');
+                alert('🔄 CSS reset to original');
+            };
+
+            // Initialize CSS editor content when opened
+            useEffect(() => {
+                if (showCSSEditor && !liveCSS) {
+                    const css = extractCurrentCSS();
+                    setLiveCSS(css);
+                }
+            }, [showCSSEditor]);
+
+            // Apply live CSS changes
+            useEffect(() => {
+                if (showCSSEditor && liveCSS) {
+                    applyCSSLive(liveCSS);
+                }
+            }, [liveCSS, showCSSEditor]);
 
             const createNewConfig = () => {
                 const newConfig = {
@@ -2440,7 +2521,7 @@
                         <h1>{t.title}</h1>
                         <p>{t.subtitle}</p>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
-                            v2025.02.17-theme-switcher
+                            v2025.02.20-css-live-editor
                         </div>
                     </div>
 
@@ -3580,6 +3661,55 @@
                                             🗑️
                                         </button>
                                     )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* CSS Live Editor Modal */}
+                    {showCSSEditor && (
+                        <div className="modal-backdrop" onClick={() => setShowCSSEditor(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px', height: '80vh' }}>
+                                <h2>🎨 CSS Live Editor</h2>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: '16px' }}>
+                                    Edit CSS in real-time. Changes apply instantly. Press Ctrl+Shift+C to toggle.
+                                </p>
+
+                                <textarea
+                                    value={liveCSS}
+                                    onChange={(e) => setLiveCSS(e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        height: 'calc(100% - 140px)',
+                                        fontFamily: "'Courier New', monospace",
+                                        fontSize: '0.85rem',
+                                        padding: '12px',
+                                        background: 'var(--panel)',
+                                        color: 'var(--text)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '6px',
+                                        resize: 'none',
+                                        marginBottom: '16px'
+                                    }}
+                                    spellCheck="false"
+                                />
+
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    <button onClick={exportCSSToClipboard} style={{ background: 'var(--sky)', color: 'white' }}>
+                                        📋 Copy CSS
+                                    </button>
+                                    <button onClick={saveCSS} style={{ background: 'var(--green)', color: 'white' }}>
+                                        💾 Save
+                                    </button>
+                                    <button onClick={loadSavedCSS} style={{ background: 'var(--amber)', color: 'white' }}>
+                                        📂 Load Saved
+                                    </button>
+                                    <button onClick={resetCSS} style={{ background: 'var(--red)', color: 'white' }}>
+                                        🔄 Reset
+                                    </button>
+                                    <button onClick={() => setShowCSSEditor(false)}>
+                                        ✕ Close
+                                    </button>
                                 </div>
                             </div>
                         </div>
