@@ -763,11 +763,13 @@
             color: #e2eaf5;
             font-weight: 700;
             line-height: 1;
+            font-family: 'Courier New', monospace;
         }
 
         .widget-preview-unit {
             color: #7baabf;
             line-height: 1;
+            font-family: 'Courier New', monospace;
         }
 
         /* ── WIDGET INFO PANEL ── */
@@ -3089,7 +3091,7 @@
                                                                     pointerEvents: 'none'
                                                                 }}>
                                                                     {preview.icon ? (
-                                                                        <div style={{ fontSize: `${preview.fontSize}px` }}>
+                                                                        <div style={{ fontSize: `${preview.fontSize}px`, opacity: 0.4 }}>
                                                                             {preview.icon}
                                                                         </div>
                                                                     ) : (
