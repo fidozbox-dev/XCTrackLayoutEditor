@@ -324,7 +324,6 @@
         .widget:hover {
             background: rgba(100,116,139,0.15);
             border-color: #0284c7;
-            z-index: 10;
             box-shadow: 0 0 8px rgba(2,132,199,0.2);
         }
 
@@ -332,7 +331,6 @@
             border-color: #0284c7 !important;
             background: rgba(2,132,199,0.15) !important;
             box-shadow: 0 0 0 2px #0284c7, 0 0 15px rgba(2,132,199,0.25) !important;
-            z-index: 20;
         }
 
         .widget-label {
@@ -1888,7 +1886,7 @@
                 if (!preview) return null;
                 
                 // Taille de police calibrée sur ~57px pour widgets standards
-                const fontSize = Math.max(12, height * 0.57 * (preview.baseSize / 2.5));
+                const fontSize = Math.max(12, height * 0.78 * (preview.baseSize / 2.5));
                 const unitSize = fontSize * 0.4;
                 
                 return { ...preview, fontSize, unitSize };
@@ -3103,6 +3101,7 @@
                                                                                 <div style={{
                                                                                     fontSize: `${preview.fontSize}px`,
                                                                                     fontWeight: 'bold',
+                                                                                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
                                                                                     color: '#1e293b',
                                                                                     lineHeight: 1
                                                                                 }}>
@@ -3116,6 +3115,7 @@
                                                                                             flexDirection: 'column',
                                                                                             alignItems: 'center',
                                                                                             fontSize: `${preview.unitSize}px`,
+                                                                                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
                                                                                             color: '#64748b',
                                                                                             lineHeight: 0.8,
                                                                                             gap: '1px'
@@ -3132,6 +3132,7 @@
                                                                                         // Affichage simple pour m, km, etc.
                                                                                         <div style={{
                                                                                             fontSize: `${preview.unitSize}px`,
+                                                                                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
                                                                                             color: '#64748b',
                                                                                             lineHeight: 1
                                                                                         }}>
