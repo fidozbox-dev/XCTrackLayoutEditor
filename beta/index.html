@@ -316,13 +316,13 @@
         .widget {
             position: absolute;
             border: 2px solid rgba(100,116,139,0.45);
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.18);
             transition: all 0.15s;
             overflow: hidden;
         }
 
         .widget:hover {
-            background: rgba(100,116,139,0.18);
+            background: rgba(100,116,139,0.25);
             border-color: #0284c7;
             z-index: 10;
             box-shadow: 0 0 8px rgba(2,132,199,0.2);
@@ -330,7 +330,7 @@
 
         .widget.selected {
             border-color: #0284c7 !important;
-            background: rgba(2,132,199,0.18) !important;
+            background: rgba(2,132,199,0.25) !important;
             box-shadow: 0 0 0 2px #0284c7, 0 0 15px rgba(2,132,199,0.25) !important;
             z-index: 20;
         }
@@ -762,13 +762,13 @@
             color: #e2eaf5;
             font-weight: 700;
             line-height: 1;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
         .widget-preview-unit {
             color: #7baabf;
             line-height: 1;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
         /* ── WIDGET INFO PANEL ── */
@@ -1887,8 +1887,8 @@
                 
                 if (!preview) return null;
                 
-                // Taille de police = 75% de la hauteur du widget * facteur de base (augmenté pour lisibilité)
-                const fontSize = Math.max(12, height * 0.75 * (preview.baseSize / 2.5)); // Normalisé sur baseSize 2.5
+                // Taille de police calibrée sur ~57px pour widgets standards
+                const fontSize = Math.max(12, height * 0.57 * (preview.baseSize / 2.5));
                 const unitSize = fontSize * 0.4;
                 
                 return { ...preview, fontSize, unitSize };
