@@ -12,19 +12,21 @@ Edit your XCTrack screen layouts in 5 minutes instead of 2 hours!
 <img width="824" height="725" alt="image" src="https://fidozbox-dev.github.io/XCTrackLayoutEditor/pics/previewV2.jpg" />
 
 
+
 ✨ Fonctionnalités:
 
-   🎯 Édition Visuelle
+-    Édition Visuelle
 
-   📱 Vue Multi-Pages
+-    Vue Multi-Pages
 
-   📚 Bibliothèque Communautaire NOUVEAU
+-    Bibliothèque Communautaire NOUVEAU
 
-   ⏮️ Undo/Redo
+-    Undo/Redo
 
-   📋 Copier/Coller
+-    Copier/Coller
 
-   🎨 35 Widgets
+-    35 Widgets
+
 
 
 ⚠️ Limitations Actuelles
@@ -37,15 +39,18 @@ Import/export manuel - Pas de synchronisation directe avec l'application XCTrack
 
 Pour la configuration avancée des widgets, utilisez l'application XCTrack ou éditez le JSON manuellement
 
+
+
 💻 Configuration Requise
 
-   ✅ Navigateur web moderne (Chrome, Firefox, Safari, Edge)
+-    Navigateur web moderne (Chrome, Firefox, Safari, Edge)
 
-   ✅ Fonctionne sur Windows, Mac, Linux et tablettes
+-    Fonctionne sur Windows, Mac, Linux et tablettes
 
-   ✅ Aucune connexion internet requise (fonctionne hors ligne)
+-    Aucune connexion internet requise (fonctionne hors ligne)
 
-   ✅ Aucune installation nécessaire
+-    Aucune installation nécessaire
+
 
 
 🤝 Support & Contribution
