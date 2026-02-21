@@ -12,118 +12,56 @@ Edit your XCTrack screen layouts in 5 minutes instead of 2 hours!
 <img width="824" height="725" alt="image" src="https://fidozbox-dev.github.io/XCTrackLayoutEditor/pics/previewV2.jpg" />
 
 
+✨ Fonctionnalités:
 
-✅ Visual editing - Drag & drop widgets, resize with corner handles
+   🎯 Édition Visuelle
 
-✅ See all pages - Scroll vertically through all your screens
+   📱 Vue Multi-Pages
 
-✅ Copy/paste - Duplicate widgets between pages (Ctrl+C / Ctrl+V)
+   📚 Bibliothèque Communautaire NOUVEAU
 
-✅ Undo/Redo - Full history, no fear of mistakes (Ctrl+Z)
+   ⏮️ Undo/Redo
 
-✅ 33 widgets - Complete library organized by category
+   📋 Copier/Coller
 
-✅ Smart overlapping - Ctrl+Click to select stacked widgets
-
-✅ Grid & snap - Perfect alignment every time
-
-✅ Realistic previews - See what your widgets will look like
+   🎨 35 Widgets
 
 
-________________________________________
+⚠️ Limitations Actuelles
 
-How to use
-1.	Export your config from XCTrack (Settings → Backup)
-2.	Open the HTML file in your browser
-3.	Load your .xcfg file (drag & drop)
-4.	Edit your layouts visually
-5.	Export the new .xcfg file
-6.	Import back into XCTrack
+Position & taille uniquement - Impossible d'éditer les couleurs, thèmes ou paramètres spécifiques des widgets
 
-   you can also start from an empty page
-________________________________________
+Aperçu approximatif - Affiche des données réalistes mais pas vos données de vol réelles
 
-Quick Tips
+Import/export manuel - Pas de synchronisation directe avec l'application XCTrack (pour l'instant)
 
-💡 Use Ctrl+Click to select widgets that are behind others
+Pour la configuration avancée des widgets, utilisez l'application XCTrack ou éditez le JSON manuellement
 
-💡 Good practive : use goodle drive as exchange point for xcfg files
+💻 Configuration Requise
 
-💡 Copy/paste widgets across pages for consistent layouts
+   ✅ Navigateur web moderne (Chrome, Firefox, Safari, Edge)
 
-💡 Enable snap to grid for perfect alignment
+   ✅ Fonctionne sur Windows, Mac, Linux et tablettes
 
-💡 Press Ctrl+Z if you make a mistake
+   ✅ Aucune connexion internet requise (fonctionne hors ligne)
 
-💡 Create Empty pages for fully custom designs
+   ✅ Aucune installation nécessaire
 
-________________________________________
 
-Limitations
+🤝 Support & Contribution
 
-⚠️ Position & size only - Cannot edit widget colors, themes, or specific settings
+   Trouvé un bug ? Vous avez une suggestion de fonctionnalité ?
 
-⚠️ Preview is approximate - Shows realistic data but not actual flight data
 
-⚠️ Manual import/export - No direct sync with XCTrack app
+   GitHub: https://github.com/fidozbox-dev/XCTrackLayoutEditor
 
-⚠️ Not all widgets are availables
-For advanced widget configuration, use the XCTrack app or edit JSON manually.
 
-________________________________________
+   Créé par Laurent Fischer avec l'assistance de Claude (Anthropic).
 
-System Requirements
 
-✅ Modern web browser (Chrome, Firefox, Safari, Edge)
+   Pour la communauté parapente 🪂
 
-✅ Works on Windows, Mac, Linux, and tablets
 
-✅ No internet required (works offline)
+   XCTrack est développé par XContest. Ceci est un outil communautaire indépendant.
 
-✅ No installation needed
-
-________________________________________
-
-FAQ
-
-Q: Is it safe?
-
-  A: Yes! Everything runs in your browser, no data is sent anywhere.
-
----
-Q: Does it work on mobile?
-
-  A: Best on desktop/laptop. Works on tablets, tight on phones.
-
----
-Q: Can I edit widget colors/themes?
-
-  A: Not yet - only position and size. Use XCTrack for detailed settings.
-
----
-Q: Will my changes work in XCTrack?
-
-  A: Yes! Exports standard .xcfg files that XCTrack can import.
-
----
-Q: What if I break something?
-
-  A: Just press Ctrl+Z to undo, or reload your original .xcfg file.
-
-________________________________________
-
-Support & Contributing
-
-Found a bug? Have a feature request?
-
-GitHub: https://github.com/fidozbox-dev/XCTrackLayoutEditor
-
-________________________________________
-
-Created by Laurent Fischer with assistance from Claude (Anthropic).
-
-For the paragliding community.
-
-XCTrack is developed by XContest.
-
-Fly safe! 🪂
+   Volez en sécurité !
