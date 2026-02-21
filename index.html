@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>XCTrack Layout Editor - Free Visual Editor for Paragliding Flight Instruments</title>
-    <meta name="description" content="Design your XCTrack layouts visually on your computer. Drag & drop widgets, resize, copy/paste. No installation needed, 100% free.">
+    <title>XCTrack Layout Editor - Éditeur Visuel Gratuit pour Instruments de Vol</title>
+    <meta name="description" content="Concevez vos layouts XCTrack visuellement sur ordinateur. Drag & drop, redimensionnement, copier/coller. Sans installation, 100% gratuit.">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">
     
@@ -17,6 +17,27 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: #0d1117;
             color: #c9d1d9;
+        }
+        
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+        
+        .lang-switch:hover {
+            background: #30363d;
+            border-color: #58a6ff;
         }
         
         .hero {
@@ -195,143 +216,346 @@
     </style>
 </head>
 <body>
+    <button class="lang-switch" onclick="toggleLanguage()" id="lang-btn">🇬🇧 EN</button>
+    
     <div class="hero">
-        <h1>🪂 XCTrack Layout Editor</h1>
-        <p>Design your paragliding flight instrument layouts visually</p>
+        <h1 id="hero-title">🪂 XCTrack Layout Editor</h1>
+        <p id="hero-subtitle">Concevez vos layouts d'instruments de vol visuellement</p>
         
         <div class="cta-buttons">
-            <a href="./editor.html" class="btn btn-primary">🚀 Launch Editor</a>
-            <a href="./browser.html" class="btn btn-secondary">📚 Browse Community Library <span class="badge badge-new">NEW</span></a>
+            <a href="./editor.html" class="btn btn-primary" id="btn-launch">🚀 Lancer l'Éditeur</a>
+            <a href="./browser.html" class="btn btn-secondary"><span id="btn-library">📚 Bibliothèque Communautaire</span> <span class="badge badge-new" id="badge-new">NOUVEAU</span></a>
             <a href="https://github.com/fidozbox-dev/XCTrackLayoutEditor" class="btn btn-secondary">⭐ GitHub</a>
         </div>
         
-        <p style="font-size: 0.9rem; color: #6e7681; margin-top: 20px;">
-            No installation • No account • 100% free • Works offline
+        <p style="font-size: 0.9rem; color: #6e7681; margin-top: 20px;" id="hero-features">
+            Sans installation • Sans compte • 100% gratuit • Fonctionne hors ligne
         </p>
     </div>
 
     <div class="container-lg markdown-body">
         
-        <p style="text-align: center; font-size: 1.2rem; margin: 40px 0;">
-            Edit your XCTrack screen layouts in <strong>5 minutes</strong> instead of 2 hours!
+        <p style="text-align: center; font-size: 1.2rem; margin: 40px 0;" id="tagline">
+            Éditez vos layouts XCTrack en <strong>5 minutes</strong> au lieu de 2 heures !
         </p>
 
         <img class="screenshot" src="https://user-images.githubusercontent.com/user-attachments/assets/47e30645-3f6f-4d3e-9ccf-7e06a90a24dd" alt="XCTrack Layout Editor Screenshot">
 
-        <h2>✨ Features</h2>
+        <h2 id="h-features">✨ Fonctionnalités</h2>
         
         <div class="features-grid">
             <div class="feature-card">
-                <h3>🎯 Visual Editing</h3>
-                <p>Drag & drop widgets, resize with corner handles, see exactly what you're creating</p>
+                <h3 id="feat-visual">🎯 Édition Visuelle</h3>
+                <p id="feat-visual-desc">Glisser-déposer les widgets, redimensionner avec les poignées, voir exactement ce que vous créez</p>
             </div>
             
             <div class="feature-card">
-                <h3>📱 Multi-Page View</h3>
-                <p>Scroll through all your screens at once, copy widgets between pages</p>
+                <h3 id="feat-multipage">📱 Vue Multi-Pages</h3>
+                <p id="feat-multipage-desc">Parcourez tous vos écrans en une fois, copiez les widgets entre les pages</p>
             </div>
             
             <div class="feature-card">
-                <h3>📚 Community Library <span class="badge badge-new">NEW</span></h3>
-                <p>Browse and download layouts shared by other pilots, upload your own creations</p>
+                <h3><span id="feat-library">📚 Bibliothèque Communautaire</span> <span class="badge badge-new" id="badge-new2">NOUVEAU</span></h3>
+                <p id="feat-library-desc">Parcourez et téléchargez des layouts partagés par d'autres pilotes, uploadez vos créations</p>
             </div>
             
             <div class="feature-card">
-                <h3>⏮️ Undo/Redo</h3>
-                <p>Full history with Ctrl+Z, no fear of mistakes</p>
+                <h3 id="feat-undo">⏮️ Annuler/Rétablir</h3>
+                <p id="feat-undo-desc">Historique complet avec Ctrl+Z, aucune crainte d'erreurs</p>
             </div>
             
             <div class="feature-card">
-                <h3>📋 Copy/Paste</h3>
-                <p>Duplicate widgets between pages with Ctrl+C / Ctrl+V</p>
+                <h3 id="feat-copy">📋 Copier/Coller</h3>
+                <p id="feat-copy-desc">Dupliquez les widgets entre pages avec Ctrl+C / Ctrl+V</p>
             </div>
             
             <div class="feature-card">
-                <h3>🎨 35 Widgets</h3>
-                <p>Complete library organized by category: Navigation, Flight Data, Competition, Maps</p>
+                <h3 id="feat-widgets">🎨 35 Widgets</h3>
+                <p id="feat-widgets-desc">Bibliothèque complète organisée par catégorie : Navigation, Données de Vol, Compétition, Cartes</p>
             </div>
         </div>
 
-        <h2>🚀 How to Use</h2>
+        <h2 id="h-howto">🚀 Mode d'Emploi</h2>
         
-        <ol>
-            <li><strong>Export</strong> your config from XCTrack (Settings → Backup)</li>
-            <li><strong>Open</strong> the <a href="./editor.html">Editor</a></li>
-            <li><strong>Load</strong> your .xcfg file (drag & drop or click to browse)</li>
-            <li><strong>Edit</strong> your layouts visually</li>
-            <li><strong>Export</strong> the new .xcfg file</li>
-            <li><strong>Import</strong> back into XCTrack</li>
+        <ol id="steps">
+            <li><strong>Exportez</strong> votre config depuis XCTrack (Paramètres → Sauvegarde)</li>
+            <li><strong>Ouvrez</strong> l'<a href="./editor.html">Éditeur</a></li>
+            <li><strong>Chargez</strong> votre fichier .xcfg (glisser-déposer ou cliquer pour parcourir)</li>
+            <li><strong>Éditez</strong> vos layouts visuellement</li>
+            <li><strong>Exportez</strong> le nouveau fichier .xcfg</li>
+            <li><strong>Importez</strong> de retour dans XCTrack</li>
         </ol>
         
-        <p>Or start from scratch with an empty layout and build your perfect screen!</p>
+        <p id="from-scratch">Ou partez de zéro avec un layout vide et construisez votre écran parfait !</p>
 
-        <h2>💡 Pro Tips</h2>
+        <h2 id="h-tips">💡 Astuces Pro</h2>
         
-        <ul>
-            <li>Use <kbd>Ctrl+Click</kbd> to select widgets that are stacked behind others</li>
-            <li>Enable snap to grid for perfect alignment</li>
-            <li>Copy/paste widgets across pages for consistent layouts</li>
-            <li>Browse the <a href="./browser.html">Community Library</a> for inspiration</li>
-            <li>Use Google Drive as an exchange point for .xcfg files between phone and computer</li>
-            <li>Press <kbd>Ctrl+Z</kbd> if you make a mistake</li>
+        <ul id="tips">
+            <li>Utilisez <kbd>Ctrl+Clic</kbd> pour sélectionner les widgets empilés derrière d'autres</li>
+            <li>Activez l'alignement sur la grille pour un positionnement parfait</li>
+            <li>Copiez/collez les widgets entre pages pour des layouts cohérents</li>
+            <li>Parcourez la <a href="./browser.html">Bibliothèque Communautaire</a> pour trouver l'inspiration</li>
+            <li>Utilisez Google Drive comme point d'échange pour les fichiers .xcfg entre téléphone et ordinateur</li>
+            <li>Appuyez sur <kbd>Ctrl+Z</kbd> en cas d'erreur</li>
         </ul>
 
-        <h2>⚠️ Current Limitations</h2>
+        <h2 id="h-limitations">⚠️ Limitations Actuelles</h2>
         
-        <ul>
-            <li><strong>Position & size only</strong> - Cannot edit widget colors, themes, or specific settings</li>
-            <li><strong>Preview is approximate</strong> - Shows realistic data but not actual flight data</li>
-            <li><strong>Manual import/export</strong> - No direct sync with XCTrack app (yet)</li>
-            <li>For advanced widget configuration, use the XCTrack app or edit JSON manually</li>
+        <ul id="limitations">
+            <li><strong>Position & taille uniquement</strong> - Impossible d'éditer les couleurs, thèmes ou paramètres spécifiques des widgets</li>
+            <li><strong>Aperçu approximatif</strong> - Affiche des données réalistes mais pas vos données de vol réelles</li>
+            <li><strong>Import/export manuel</strong> - Pas de synchronisation directe avec l'application XCTrack (pour l'instant)</li>
+            <li>Pour la configuration avancée des widgets, utilisez l'application XCTrack ou éditez le JSON manuellement</li>
         </ul>
 
-        <h2>💻 System Requirements</h2>
+        <h2 id="h-requirements">💻 Configuration Requise</h2>
         
-        <ul>
-            <li>✅ Modern web browser (Chrome, Firefox, Safari, Edge)</li>
-            <li>✅ Works on Windows, Mac, Linux, and tablets</li>
-            <li>✅ No internet required (works offline)</li>
-            <li>✅ No installation needed</li>
+        <ul id="requirements">
+            <li>✅ Navigateur web moderne (Chrome, Firefox, Safari, Edge)</li>
+            <li>✅ Fonctionne sur Windows, Mac, Linux et tablettes</li>
+            <li>✅ Aucune connexion internet requise (fonctionne hors ligne)</li>
+            <li>✅ Aucune installation nécessaire</li>
         </ul>
 
-        <h2>❓ FAQ</h2>
+        <h2 id="h-faq">❓ FAQ</h2>
         
         <details>
-            <summary><strong>Is it safe?</strong></summary>
-            <p>Yes! Everything runs in your browser, no data is sent anywhere. The Community Library uses Supabase for sharing layouts, but your local edits stay private.</p>
+            <summary id="faq-q1"><strong>Est-ce sûr ?</strong></summary>
+            <p id="faq-a1">Oui ! Tout s'exécute dans votre navigateur, aucune donnée n'est envoyée nulle part. La Bibliothèque Communautaire utilise Supabase pour partager les layouts, mais vos éditions locales restent privées.</p>
         </details>
         
         <details>
-            <summary><strong>Does it work on mobile?</strong></summary>
-            <p>Best experience on desktop/laptop. Works on tablets. Tight but usable on phones.</p>
+            <summary id="faq-q2"><strong>Ça marche sur mobile ?</strong></summary>
+            <p id="faq-a2">Meilleure expérience sur ordinateur/portable. Fonctionne sur tablettes. Serré mais utilisable sur téléphones.</p>
         </details>
         
         <details>
-            <summary><strong>Can I edit widget colors/themes?</strong></summary>
-            <p>Not yet - only position and size. Use XCTrack app for detailed settings.</p>
+            <summary id="faq-q3"><strong>Puis-je éditer les couleurs/thèmes des widgets ?</strong></summary>
+            <p id="faq-a3">Pas encore - seulement position et taille. Utilisez l'application XCTrack pour les paramètres détaillés.</p>
         </details>
         
         <details>
-            <summary><strong>Will my changes work in XCTrack?</strong></summary>
-            <p>Yes! Exports standard .xcfg files that XCTrack can import directly.</p>
+            <summary id="faq-q4"><strong>Mes modifications fonctionneront-elles dans XCTrack ?</strong></summary>
+            <p id="faq-a4">Oui ! Exporte des fichiers .xcfg standards que XCTrack peut importer directement.</p>
         </details>
         
         <details>
-            <summary><strong>What if I break something?</strong></summary>
-            <p>Just press Ctrl+Z to undo, or reload your original .xcfg file. Your original file is never modified unless you explicitly save over it.</p>
+            <summary id="faq-q5"><strong>Et si je casse quelque chose ?</strong></summary>
+            <p id="faq-a5">Appuyez simplement sur Ctrl+Z pour annuler, ou rechargez votre fichier .xcfg original. Votre fichier original n'est jamais modifié sauf si vous l'écrasez explicitement.</p>
         </details>
 
-        <h2>🤝 Support & Contributing</h2>
+        <h2 id="h-support">🤝 Support & Contribution</h2>
         
-        <p>Found a bug? Have a feature request?</p>
+        <p id="support-text">Trouvé un bug ? Vous avez une suggestion de fonctionnalité ?</p>
         <p>GitHub: <a href="https://github.com/fidozbox-dev/XCTrackLayoutEditor">https://github.com/fidozbox-dev/XCTrackLayoutEditor</a></p>
         
         <div class="footer">
-            <p>Created by <a href="https://github.com/fidozbox-dev">Laurent Fischer</a> with assistance from Claude (Anthropic).</p>
-            <p>For the paragliding community 🪂</p>
-            <p><em>XCTrack is developed by XContest. This is an independent community tool.</em></p>
-            <p style="margin-top: 20px;">Fly safe!</p>
+            <p id="footer-credits">Créé par <a href="https://github.com/fidozbox-dev">Laurent Fischer</a> avec l'assistance de Claude (Anthropic).</p>
+            <p id="footer-community">Pour la communauté parapente 🪂</p>
+            <p><em id="footer-disclaimer">XCTrack est développé par XContest. Ceci est un outil communautaire indépendant.</em></p>
+            <p style="margin-top: 20px;" id="footer-fly">Volez en sécurité !</p>
         </div>
     </div>
+
+    <script>
+        const translations = {
+            fr: {
+                langBtn: '🇬🇧 EN',
+                heroTitle: '🪂 XCTrack Layout Editor',
+                heroSubtitle: 'Concevez vos layouts d\'instruments de vol visuellement',
+                btnLaunch: '🚀 Lancer l\'Éditeur',
+                btnLibrary: '📚 Bibliothèque Communautaire',
+                badgeNew: 'NOUVEAU',
+                heroFeatures: 'Sans installation • Sans compte • 100% gratuit • Fonctionne hors ligne',
+                tagline: 'Éditez vos layouts XCTrack en <strong>5 minutes</strong> au lieu de 2 heures !',
+                hFeatures: '✨ Fonctionnalités',
+                featVisual: '🎯 Édition Visuelle',
+                featVisualDesc: 'Glisser-déposer les widgets, redimensionner avec les poignées, voir exactement ce que vous créez',
+                featMultipage: '📱 Vue Multi-Pages',
+                featMultipageDesc: 'Parcourez tous vos écrans en une fois, copiez les widgets entre les pages',
+                featLibrary: '📚 Bibliothèque Communautaire',
+                featLibraryDesc: 'Parcourez et téléchargez des layouts partagés par d\'autres pilotes, uploadez vos créations',
+                featUndo: '⏮️ Annuler/Rétablir',
+                featUndoDesc: 'Historique complet avec Ctrl+Z, aucune crainte d\'erreurs',
+                featCopy: '📋 Copier/Coller',
+                featCopyDesc: 'Dupliquez les widgets entre pages avec Ctrl+C / Ctrl+V',
+                featWidgets: '🎨 35 Widgets',
+                featWidgetsDesc: 'Bibliothèque complète organisée par catégorie : Navigation, Données de Vol, Compétition, Cartes',
+                hHowto: '🚀 Mode d\'Emploi',
+                steps: `<li><strong>Exportez</strong> votre config depuis XCTrack (Paramètres → Sauvegarde)</li>
+                        <li><strong>Ouvrez</strong> l'<a href="./editor.html">Éditeur</a></li>
+                        <li><strong>Chargez</strong> votre fichier .xcfg (glisser-déposer ou cliquer pour parcourir)</li>
+                        <li><strong>Éditez</strong> vos layouts visuellement</li>
+                        <li><strong>Exportez</strong> le nouveau fichier .xcfg</li>
+                        <li><strong>Importez</strong> de retour dans XCTrack</li>`,
+                fromScratch: 'Ou partez de zéro avec un layout vide et construisez votre écran parfait !',
+                hTips: '💡 Astuces Pro',
+                tips: `<li>Utilisez <kbd>Ctrl+Clic</kbd> pour sélectionner les widgets empilés derrière d'autres</li>
+                       <li>Activez l'alignement sur la grille pour un positionnement parfait</li>
+                       <li>Copiez/collez les widgets entre pages pour des layouts cohérents</li>
+                       <li>Parcourez la <a href="./browser.html">Bibliothèque Communautaire</a> pour trouver l'inspiration</li>
+                       <li>Utilisez Google Drive comme point d'échange pour les fichiers .xcfg entre téléphone et ordinateur</li>
+                       <li>Appuyez sur <kbd>Ctrl+Z</kbd> en cas d'erreur</li>`,
+                hLimitations: '⚠️ Limitations Actuelles',
+                limitations: `<li><strong>Position & taille uniquement</strong> - Impossible d'éditer les couleurs, thèmes ou paramètres spécifiques des widgets</li>
+                              <li><strong>Aperçu approximatif</strong> - Affiche des données réalistes mais pas vos données de vol réelles</li>
+                              <li><strong>Import/export manuel</strong> - Pas de synchronisation directe avec l'application XCTrack (pour l'instant)</li>
+                              <li>Pour la configuration avancée des widgets, utilisez l'application XCTrack ou éditez le JSON manuellement</li>`,
+                hRequirements: '💻 Configuration Requise',
+                requirements: `<li>✅ Navigateur web moderne (Chrome, Firefox, Safari, Edge)</li>
+                               <li>✅ Fonctionne sur Windows, Mac, Linux et tablettes</li>
+                               <li>✅ Aucune connexion internet requise (fonctionne hors ligne)</li>
+                               <li>✅ Aucune installation nécessaire</li>`,
+                hFaq: '❓ FAQ',
+                faqQ1: '<strong>Est-ce sûr ?</strong>',
+                faqA1: 'Oui ! Tout s\'exécute dans votre navigateur, aucune donnée n\'est envoyée nulle part. La Bibliothèque Communautaire utilise Supabase pour partager les layouts, mais vos éditions locales restent privées.',
+                faqQ2: '<strong>Ça marche sur mobile ?</strong>',
+                faqA2: 'Meilleure expérience sur ordinateur/portable. Fonctionne sur tablettes. Serré mais utilisable sur téléphones.',
+                faqQ3: '<strong>Puis-je éditer les couleurs/thèmes des widgets ?</strong>',
+                faqA3: 'Pas encore - seulement position et taille. Utilisez l\'application XCTrack pour les paramètres détaillés.',
+                faqQ4: '<strong>Mes modifications fonctionneront-elles dans XCTrack ?</strong>',
+                faqA4: 'Oui ! Exporte des fichiers .xcfg standards que XCTrack peut importer directement.',
+                faqQ5: '<strong>Et si je casse quelque chose ?</strong>',
+                faqA5: 'Appuyez simplement sur Ctrl+Z pour annuler, ou rechargez votre fichier .xcfg original. Votre fichier original n\'est jamais modifié sauf si vous l\'écrasez explicitement.',
+                hSupport: '🤝 Support & Contribution',
+                supportText: 'Trouvé un bug ? Vous avez une suggestion de fonctionnalité ?',
+                footerCredits: 'Créé par <a href="https://github.com/fidozbox-dev">Laurent Fischer</a> avec l\'assistance de Claude (Anthropic).',
+                footerCommunity: 'Pour la communauté parapente 🪂',
+                footerDisclaimer: 'XCTrack est développé par XContest. Ceci est un outil communautaire indépendant.',
+                footerFly: 'Volez en sécurité !'
+            },
+            en: {
+                langBtn: '🇫🇷 FR',
+                heroTitle: '🪂 XCTrack Layout Editor',
+                heroSubtitle: 'Design your paragliding flight instrument layouts visually',
+                btnLaunch: '🚀 Launch Editor',
+                btnLibrary: '📚 Community Library',
+                badgeNew: 'NEW',
+                heroFeatures: 'No installation • No account • 100% free • Works offline',
+                tagline: 'Edit your XCTrack screen layouts in <strong>5 minutes</strong> instead of 2 hours!',
+                hFeatures: '✨ Features',
+                featVisual: '🎯 Visual Editing',
+                featVisualDesc: 'Drag & drop widgets, resize with corner handles, see exactly what you\'re creating',
+                featMultipage: '📱 Multi-Page View',
+                featMultipageDesc: 'Scroll through all your screens at once, copy widgets between pages',
+                featLibrary: '📚 Community Library',
+                featLibraryDesc: 'Browse and download layouts shared by other pilots, upload your own creations',
+                featUndo: '⏮️ Undo/Redo',
+                featUndoDesc: 'Full history with Ctrl+Z, no fear of mistakes',
+                featCopy: '📋 Copy/Paste',
+                featCopyDesc: 'Duplicate widgets between pages with Ctrl+C / Ctrl+V',
+                featWidgets: '🎨 35 Widgets',
+                featWidgetsDesc: 'Complete library organized by category: Navigation, Flight Data, Competition, Maps',
+                hHowto: '🚀 How to Use',
+                steps: `<li><strong>Export</strong> your config from XCTrack (Settings → Backup)</li>
+                        <li><strong>Open</strong> the <a href="./editor.html">Editor</a></li>
+                        <li><strong>Load</strong> your .xcfg file (drag & drop or click to browse)</li>
+                        <li><strong>Edit</strong> your layouts visually</li>
+                        <li><strong>Export</strong> the new .xcfg file</li>
+                        <li><strong>Import</strong> back into XCTrack</li>`,
+                fromScratch: 'Or start from scratch with an empty layout and build your perfect screen!',
+                hTips: '💡 Pro Tips',
+                tips: `<li>Use <kbd>Ctrl+Click</kbd> to select widgets that are stacked behind others</li>
+                       <li>Enable snap to grid for perfect alignment</li>
+                       <li>Copy/paste widgets across pages for consistent layouts</li>
+                       <li>Browse the <a href="./browser.html">Community Library</a> for inspiration</li>
+                       <li>Use Google Drive as an exchange point for .xcfg files between phone and computer</li>
+                       <li>Press <kbd>Ctrl+Z</kbd> if you make a mistake</li>`,
+                hLimitations: '⚠️ Current Limitations',
+                limitations: `<li><strong>Position & size only</strong> - Cannot edit widget colors, themes, or specific settings</li>
+                              <li><strong>Preview is approximate</strong> - Shows realistic data but not actual flight data</li>
+                              <li><strong>Manual import/export</strong> - No direct sync with XCTrack app (yet)</li>
+                              <li>For advanced widget configuration, use the XCTrack app or edit JSON manually</li>`,
+                hRequirements: '💻 System Requirements',
+                requirements: `<li>✅ Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+                               <li>✅ Works on Windows, Mac, Linux, and tablets</li>
+                               <li>✅ No internet required (works offline)</li>
+                               <li>✅ No installation needed</li>`,
+                hFaq: '❓ FAQ',
+                faqQ1: '<strong>Is it safe?</strong>',
+                faqA1: 'Yes! Everything runs in your browser, no data is sent anywhere. The Community Library uses Supabase for sharing layouts, but your local edits stay private.',
+                faqQ2: '<strong>Does it work on mobile?</strong>',
+                faqA2: 'Best experience on desktop/laptop. Works on tablets. Tight but usable on phones.',
+                faqQ3: '<strong>Can I edit widget colors/themes?</strong>',
+                faqA3: 'Not yet - only position and size. Use XCTrack app for detailed settings.',
+                faqQ4: '<strong>Will my changes work in XCTrack?</strong>',
+                faqA4: 'Yes! Exports standard .xcfg files that XCTrack can import directly.',
+                faqQ5: '<strong>What if I break something?</strong>',
+                faqA5: 'Just press Ctrl+Z to undo, or reload your original .xcfg file. Your original file is never modified unless you explicitly save over it.',
+                hSupport: '🤝 Support & Contributing',
+                supportText: 'Found a bug? Have a feature request?',
+                footerCredits: 'Created by <a href="https://github.com/fidozbox-dev">Laurent Fischer</a> with assistance from Claude (Anthropic).',
+                footerCommunity: 'For the paragliding community 🪂',
+                footerDisclaimer: 'XCTrack is developed by XContest. This is an independent community tool.',
+                footerFly: 'Fly safe!'
+            }
+        };
+
+        // Detect language from browser or localStorage
+        let currentLang = localStorage.getItem('landingPageLang') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            document.getElementById('lang-btn').textContent = t.langBtn;
+            document.getElementById('hero-title').textContent = t.heroTitle;
+            document.getElementById('hero-subtitle').textContent = t.heroSubtitle;
+            document.getElementById('btn-launch').textContent = t.btnLaunch;
+            document.getElementById('btn-library').textContent = t.btnLibrary;
+            document.getElementById('badge-new').textContent = t.badgeNew;
+            document.getElementById('badge-new2').textContent = t.badgeNew;
+            document.getElementById('hero-features').textContent = t.heroFeatures;
+            document.getElementById('tagline').innerHTML = t.tagline;
+            document.getElementById('h-features').textContent = t.hFeatures;
+            document.getElementById('feat-visual').textContent = t.featVisual;
+            document.getElementById('feat-visual-desc').textContent = t.featVisualDesc;
+            document.getElementById('feat-multipage').textContent = t.featMultipage;
+            document.getElementById('feat-multipage-desc').textContent = t.featMultipageDesc;
+            document.getElementById('feat-library').textContent = t.featLibrary;
+            document.getElementById('feat-library-desc').textContent = t.featLibraryDesc;
+            document.getElementById('feat-undo').textContent = t.featUndo;
+            document.getElementById('feat-undo-desc').textContent = t.featUndoDesc;
+            document.getElementById('feat-copy').textContent = t.featCopy;
+            document.getElementById('feat-copy-desc').textContent = t.featCopyDesc;
+            document.getElementById('feat-widgets').textContent = t.featWidgets;
+            document.getElementById('feat-widgets-desc').textContent = t.featWidgetsDesc;
+            document.getElementById('h-howto').textContent = t.hHowto;
+            document.getElementById('steps').innerHTML = t.steps;
+            document.getElementById('from-scratch').textContent = t.fromScratch;
+            document.getElementById('h-tips').textContent = t.hTips;
+            document.getElementById('tips').innerHTML = t.tips;
+            document.getElementById('h-limitations').textContent = t.hLimitations;
+            document.getElementById('limitations').innerHTML = t.limitations;
+            document.getElementById('h-requirements').textContent = t.hRequirements;
+            document.getElementById('requirements').innerHTML = t.requirements;
+            document.getElementById('h-faq').textContent = t.hFaq;
+            document.getElementById('faq-q1').innerHTML = t.faqQ1;
+            document.getElementById('faq-a1').textContent = t.faqA1;
+            document.getElementById('faq-q2').innerHTML = t.faqQ2;
+            document.getElementById('faq-a2').textContent = t.faqA2;
+            document.getElementById('faq-q3').innerHTML = t.faqQ3;
+            document.getElementById('faq-a3').textContent = t.faqA3;
+            document.getElementById('faq-q4').innerHTML = t.faqQ4;
+            document.getElementById('faq-a4').textContent = t.faqA4;
+            document.getElementById('faq-q5').innerHTML = t.faqQ5;
+            document.getElementById('faq-a5').textContent = t.faqA5;
+            document.getElementById('h-support').textContent = t.hSupport;
+            document.getElementById('support-text').textContent = t.supportText;
+            document.getElementById('footer-credits').innerHTML = t.footerCredits;
+            document.getElementById('footer-community').innerHTML = t.footerCommunity;
+            document.getElementById('footer-disclaimer').innerHTML = t.footerDisclaimer;
+            document.getElementById('footer-fly').textContent = t.footerFly;
+            
+            document.documentElement.lang = lang;
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'fr' ? 'en' : 'fr';
+            localStorage.setItem('landingPageLang', currentLang);
+            applyTranslations(currentLang);
+        }
+
+        // Apply on load
+        applyTranslations(currentLang);
+    </script>
 </body>
 </html>
