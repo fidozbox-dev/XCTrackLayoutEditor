@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>XCTrack Layout Editor - Free Visual Editor for Paragliding Flight Instruments</title>
+    <meta name="description" content="Design your XCTrack layouts visually on your computer. Drag & drop widgets, resize, copy/paste. No installation needed, 100% free.">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #1f2937 0%, #0d1117 100%);
+            border-bottom: 1px solid #30363d;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            color: #58a6ff;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            color: #8b949e;
+            margin: 0 0 40px 0;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #238636;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2ea043;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(35, 134, 54, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+        }
+        
+        .btn-secondary:hover {
+            background: #30363d;
+            border-color: #58a6ff;
+        }
+        
+        .container-lg {
+            max-width: 1012px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .markdown-body {
+            background: transparent;
+            color: #c9d1d9;
+        }
+        
+        .markdown-body h2 {
+            color: #58a6ff;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 8px;
+            margin-top: 40px;
+        }
+        
+        .markdown-body h3 {
+            color: #8b949e;
+        }
+        
+        .markdown-body a {
+            color: #58a6ff;
+        }
+        
+        .markdown-body a:hover {
+            text-decoration: underline;
+        }
+        
+        .markdown-body hr {
+            border-color: #30363d;
+        }
+        
+        .screenshot {
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            margin: 30px 0;
+            max-width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .feature-card h3 {
+            margin-top: 0;
+            color: #58a6ff;
+        }
+        
+        .footer {
+            border-top: 1px solid #30363d;
+            margin-top: 60px;
+            padding-top: 30px;
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0 4px;
+        }
+        
+        .badge-new {
+            background: #238636;
+            color: white;
+        }
+        
+        kbd {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        details {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        
+        details summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        
+        details p {
+            margin-top: 12px;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🪂 XCTrack Layout Editor</h1>
+        <p>Design your paragliding flight instrument layouts visually</p>
+        
+        <div class="cta-buttons">
+            <a href="./editor.html" class="btn btn-primary">🚀 Launch Editor</a>
+            <a href="./browser.html" class="btn btn-secondary">📚 Browse Community Library <span class="badge badge-new">NEW</span></a>
+            <a href="https://github.com/fidozbox-dev/XCTrackLayoutEditor" class="btn btn-secondary">⭐ GitHub</a>
+        </div>
+        
+        <p style="font-size: 0.9rem; color: #6e7681; margin-top: 20px;">
+            No installation • No account • 100% free • Works offline
+        </p>
+    </div>
+
+    <div class="container-lg markdown-body">
+        
+        <p style="text-align: center; font-size: 1.2rem; margin: 40px 0;">
+            Edit your XCTrack screen layouts in <strong>5 minutes</strong> instead of 2 hours!
+        </p>
+
+        <img class="screenshot" src="https://user-images.githubusercontent.com/user-attachments/assets/47e30645-3f6f-4d3e-9ccf-7e06a90a24dd" alt="XCTrack Layout Editor Screenshot">
+
+        <h2>✨ Features</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>🎯 Visual Editing</h3>
+                <p>Drag & drop widgets, resize with corner handles, see exactly what you're creating</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📱 Multi-Page View</h3>
+                <p>Scroll through all your screens at once, copy widgets between pages</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📚 Community Library <span class="badge badge-new">NEW</span></h3>
+                <p>Browse and download layouts shared by other pilots, upload your own creations</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>⏮️ Undo/Redo</h3>
+                <p>Full history with Ctrl+Z, no fear of mistakes</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📋 Copy/Paste</h3>
+                <p>Duplicate widgets between pages with Ctrl+C / Ctrl+V</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🎨 35 Widgets</h3>
+                <p>Complete library organized by category: Navigation, Flight Data, Competition, Maps</p>
+            </div>
+        </div>
+
+        <h2>🚀 How to Use</h2>
+        
+        <ol>
+            <li><strong>Export</strong> your config from XCTrack (Settings → Backup)</li>
+            <li><strong>Open</strong> the <a href="./editor.html">Editor</a></li>
+            <li><strong>Load</strong> your .xcfg file (drag & drop or click to browse)</li>
+            <li><strong>Edit</strong> your layouts visually</li>
+            <li><strong>Export</strong> the new .xcfg file</li>
+            <li><strong>Import</strong> back into XCTrack</li>
+        </ol>
+        
+        <p>Or start from scratch with an empty layout and build your perfect screen!</p>
+
+        <h2>💡 Pro Tips</h2>
+        
+        <ul>
+            <li>Use <kbd>Ctrl+Click</kbd> to select widgets that are stacked behind others</li>
+            <li>Enable snap to grid for perfect alignment</li>
+            <li>Copy/paste widgets across pages for consistent layouts</li>
+            <li>Browse the <a href="./browser.html">Community Library</a> for inspiration</li>
+            <li>Use Google Drive as an exchange point for .xcfg files between phone and computer</li>
+            <li>Press <kbd>Ctrl+Z</kbd> if you make a mistake</li>
+        </ul>
+
+        <h2>⚠️ Current Limitations</h2>
+        
+        <ul>
+            <li><strong>Position & size only</strong> - Cannot edit widget colors, themes, or specific settings</li>
+            <li><strong>Preview is approximate</strong> - Shows realistic data but not actual flight data</li>
+            <li><strong>Manual import/export</strong> - No direct sync with XCTrack app (yet)</li>
+            <li>For advanced widget configuration, use the XCTrack app or edit JSON manually</li>
+        </ul>
+
+        <h2>💻 System Requirements</h2>
+        
+        <ul>
+            <li>✅ Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+            <li>✅ Works on Windows, Mac, Linux, and tablets</li>
+            <li>✅ No internet required (works offline)</li>
+            <li>✅ No installation needed</li>
+        </ul>
+
+        <h2>❓ FAQ</h2>
+        
+        <details>
+            <summary><strong>Is it safe?</strong></summary>
+            <p>Yes! Everything runs in your browser, no data is sent anywhere. The Community Library uses Supabase for sharing layouts, but your local edits stay private.</p>
+        </details>
+        
+        <details>
+            <summary><strong>Does it work on mobile?</strong></summary>
+            <p>Best experience on desktop/laptop. Works on tablets. Tight but usable on phones.</p>
+        </details>
+        
+        <details>
+            <summary><strong>Can I edit widget colors/themes?</strong></summary>
+            <p>Not yet - only position and size. Use XCTrack app for detailed settings.</p>
+        </details>
+        
+        <details>
+            <summary><strong>Will my changes work in XCTrack?</strong></summary>
+            <p>Yes! Exports standard .xcfg files that XCTrack can import directly.</p>
+        </details>
+        
+        <details>
+            <summary><strong>What if I break something?</strong></summary>
+            <p>Just press Ctrl+Z to undo, or reload your original .xcfg file. Your original file is never modified unless you explicitly save over it.</p>
+        </details>
+
+        <h2>🤝 Support & Contributing</h2>
+        
+        <p>Found a bug? Have a feature request?</p>
+        <p>GitHub: <a href="https://github.com/fidozbox-dev/XCTrackLayoutEditor">https://github.com/fidozbox-dev/XCTrackLayoutEditor</a></p>
+        
+        <div class="footer">
+            <p>Created by <a href="https://github.com/fidozbox-dev">Laurent Fischer</a> with assistance from Claude (Anthropic).</p>
+            <p>For the paragliding community 🪂</p>
+            <p><em>XCTrack is developed by XContest. This is an independent community tool.</em></p>
+            <p style="margin-top: 20px;">Fly safe!</p>
+        </div>
+    </div>
+</body>
+</html>
