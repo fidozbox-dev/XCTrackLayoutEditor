@@ -9,7 +9,7 @@ No installation, no account, 100% free and works offline if you save the page on
 
 Edit your XCTrack screen layouts in 5 minutes instead of 2 hours!
 
-<img width="824" height="725" alt="image" src="https://github.com/user-attachments/assets/47e30645-3f6f-4d3e-9ccf-7e06a90a24dd" />
+<img width="824" height="725" alt="image" src="https://fidozbox-dev.github.io/XCTrackLayoutEditor/previewV2.jpg" />
 
 
 
