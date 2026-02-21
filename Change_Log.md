@@ -1,3 +1,9 @@
+2023-02-21:
+huge update.
+- landing page
+- bowser : place to share, store and view configs 
+- editor with a new overall look
+
 2026-02-10: 
 better resolution management
 
