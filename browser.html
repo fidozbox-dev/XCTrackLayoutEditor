@@ -841,7 +841,7 @@
         <button class="upload-btn" onclick="openUploadModal()">
             📤 <span id="uploadBtnLabel">Uploader ma config</span>
         </button>
-        <a href="./editor.html" class="editor-btn">
+        <a href="./editor.html" class="editor-btn" target="_blank" rel="noopener noreferrer">
             ✏️ <span id="editorBtnLabel">Ouvrir l'éditeur</span>
         </a>
     </div>
@@ -1356,19 +1356,15 @@
 <!-- Upload Modal -->
 <div class="upload-modal" id="uploadModal">
     <div class="upload-modal-content">
-        <button class="upload-modal-close" onclick="closeUploadModal()">×</button>
+        <button class="upload-modal-close" id="uploadModalClose">×</button>
         <h2 id="uploadModalTitle">Uploader ma config</h2>
         
         <div class="upload-form-group">
             <label id="uploadLabelFile">Fichier .xcfg</label>
-            <div class="upload-file-drop" id="fileDrop"
-                ondrop="handleFileDrop(event)"
-                ondragover="handleDragOver(event)"
-                ondragleave="handleDragLeave(event)"
-                onclick="document.getElementById('fileInput').click()">
+            <div class="upload-file-drop" id="fileDrop">
                 <div id="fileDropText">📂 Glissez-déposez votre fichier .xcfg<br>ou cliquez pour parcourir</div>
             </div>
-            <input type="file" id="fileInput" accept=".xcfg,.json" style="display:none" onchange="handleFileSelect(event)">
+            <input type="file" id="fileInput" accept=".xcfg,.json" style="display:none">
         </div>
         
         <div class="upload-form-group">
@@ -1393,7 +1389,7 @@
             </div>
         </div>
         
-        <button class="upload-submit" id="uploadSubmit" onclick="handleUpload()" disabled>
+        <button class="upload-submit" id="uploadSubmit" disabled>
             <span id="uploadBtnSubmit">📤 Uploader vers la bibliothèque</span>
         </button>
         
@@ -1406,14 +1402,35 @@
     let selectedFile = null;
     let parsedConfig = null;
 
+    // Setup event listeners when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // File drop zone events
+        const fileDrop = document.getElementById('fileDrop');
+        const fileInput = document.getElementById('fileInput');
+        const uploadSubmit = document.getElementById('uploadSubmit');
+        const uploadModalClose = document.getElementById('uploadModalClose');
+        
+        fileDrop.addEventListener('click', () => fileInput.click());
+        fileDrop.addEventListener('drop', handleFileDrop);
+        fileDrop.addEventListener('dragover', handleDragOver);
+        fileDrop.addEventListener('dragleave', handleDragLeave);
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadSubmit.addEventListener('click', handleUpload);
+        uploadModalClose.addEventListener('click', closeUploadModal);
+    });
+
     function openUploadModal() {
-        // Check if user is logged in
+        // DISABLED: Login requirement - trusting community for now
+        // Uncomment if abuse happens
+        /*
         if (!currentUser) {
             alert(currentLang === 'fr' 
                 ? 'Vous devez être connecté avec Google pour uploader une configuration. Utilisez l\'éditeur pour vous connecter.'
                 : 'You must be logged in with Google to upload a configuration. Use the editor to log in.');
             return;
         }
+        */
         
         document.getElementById('uploadModal').classList.add('active');
         resetUploadForm();
@@ -1509,7 +1526,7 @@
     }
 
     async function handleUpload() {
-        if (!selectedFile || !parsedConfig || !currentUser) return;
+        if (!selectedFile || !parsedConfig) return;
 
         const configName = document.getElementById('configName').value.trim();
         if (!configName) {
@@ -1542,13 +1559,13 @@
             // Generate screenshot (use first page)
             const screenshot = await generateScreenshot(parsedConfig);
             
-            // Upload to Supabase
+            // Upload to Supabase (user_id/email optional if not logged in)
             const { data, error } = await sb
                 .from('configs')
                 .insert({
                     name: configName,
-                    user_id: currentUser.id,
-                    user_email: currentUser.email,
+                    user_id: currentUser?.id || null,
+                    user_email: currentUser?.email || null,
                     config_data: parsedConfig,
                     screenshot: screenshot,
                     tags: tags
