@@ -773,8 +773,7 @@
         .upload-tag-checkbox:checked + .upload-tag-label {
             border-color: currentColor;
             font-weight: 600;
-            background: currentColor;
-            color: #000;
+            border-width: 2px;
         }
         
         .upload-tag-label[data-tag="cross"] { color: var(--cross); }
@@ -1635,7 +1634,7 @@
                     name: configName,
                     user_id: currentUser?.id || null,
                     user_email: currentUser?.email || null,
-                    config_data: parsedConfig,
+                    config_json: parsedConfig,
                     screenshot: screenshot,
                     tags: tags
                 })
