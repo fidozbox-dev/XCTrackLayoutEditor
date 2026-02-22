@@ -625,6 +625,200 @@
         .card:nth-child(11) { animation-delay: 0.55s; }
         .card:nth-child(12) { animation-delay: 0.60s; }
 
+        /* Upload button */
+        .upload-btn {
+            background: var(--cross);
+            border: none;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            margin-right: 12px;
+        }
+        
+        .upload-btn:hover { 
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+
+        /* Upload Modal */
+        .upload-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .upload-modal.active { display: flex; }
+        
+        .upload-modal-content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .upload-modal h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            color: var(--sky);
+            margin-bottom: 20px;
+        }
+        
+        .upload-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-modal-close:hover { color: var(--text); }
+        
+        .upload-form-group {
+            margin-bottom: 20px;
+        }
+        
+        .upload-form-group label {
+            display: block;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .upload-form-group input[type="text"] {
+            width: 100%;
+            background: var(--deeper);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+        }
+        
+        .upload-form-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--sky);
+        }
+        
+        .upload-file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--deeper);
+        }
+        
+        .upload-file-drop:hover,
+        .upload-file-drop.drag-over {
+            border-color: var(--sky);
+            background: rgba(14,165,233,0.05);
+        }
+        
+        .upload-file-drop.has-file {
+            border-color: var(--cross);
+            background: rgba(52,211,153,0.05);
+        }
+        
+        .upload-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .upload-tag-checkbox {
+            display: none;
+        }
+        
+        .upload-tag-label {
+            padding: 8px 16px;
+            border-radius: var(--tag-radius);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            background: var(--deeper);
+        }
+        
+        .upload-tag-checkbox:checked + .upload-tag-label {
+            border-color: currentColor;
+            font-weight: 600;
+        }
+        
+        .upload-tag-label[data-tag="cross"] { color: var(--cross); }
+        .upload-tag-label[data-tag="compete"] { color: var(--compete); }
+        .upload-tag-label[data-tag="casual"] { color: var(--casual); }
+        .upload-tag-label[data-tag="experimental"] { color: var(--experimental); }
+        
+        .upload-submit {
+            width: 100%;
+            background: var(--sky);
+            border: none;
+            color: white;
+            padding: 14px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+        
+        .upload-submit:hover {
+            background: var(--sky-dim);
+            transform: translateY(-2px);
+        }
+        
+        .upload-submit:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .upload-error {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            padding: 12px;
+            color: #ef4444;
+            margin-top: 16px;
+            display: none;
+        }
+        
+        .upload-error.active { display: block; }
+
         @media (max-width: 768px) {
             header, .stats-bar, .controls, .grid-container, .contributors {
                 padding-left: 20px;
@@ -644,6 +838,9 @@
     </div>
     <div class="header-right">
         <button class="lang-btn" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
+        <button class="upload-btn" onclick="openUploadModal()">
+            📤 <span id="uploadBtnLabel">Uploader ma config</span>
+        </button>
         <a href="./editor.html" class="editor-btn">
             ✏️ <span id="editorBtnLabel">Ouvrir l'éditeur</span>
         </a>
@@ -1155,5 +1352,303 @@
     loadStats();
     loadConfigs();
 </script>
+
+<!-- Upload Modal -->
+<div class="upload-modal" id="uploadModal">
+    <div class="upload-modal-content">
+        <button class="upload-modal-close" onclick="closeUploadModal()">×</button>
+        <h2 id="uploadModalTitle">Uploader ma config</h2>
+        
+        <div class="upload-form-group">
+            <label id="uploadLabelFile">Fichier .xcfg</label>
+            <div class="upload-file-drop" id="fileDrop"
+                ondrop="handleFileDrop(event)"
+                ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)"
+                onclick="document.getElementById('fileInput').click()">
+                <div id="fileDropText">📂 Glissez-déposez votre fichier .xcfg<br>ou cliquez pour parcourir</div>
+            </div>
+            <input type="file" id="fileInput" accept=".xcfg,.json" style="display:none" onchange="handleFileSelect(event)">
+        </div>
+        
+        <div class="upload-form-group">
+            <label id="uploadLabelName">Nom de la configuration</label>
+            <input type="text" id="configName" placeholder="Ex: Ma config compétition" maxlength="100">
+        </div>
+        
+        <div class="upload-form-group">
+            <label id="uploadLabelTags">Tags (cochez tous ceux qui s'appliquent)</label>
+            <div class="upload-tags">
+                <input type="checkbox" id="tagCross" class="upload-tag-checkbox" checked>
+                <label for="tagCross" class="upload-tag-label" data-tag="cross">🏔️ Cross</label>
+                
+                <input type="checkbox" id="tagCompete" class="upload-tag-checkbox" checked>
+                <label for="tagCompete" class="upload-tag-label" data-tag="compete">🏁 <span class="i18n-compete">Compétition</span></label>
+                
+                <input type="checkbox" id="tagCasual" class="upload-tag-checkbox" checked>
+                <label for="tagCasual" class="upload-tag-label" data-tag="casual">☀️ <span class="i18n-casual">Loisir</span></label>
+                
+                <input type="checkbox" id="tagExperimental" class="upload-tag-checkbox" checked>
+                <label for="tagExperimental" class="upload-tag-label" data-tag="experimental">🆕 <span class="i18n-experimental">Expérimental</span></label>
+            </div>
+        </div>
+        
+        <button class="upload-submit" id="uploadSubmit" onclick="handleUpload()" disabled>
+            <span id="uploadBtnSubmit">📤 Uploader vers la bibliothèque</span>
+        </button>
+        
+        <div class="upload-error" id="uploadError"></div>
+    </div>
+</div>
+
+<script>
+    // Upload Modal Management
+    let selectedFile = null;
+    let parsedConfig = null;
+
+    function openUploadModal() {
+        // Check if user is logged in
+        if (!currentUser) {
+            alert(currentLang === 'fr' 
+                ? 'Vous devez être connecté avec Google pour uploader une configuration. Utilisez l\'éditeur pour vous connecter.'
+                : 'You must be logged in with Google to upload a configuration. Use the editor to log in.');
+            return;
+        }
+        
+        document.getElementById('uploadModal').classList.add('active');
+        resetUploadForm();
+    }
+
+    function closeUploadModal() {
+        document.getElementById('uploadModal').classList.remove('active');
+        resetUploadForm();
+    }
+
+    function resetUploadForm() {
+        selectedFile = null;
+        parsedConfig = null;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('configName').value = '';
+        document.getElementById('fileDrop').classList.remove('has-file');
+        document.getElementById('fileDropText').innerHTML = currentLang === 'fr'
+            ? '📂 Glissez-déposez votre fichier .xcfg<br>ou cliquez pour parcourir'
+            : '📂 Drag & drop your .xcfg file<br>or click to browse';
+        document.getElementById('uploadSubmit').disabled = true;
+        document.getElementById('uploadError').classList.remove('active');
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('fileDrop').classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('fileDrop').classList.remove('drag-over');
+    }
+
+    function handleFileDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('fileDrop').classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            processFile(files[0]);
+        }
+    }
+
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        if (files.length > 0) {
+            processFile(files[0]);
+        }
+    }
+
+    async function processFile(file) {
+        if (!file.name.endsWith('.xcfg') && !file.name.endsWith('.json')) {
+            showUploadError(currentLang === 'fr'
+                ? 'Seuls les fichiers .xcfg sont acceptés'
+                : 'Only .xcfg files are accepted');
+            return;
+        }
+
+        try {
+            const text = await file.text();
+            const config = JSON.parse(text);
+            
+            // Validate structure
+            if (!config.layout || !config.screenResolution) {
+                throw new Error('Invalid config structure');
+            }
+
+            selectedFile = file;
+            parsedConfig = config;
+            
+            // Update UI
+            document.getElementById('fileDrop').classList.add('has-file');
+            document.getElementById('fileDropText').innerHTML = `✅ ${file.name}`;
+            
+            // Auto-fill name if empty
+            if (!document.getElementById('configName').value) {
+                const baseName = file.name.replace('.xcfg', '').replace('.json', '');
+                document.getElementById('configName').value = baseName;
+            }
+            
+            // Enable submit
+            document.getElementById('uploadSubmit').disabled = false;
+            
+        } catch (err) {
+            showUploadError(currentLang === 'fr'
+                ? 'Fichier invalide ou corrompu'
+                : 'Invalid or corrupted file');
+            console.error('Parse error:', err);
+        }
+    }
+
+    async function handleUpload() {
+        if (!selectedFile || !parsedConfig || !currentUser) return;
+
+        const configName = document.getElementById('configName').value.trim();
+        if (!configName) {
+            showUploadError(currentLang === 'fr'
+                ? 'Veuillez entrer un nom pour la configuration'
+                : 'Please enter a name for the configuration');
+            return;
+        }
+
+        // Get selected tags
+        const tags = [];
+        if (document.getElementById('tagCross').checked) tags.push('cross');
+        if (document.getElementById('tagCompete').checked) tags.push('compete');
+        if (document.getElementById('tagCasual').checked) tags.push('casual');
+        if (document.getElementById('tagExperimental').checked) tags.push('experimental');
+
+        if (tags.length === 0) {
+            showUploadError(currentLang === 'fr'
+                ? 'Veuillez sélectionner au moins un tag'
+                : 'Please select at least one tag');
+            return;
+        }
+
+        // Disable button
+        const submitBtn = document.getElementById('uploadSubmit');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = currentLang === 'fr' ? '⏳ Upload en cours...' : '⏳ Uploading...';
+
+        try {
+            // Generate screenshot (use first page)
+            const screenshot = await generateScreenshot(parsedConfig);
+            
+            // Upload to Supabase
+            const { data, error } = await sb
+                .from('configs')
+                .insert({
+                    name: configName,
+                    user_id: currentUser.id,
+                    user_email: currentUser.email,
+                    config_data: parsedConfig,
+                    screenshot: screenshot,
+                    tags: tags
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            // Success!
+            alert(currentLang === 'fr'
+                ? '✅ Configuration uploadée avec succès !'
+                : '✅ Configuration uploaded successfully!');
+            
+            closeUploadModal();
+            loadConfigs(); // Reload configs to show new one
+            
+        } catch (err) {
+            console.error('Upload error:', err);
+            showUploadError(currentLang === 'fr'
+                ? `Erreur lors de l'upload: ${err.message}`
+                : `Upload error: ${err.message}`);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = currentLang === 'fr' ? '📤 Uploader vers la bibliothèque' : '📤 Upload to Library';
+        }
+    }
+
+    async function generateScreenshot(config) {
+        // Simple SVG screenshot generator
+        // This creates a basic representation - could be enhanced
+        const width = config.screenResolution?.width || 1440;
+        const height = config.screenResolution?.height || 2560;
+        const orientation = config.screenResolution?.orientation || 0;
+        
+        // Get first page widgets
+        const firstPage = Object.keys(config.layout || {}).sort()[0];
+        const widgets = config.layout[firstPage] || [];
+        
+        // Create simple SVG
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+        svg += `<rect width="${width}" height="${height}" fill="#e0f2fe"/>`;
+        
+        // Draw widgets as simple rectangles
+        widgets.forEach(w => {
+            const x = (w.X1 / 10000) * width;
+            const y = (w.Y1 / 10000) * height;
+            const w2 = ((w.X2 - w.X1) / 10000) * width;
+            const h2 = ((w.Y2 - w.Y1) / 10000) * height;
+            svg += `<rect x="${x}" y="${y}" width="${w2}" height="${h2}" fill="rgba(100,116,139,0.2)" stroke="rgba(100,116,139,0.5)" stroke-width="2"/>`;
+        });
+        
+        svg += `</svg>`;
+        
+        return `data:image/svg+xml;base64,${btoa(svg)}`;
+    }
+
+    function showUploadError(message) {
+        const errorEl = document.getElementById('uploadError');
+        errorEl.textContent = message;
+        errorEl.classList.add('active');
+    }
+
+    // Add translations for upload modal
+    const uploadTranslations = {
+        fr: {
+            uploadBtn: 'Uploader ma config',
+            uploadModalTitle: 'Uploader ma config',
+            uploadLabelFile: 'Fichier .xcfg',
+            uploadLabelName: 'Nom de la configuration',
+            uploadLabelTags: 'Tags (cochez tous ceux qui s\'appliquent)',
+            uploadBtnSubmit: '📤 Uploader vers la bibliothèque',
+            fileDropText: '📂 Glissez-déposez votre fichier .xcfg<br>ou cliquez pour parcourir'
+        },
+        en: {
+            uploadBtn: 'Upload My Config',
+            uploadModalTitle: 'Upload My Config',
+            uploadLabelFile: '.xcfg File',
+            uploadLabelName: 'Configuration Name',
+            uploadLabelTags: 'Tags (check all that apply)',
+            uploadBtnSubmit: '📤 Upload to Library',
+            fileDropText: '📂 Drag & drop your .xcfg file<br>or click to browse'
+        }
+    };
+
+    // Extend applyLang to include upload translations
+    const originalApplyLang = applyLang;
+    applyLang = function() {
+        originalApplyLang();
+        const t = uploadTranslations[currentLang];
+        document.getElementById('uploadBtnLabel').textContent = t.uploadBtn;
+        document.getElementById('uploadModalTitle').textContent = t.uploadModalTitle;
+        document.getElementById('uploadLabelFile').textContent = t.uploadLabelFile;
+        document.getElementById('uploadLabelName').textContent = t.uploadLabelName;
+        document.getElementById('uploadLabelTags').textContent = t.uploadLabelTags;
+        document.getElementById('uploadBtnSubmit').textContent = t.uploadBtnSubmit;
+        if (!selectedFile) {
+            document.getElementById('fileDropText').innerHTML = t.fileDropText;
+        }
+    };
+</script>
+
 </body>
 </html>
