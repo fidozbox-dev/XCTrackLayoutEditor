@@ -646,7 +646,6 @@
         
         .upload-btn:hover { 
             background: #22c55e;
-            transform: translateY(-2px);
         }
 
         /* Upload Modal */
@@ -774,6 +773,8 @@
         .upload-tag-checkbox:checked + .upload-tag-label {
             border-color: currentColor;
             font-weight: 600;
+            background: currentColor;
+            color: #000;
         }
         
         .upload-tag-label[data-tag="cross"] { color: var(--cross); }
@@ -1493,9 +1494,9 @@
             const text = await file.text();
             const config = JSON.parse(text);
             
-            // Validate structure
-            if (!config.layout || !config.screenResolution) {
-                throw new Error('Invalid config structure');
+            // Validate structure (just check it's a valid XCTrack config)
+            if (!config.layout) {
+                throw new Error('Invalid config structure - missing layout field');
             }
 
             selectedFile = file;
