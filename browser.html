@@ -1482,6 +1482,73 @@
         }
     }
 
+    // Auto-detect tags from config content
+    function detectTags(config) {
+        if (!config?.layout) return ['casual'];
+        
+        const tags = new Set();
+        let hasCompetition = false;
+        let hasCross = false;
+        let totalWidgets = 0;
+        
+        // Scan all orientations and pages
+        Object.keys(config.layout).forEach(orientation => {
+            const pages = config.layout[orientation] || [];
+            pages.forEach(page => {
+                const widgets = page.widgets || [];
+                totalWidgets += widgets.length;
+                
+                widgets.forEach(widget => {
+                    const cls = (widget.CLASS || '').toLowerCase();
+                    
+                    // Competition indicators
+                    if (cls.includes('competition') || 
+                        cls.includes('opti') || 
+                        cls.includes('compmap') ||
+                        cls.includes('compdistance') ||
+                        cls.includes('compglide')) {
+                        hasCompetition = true;
+                    }
+                    
+                    // Cross country indicators
+                    if (cls.includes('xcassistant') || 
+                        cls.includes('xcspeed') ||
+                        cls.includes('thermalassistant')) {
+                        hasCross = true;
+                    }
+                });
+            });
+        });
+        
+        // Apply tags based on detection
+        if (hasCompetition) tags.add('compete');
+        if (hasCross) tags.add('cross');
+        
+        // If many widgets, likely not casual
+        // If few widgets or no specific indicators, it's casual
+        if (totalWidgets < 15 || tags.size === 0) {
+            tags.add('casual');
+        }
+        
+        return Array.from(tags);
+    }
+
+    function applyDetectedTags(detectedTags) {
+        // Uncheck all first
+        document.getElementById('tagCross').checked = false;
+        document.getElementById('tagCompete').checked = false;
+        document.getElementById('tagCasual').checked = false;
+        document.getElementById('tagExperimental').checked = false;
+        
+        // Check detected tags
+        detectedTags.forEach(tag => {
+            if (tag === 'cross') document.getElementById('tagCross').checked = true;
+            if (tag === 'compete') document.getElementById('tagCompete').checked = true;
+            if (tag === 'casual') document.getElementById('tagCasual').checked = true;
+            if (tag === 'experimental') document.getElementById('tagExperimental').checked = true;
+        });
+    }
+
     async function processFile(file) {
         if (!file.name.endsWith('.xcfg') && !file.name.endsWith('.json')) {
             showUploadError(lang === 'fr'
@@ -1501,6 +1568,10 @@
 
             selectedFile = file;
             parsedConfig = config;
+            
+            // Auto-detect and apply tags
+            const detectedTags = detectTags(config);
+            applyDetectedTags(detectedTags);
             
             // Update UI
             document.getElementById('fileDrop').classList.add('has-file');
