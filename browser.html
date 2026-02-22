@@ -1402,23 +1402,20 @@
     let selectedFile = null;
     let parsedConfig = null;
 
-    // Setup event listeners when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        // File drop zone events
-        const fileDrop = document.getElementById('fileDrop');
-        const fileInput = document.getElementById('fileInput');
-        const uploadSubmit = document.getElementById('uploadSubmit');
-        const uploadModalClose = document.getElementById('uploadModalClose');
-        
-        fileDrop.addEventListener('click', () => fileInput.click());
-        fileDrop.addEventListener('drop', handleFileDrop);
-        fileDrop.addEventListener('dragover', handleDragOver);
-        fileDrop.addEventListener('dragleave', handleDragLeave);
-        
-        fileInput.addEventListener('change', handleFileSelect);
-        uploadSubmit.addEventListener('click', handleUpload);
-        uploadModalClose.addEventListener('click', closeUploadModal);
-    });
+    // Setup event listeners (script is at end of body, DOM is ready)
+    const fileDrop = document.getElementById('fileDrop');
+    const fileInput = document.getElementById('fileInput');
+    const uploadSubmit = document.getElementById('uploadSubmit');
+    const uploadModalClose = document.getElementById('uploadModalClose');
+    
+    fileDrop.addEventListener('click', () => fileInput.click());
+    fileDrop.addEventListener('drop', handleFileDrop);
+    fileDrop.addEventListener('dragover', handleDragOver);
+    fileDrop.addEventListener('dragleave', handleDragLeave);
+    
+    fileInput.addEventListener('change', handleFileSelect);
+    uploadSubmit.addEventListener('click', handleUpload);
+    uploadModalClose.addEventListener('click', closeUploadModal);
 
     function openUploadModal() {
         // DISABLED: Login requirement - trusting community for now
