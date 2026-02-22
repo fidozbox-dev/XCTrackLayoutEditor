@@ -1422,7 +1422,7 @@
         // Uncomment if abuse happens
         /*
         if (!currentUser) {
-            alert(currentLang === 'fr' 
+            alert(lang === 'fr' 
                 ? 'Vous devez être connecté avec Google pour uploader une configuration. Utilisez l\'éditeur pour vous connecter.'
                 : 'You must be logged in with Google to upload a configuration. Use the editor to log in.');
             return;
@@ -1444,7 +1444,7 @@
         document.getElementById('fileInput').value = '';
         document.getElementById('configName').value = '';
         document.getElementById('fileDrop').classList.remove('has-file');
-        document.getElementById('fileDropText').innerHTML = currentLang === 'fr'
+        document.getElementById('fileDropText').innerHTML = lang === 'fr'
             ? '📂 Glissez-déposez votre fichier .xcfg<br>ou cliquez pour parcourir'
             : '📂 Drag & drop your .xcfg file<br>or click to browse';
         document.getElementById('uploadSubmit').disabled = true;
@@ -1483,7 +1483,7 @@
 
     async function processFile(file) {
         if (!file.name.endsWith('.xcfg') && !file.name.endsWith('.json')) {
-            showUploadError(currentLang === 'fr'
+            showUploadError(lang === 'fr'
                 ? 'Seuls les fichiers .xcfg sont acceptés'
                 : 'Only .xcfg files are accepted');
             return;
@@ -1515,7 +1515,7 @@
             document.getElementById('uploadSubmit').disabled = false;
             
         } catch (err) {
-            showUploadError(currentLang === 'fr'
+            showUploadError(lang === 'fr'
                 ? 'Fichier invalide ou corrompu'
                 : 'Invalid or corrupted file');
             console.error('Parse error:', err);
@@ -1527,7 +1527,7 @@
 
         const configName = document.getElementById('configName').value.trim();
         if (!configName) {
-            showUploadError(currentLang === 'fr'
+            showUploadError(lang === 'fr'
                 ? 'Veuillez entrer un nom pour la configuration'
                 : 'Please enter a name for the configuration');
             return;
@@ -1541,7 +1541,7 @@
         if (document.getElementById('tagExperimental').checked) tags.push('experimental');
 
         if (tags.length === 0) {
-            showUploadError(currentLang === 'fr'
+            showUploadError(lang === 'fr'
                 ? 'Veuillez sélectionner au moins un tag'
                 : 'Please select at least one tag');
             return;
@@ -1550,7 +1550,7 @@
         // Disable button
         const submitBtn = document.getElementById('uploadSubmit');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = currentLang === 'fr' ? '⏳ Upload en cours...' : '⏳ Uploading...';
+        submitBtn.innerHTML = lang === 'fr' ? '⏳ Upload en cours...' : '⏳ Uploading...';
 
         try {
             // Generate screenshot (use first page)
@@ -1573,7 +1573,7 @@
             if (error) throw error;
 
             // Success!
-            alert(currentLang === 'fr'
+            alert(lang === 'fr'
                 ? '✅ Configuration uploadée avec succès !'
                 : '✅ Configuration uploaded successfully!');
             
@@ -1582,11 +1582,11 @@
             
         } catch (err) {
             console.error('Upload error:', err);
-            showUploadError(currentLang === 'fr'
+            showUploadError(lang === 'fr'
                 ? `Erreur lors de l'upload: ${err.message}`
                 : `Upload error: ${err.message}`);
             submitBtn.disabled = false;
-            submitBtn.innerHTML = currentLang === 'fr' ? '📤 Uploader vers la bibliothèque' : '📤 Upload to Library';
+            submitBtn.innerHTML = lang === 'fr' ? '📤 Uploader vers la bibliothèque' : '📤 Upload to Library';
         }
     }
 
@@ -1651,7 +1651,7 @@
     const originalApplyLang = applyLang;
     applyLang = function() {
         originalApplyLang();
-        const t = uploadTranslations[currentLang];
+        const t = uploadTranslations[lang];
         document.getElementById('uploadBtnLabel').textContent = t.uploadBtn;
         document.getElementById('uploadModalTitle').textContent = t.uploadModalTitle;
         document.getElementById('uploadLabelFile').textContent = t.uploadLabelFile;
