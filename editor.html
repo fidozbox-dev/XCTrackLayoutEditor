@@ -935,6 +935,33 @@
         ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 6px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--sky); }
 
+        /* ── MOBILE WARNING ── */
+        .mobile-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #1e293b;
+            padding: 16px 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+            border-bottom: 2px solid #d97706;
+        }
+        
+        .mobile-warning a {
+            color: #1e293b;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+        
+        .mobile-warning a:hover {
+            color: #000;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-warning {
+                display: block;
+            }
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 1200px) {
             .main-layout { grid-template-columns: 1fr; }
@@ -2334,6 +2361,18 @@
                             <h1>{t.title}</h1>
                             <p>{t.subtitle}</p>
                         </div>
+
+                        {/* Mobile Warning Banner */}
+                        <div className="mobile-warning">
+                            📱 {lang === 'fr' 
+                                ? "L'éditeur n'est pas optimisé pour mobile/tablette. Pour la meilleure expérience, utilisez un ordinateur." 
+                                : "The editor is not optimized for mobile/tablet. For the best experience, use a computer."}
+                            {' '}
+                            <a href="./browser.html">
+                                {lang === 'fr' ? '→ Visitez la Bibliothèque' : '→ Visit the Library'}
+                            </a>
+                        </div>
+
                         <div className="viewer" style={{ display: 'flex', gap: '30px', justifyContent: 'center', padding: '40px 20px' }}>
                             {/* Option 1: Importer */}
                             <div 
@@ -2447,6 +2486,17 @@
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '5px' }}>
                             v2025.02.20-hybrid-theme
                         </div>
+                    </div>
+
+                    {/* Mobile Warning Banner */}
+                    <div className="mobile-warning">
+                        📱 {lang === 'fr' 
+                            ? "L'éditeur n'est pas optimisé pour mobile/tablette. Pour la meilleure expérience, utilisez un ordinateur." 
+                            : "The editor is not optimized for mobile/tablet. For the best experience, use a computer."}
+                        {' '}
+                        <a href="./browser.html">
+                            {lang === 'fr' ? '→ Visitez la Bibliothèque' : '→ Visit the Library'}
+                        </a>
                     </div>
 
                     <div className="main-layout">
