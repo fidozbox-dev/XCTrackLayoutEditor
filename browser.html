@@ -1636,6 +1636,7 @@
                     user_email: currentUser?.email || null,
                     config_json: parsedConfig,
                     screenshot: screenshot,
+                    category: tags[0] || 'casual',  // First tag as category (required field)
                     tags: tags
                 })
                 .select()
