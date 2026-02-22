@@ -1636,7 +1636,6 @@
                     user_email: currentUser?.email || null,
                     config_json: parsedConfig,
                     screenshot: screenshot,
-                    category: tags[0] || 'casual',  // First tag as category (required field)
                     tags: tags
                 })
                 .select()
@@ -1663,32 +1662,61 @@
     }
 
     async function generateScreenshot(config) {
-        // Simple SVG screenshot generator
-        // This creates a basic representation - could be enhanced
+        // Generate canvas-based screenshot of first page
         const width = config.screenResolution?.width || 1440;
         const height = config.screenResolution?.height || 2560;
-        const orientation = config.screenResolution?.orientation || 0;
         
-        // Get first page widgets
-        const firstPage = Object.keys(config.layout || {}).sort()[0];
-        const widgets = config.layout[firstPage] || [];
+        // Get first orientation's first page
+        const orientations = Object.keys(config.layout || {}).sort();
+        if (orientations.length === 0) return null;
         
-        // Create simple SVG
-        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
-        svg += `<rect width="${width}" height="${height}" fill="#e0f2fe"/>`;
+        const firstOrientation = orientations[0];
+        const pages = config.layout[firstOrientation] || [];
+        if (pages.length === 0) return null;
         
-        // Draw widgets as simple rectangles
-        widgets.forEach(w => {
-            const x = (w.X1 / 10000) * width;
-            const y = (w.Y1 / 10000) * height;
-            const w2 = ((w.X2 - w.X1) / 10000) * width;
-            const h2 = ((w.Y2 - w.Y1) / 10000) * height;
-            svg += `<rect x="${x}" y="${y}" width="${w2}" height="${h2}" fill="rgba(100,116,139,0.2)" stroke="rgba(100,116,139,0.5)" stroke-width="2"/>`;
+        const firstPage = pages[0];
+        const widgets = firstPage.widgets || [];
+        
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const scale = 0.3; // Smaller for upload
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext('2d');
+        
+        // Background (light blue like phone screen)
+        ctx.fillStyle = '#e0f2fe';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw widgets
+        ctx.strokeStyle = 'rgba(100,116,139,0.5)';
+        ctx.fillStyle = 'rgba(100,116,139,0.15)';
+        ctx.lineWidth = 2;
+        
+        widgets.forEach(widget => {
+            const x = (widget.X1 / 10000) * canvas.width;
+            const y = (widget.Y1 / 10000) * canvas.height;
+            const w = ((widget.X2 - widget.X1) / 10000) * canvas.width;
+            const h = ((widget.Y2 - widget.Y1) / 10000) * canvas.height;
+            
+            // Draw widget box
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeRect(x, y, w, h);
+            
+            // Draw widget label
+            const label = widget.CLASS || '';
+            if (label && h > 20) {
+                ctx.fillStyle = '#1e293b';
+                ctx.font = `${Math.max(10, h * 0.15)}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label.replace('W', ''), x + w/2, y + h/2);
+                ctx.fillStyle = 'rgba(100,116,139,0.15)';
+            }
         });
         
-        svg += `</svg>`;
-        
-        return `data:image/svg+xml;base64,${btoa(svg)}`;
+        // Convert to base64
+        return canvas.toDataURL('image/png');
     }
 
     function showUploadError(message) {
