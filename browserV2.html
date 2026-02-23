@@ -229,38 +229,36 @@
         }
 
         .phone-screen {
-            background: #e0f2fe;
-            border-radius: 12px;
             position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            background: #e0f2fe;
+            border-radius: 6px;
+            overflow: hidden;
         }
 
         .widget {
             position: absolute;
             border: 2px solid rgba(100,116,139,0.45);
             background: rgba(255,255,255,0.08);
-            border-radius: 3px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.15s;
+            overflow: hidden;
         }
 
         .widget-label {
             position: absolute;
             top: 2px;
             left: 2px;
-            font-size: 0.55rem;
+            font-size: 0.65rem;
             font-weight: 600;
             color: #1e293b;
             background: rgba(255,255,255,0.85);
             padding: 2px 6px;
             border-radius: 3px;
+            pointer-events: none;
+            z-index: 50;
             max-width: calc(100% - 8px);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            z-index: 1;
         }
 
         .empty-state {
@@ -729,14 +727,14 @@ function renderViewer() {
         // Portrait: phone is vertical (width < height)
         pagesHTML = portraitPages.length > 0 
             ? `<div class="pages-stack">${portraitPages.map((page, i) => 
-                renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
+                renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i, 400)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No portrait pages</div>';
     } else {
-        // Landscape: phone is horizontal (width > height)
+        // Landscape: phone is horizontal (width > height) - bigger for grid
         pagesHTML = landscapePages.length > 0 
             ? `<div class="pages-grid">${landscapePages.map((page, i) => 
-                renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i)
+                renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i, 500)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No landscape pages</div>';
     }
@@ -787,8 +785,7 @@ function renderViewer() {
     `;
 }
 
-function renderPage(page, width, height, index) {
-    const maxWidth = 400;
+function renderPage(page, width, height, index, maxWidth = 400) {
     const scale = maxWidth / width;
     const scaledHeight = height * scale;
     
