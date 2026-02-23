@@ -142,7 +142,7 @@
         }
 
         .config-item {
-            padding: 16px 20px;
+            padding: 12px 20px;
             border-bottom: 1px solid var(--border);
             cursor: pointer;
             transition: background 0.2s;
@@ -157,34 +157,26 @@
             border-left: 3px solid var(--sky);
         }
 
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+        }
+
         .config-name {
             font-weight: 600;
-            margin-bottom: 4px;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .config-author {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-dim);
-            margin-bottom: 8px;
+            white-space: nowrap;
         }
-
-        .config-tags {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .config-tag {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .config-tag.cross { background: rgba(52,211,153,0.2); color: var(--cross); }
-        .config-tag.compete { background: rgba(245,158,11,0.2); color: var(--compete); }
-        .config-tag.casual { background: rgba(167,139,250,0.2); color: var(--casual); }
-        .config-tag.experimental { background: rgba(251,113,133,0.2); color: var(--experimental); }
 
         /* VIEWER */
         .viewer {
@@ -417,8 +409,9 @@
                 width: 100%;
             }
 
+            /* Keep landscape previews side by side on mobile */
             .pages-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
             }
         }
     </style>
@@ -456,6 +449,7 @@
         <button class="tag-btn" data-tag="compete" onclick="toggleFilter('compete')">🏁 <span class="i18n-compete">Competition</span></button>
         <button class="tag-btn" data-tag="casual" onclick="toggleFilter('casual')">☀️ <span class="i18n-casual">Casual</span></button>
         <button class="tag-btn" data-tag="experimental" onclick="toggleFilter('experimental')">🆕 <span class="i18n-experimental">Experimental</span></button>
+        <button class="tag-btn" id="filterMode" onclick="toggleFilterMode()" style="margin-left: 10px; font-weight: 600;">OR</button>
         <div style="margin-left: auto; display: flex; gap: 10px;">
             <button class="tag-btn" data-sort="upvotes" onclick="setSort('upvotes')">🔥 <span class="i18n-popular">Popular</span></button>
             <button class="tag-btn active" data-sort="created_at" onclick="setSort('created_at')">⭐ <span class="i18n-recent">Recent</span></button>
@@ -542,6 +536,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let configs = [];
 let selectedConfig = null;
 let filters = [];
+let filterMode = 'OR'; // OR or AND
 let sortBy = 'created_at';
 let lang = localStorage.getItem('xctrackLang') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
 let selectedFile = null;
@@ -602,6 +597,14 @@ function setSort(sort) {
     loadConfigs();
 }
 
+function toggleFilterMode() {
+    filterMode = filterMode === 'OR' ? 'AND' : 'OR';
+    document.getElementById('filterMode').textContent = filterMode;
+    if (filters.length > 0) {
+        loadConfigs();
+    }
+}
+
 // Load configs
 async function loadConfigs() {
     const list = document.getElementById('configList');
@@ -610,7 +613,8 @@ async function loadConfigs() {
     try {
         let query = sb.from('configs').select('id, name, user_email, tags, upvotes, downloads, created_at');
         
-        if (filters.length > 0) {
+        // OR mode: use Supabase contains
+        if (filters.length > 0 && filterMode === 'OR') {
             query = query.contains('tags', filters);
         }
         
@@ -619,13 +623,23 @@ async function loadConfigs() {
         const { data, error } = await query;
         if (error) throw error;
         
-        configs = data || [];
+        let results = data || [];
+        
+        // AND mode: filter client-side
+        if (filters.length > 0 && filterMode === 'AND') {
+            results = results.filter(config => 
+                filters.every(f => (config.tags || []).includes(f))
+            );
+        }
+        
+        configs = results;
         renderConfigList();
     } catch (err) {
         console.error('Load error:', err);
         list.innerHTML = `<div class="empty-state" style="color:#ef4444">Error loading configs<br><small>${err.message}</small></div>`;
     }
 }
+
 
 async function loadStats() {
     try {
@@ -652,10 +666,9 @@ function renderConfigList() {
     
     list.innerHTML = configs.map((config, idx) => `
         <div class="config-item" data-config-idx="${idx}">
-            <div class="config-name">${escapeHtml(config.name || 'Unnamed')}</div>
-            <div class="config-author">by ${escapeHtml(config.user_email || 'Anonymous')}</div>
-            <div class="config-tags">
-                ${(config.tags || []).map(tag => `<span class="config-tag ${tag}">${tag}</span>`).join('')}
+            <div class="config-header">
+                <div class="config-name">${escapeHtml(config.name || 'Unnamed')}</div>
+                <div class="config-author">by ${escapeHtml(config.user_email || 'Anonymous')}</div>
             </div>
         </div>
     `).join('');
@@ -693,7 +706,7 @@ function renderViewer() {
     const viewer = document.getElementById('viewer');
     
     if (!selectedConfig) {
-        viewer.innerHTML = '<div class="empty-state">Select a configuration</div>';
+        viewer.innerHTML = '<div class="empty-state"><div style="font-size:3rem;margin-bottom:20px;">📱</div><div>Select a configuration to view</div></div>';
         return;
     }
     
@@ -711,13 +724,33 @@ function renderViewer() {
         renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
     ).join('')}</div>` : '<div style="color:var(--text-dim)">No landscape pages</div>';
     
+    // Tags badges
+    const tagsBadges = (selectedConfig.tags || []).map(tag => {
+        const colors = {
+            cross: 'var(--cross)',
+            compete: 'var(--compete)',
+            casual: 'var(--casual)',
+            experimental: 'var(--experimental)'
+        };
+        return `<span style="font-size:0.8rem;padding:4px 10px;border-radius:12px;background:rgba(${tag==='cross'?'52,211,153':tag==='compete'?'245,158,11':tag==='casual'?'167,139,250':'251,113,133'},0.2);color:${colors[tag]};font-weight:600;margin-right:8px;">${tag}</span>`;
+    }).join('');
+    
     viewer.innerHTML = `
         <div class="viewer-header">
-            <div class="viewer-title">${selectedConfig.name || 'Unnamed'}</div>
-            <div class="viewer-meta">by ${selectedConfig.user_email || 'Anonymous'}</div>
-            <div class="viewer-actions">
-                <button class="btn-primary" onclick="downloadConfig()">⬇️ Download</button>
-                <a href="./editor.html" class="btn-secondary desktop-only" target="_blank">✏️ Edit</a>
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
+                <div>
+                    <div class="viewer-title">${escapeHtml(selectedConfig.name || 'Unnamed')}</div>
+                    <div class="viewer-meta">by ${escapeHtml(selectedConfig.user_email || 'Anonymous')}</div>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn-primary" onclick="downloadConfig()">⬇️ Download</button>
+                    <a href="./editor.html" class="btn btn-secondary desktop-only" target="_blank" style="text-decoration:none;">✏️ Edit</a>
+                </div>
+            </div>
+            <div style="display:flex; gap:20px; align-items:center; padding:12px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+                ${tagsBadges}
+                <span style="color:var(--text-dim); font-size:0.9rem;">🔥 ${selectedConfig.upvotes || 0} votes</span>
+                <span style="color:var(--text-dim); font-size:0.9rem;">⬇️ ${selectedConfig.downloads || 0} downloads</span>
             </div>
         </div>
         
