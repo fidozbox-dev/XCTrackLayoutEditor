@@ -760,11 +760,11 @@ function renderViewer() {
                     </div>
                     <div style="display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">
                         <button onclick="viewerOrientation='portrait'; renderViewer();" 
-                                style="padding:6px 12px; border:none; background:${viewerOrientation==='portrait'?'var(--sky)':'transparent'}; color:${viewerOrientation==='portrait'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
+                                style="padding:6px 12px; border:none; background:${viewerOrientation==='landscape'?'transparent':'var(--sky)'}; color:${viewerOrientation==='landscape'?'var(--text-dim)':'white'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
                             📱 Portrait
                         </button>
                         <button onclick="viewerOrientation='landscape'; renderViewer();" 
-                                style="padding:6px 12px; border:none; border-left:1px solid var(--border); background:${viewerOrientation==='landscape'?'var(--sky)':'transparent'}; color:${viewerOrientation==='landscape'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
+                                style="padding:6px 12px; border:none; border-left:1px solid var(--border); background:${viewerOrientation==='portrait'?'transparent':'var(--sky)'}; color:${viewerOrientation==='portrait'?'var(--text-dim)':'white'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
                             📱 Landscape
                         </button>
                     </div>
@@ -786,7 +786,7 @@ function renderViewer() {
 }
 
 function renderPage(page, width, height, index) {
-    const maxWidth = 300;
+    const maxWidth = 400; // Bigger previews
     const scale = maxWidth / width;
     const scaledHeight = height * scale;
     
@@ -798,7 +798,8 @@ function renderPage(page, width, height, index) {
         
         const widgetKey = (widget.CLASS || '').split('.').pop();
         const preview = WIDGET_PREVIEWS[widgetKey];
-        const fontSize = preview ? Math.max(8, h * 0.78 * (preview.baseSize / 2.5)) * scale : 12;
+        // Better fontSize: use h directly with baseSize multiplier
+        const fontSize = preview ? Math.max(10, h * 0.78 * (preview.baseSize / 2.5)) : 14;
         
         let content = '';
         if (preview?.icon) {
