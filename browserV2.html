@@ -819,10 +819,13 @@ function renderPage(page, width, height, index, maxWidth = null) {
     const navigType = page.navigations && page.navigations.length > 0 
         ? page.navigations[0].split('.').pop().replace(/^Task/, '') 
         : 'All';
+    const widgetCount = page.widgets?.length || 0;
     
-    // Grid calculations (10x18 for portrait, adapt for landscape)
-    const gridCols = width < height ? 10 : 18;
-    const gridRows = width < height ? 18 : 10;
+    // Grid calculations for A51 (2400×1080)
+    // Portrait (1080×2400): 22 cols × 44 rows
+    // Landscape (2400×1080): 44 cols × 22 rows  
+    const gridCols = width < height ? 22 : 44;
+    const gridRows = width < height ? 44 : 22;
     
     // Generate grid lines
     const gridHTML = `<div style="position:absolute;inset:0;pointer-events:none;z-index:1;">
@@ -892,10 +895,10 @@ function renderPage(page, width, height, index, maxWidth = null) {
     }).join('');
     
     return `<div style="margin-bottom:30px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 4px;">
-            <div style="font-size:0.85rem;color:var(--text-dim);font-weight:600;">${pageClass}</div>
-            <div style="font-size:0.75rem;color:var(--text-dim);">${navigType}</div>
-        </div>
+        <h3 style="color:var(--text);font-size:1rem;font-weight:600;margin:0 0 8px 0;display:flex;align-items:center;">
+            Page ${index + 1} — ${pageClass}
+            <span style="font-size:0.82rem;color:var(--text-dim);margin-left:8px;">(${widgetCount} widgets)</span>
+        </h3>
         <div class="phone-screen" style="width:${scaledWidth}px;height:${scaledHeight}px">
             ${gridHTML}
             ${widgets}
