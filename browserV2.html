@@ -101,21 +101,21 @@
         /* FILTERS */
         .filters {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 20px;
-            padding-top: 20px;
+            margin-top: 16px;
+            padding-top: 16px;
             border-top: 1px solid var(--border);
         }
 
         .tag-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 16px;
             border: 1px solid var(--border);
             background: transparent;
             color: var(--text-dim);
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         .tag-btn.active {
@@ -450,10 +450,11 @@
         <button class="tag-btn" data-tag="casual" onclick="toggleFilter('casual')">☀️ <span class="i18n-casual">Casual</span></button>
         <button class="tag-btn" data-tag="experimental" onclick="toggleFilter('experimental')">🆕 <span class="i18n-experimental">Experimental</span></button>
         <button class="tag-btn" id="filterMode" onclick="toggleFilterMode()" style="margin-left: 10px; font-weight: 600;">OR</button>
-        <div style="display: flex; gap: 10px;">
-            <button class="tag-btn" data-sort="upvotes" onclick="setSort('upvotes')">🔥 <span class="i18n-popular">Popular</span></button>
-            <button class="tag-btn active" data-sort="created_at" onclick="setSort('created_at')">⭐ <span class="i18n-recent">Recent</span></button>
-            <button class="tag-btn" data-sort="downloads" onclick="setSort('downloads')">⬇️ <span class="i18n-downloads">Downloaded</span></button>
+        <div style="display: flex; gap: 8px;">
+            <button class="tag-btn" data-sort="upvotes" onclick="setSort('upvotes')">🔥 Popular</button>
+            <button class="tag-btn active" data-sort="created_at" onclick="setSort('created_at')">⭐ Recent</button>
+            <button class="tag-btn" data-sort="downloads" onclick="setSort('downloads')">⬇️ Downloaded</button>
+            <button class="tag-btn" data-sort="user_email" onclick="setSort('user_email')">👤 Author</button>
         </div>
     </div>
 </div>
@@ -732,25 +733,25 @@ function renderViewer() {
             casual: 'var(--casual)',
             experimental: 'var(--experimental)'
         };
-        return `<span style="font-size:0.8rem;padding:4px 10px;border-radius:12px;background:rgba(${tag==='cross'?'52,211,153':tag==='compete'?'245,158,11':tag==='casual'?'167,139,250':'251,113,133'},0.2);color:${colors[tag]};font-weight:600;margin-right:8px;">${tag}</span>`;
+        return `<span style="font-size:0.7rem;padding:3px 8px;border-radius:10px;background:rgba(${tag==='cross'?'52,211,153':tag==='compete'?'245,158,11':tag==='casual'?'167,139,250':'251,113,133'},0.2);color:${colors[tag]};font-weight:600;margin-right:6px;">${tag}</span>`;
     }).join('');
     
     viewer.innerHTML = `
-        <div class="viewer-header">
-            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
+        <div class="viewer-header" style="margin-bottom:30px;">
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
                 <div>
-                    <div class="viewer-title">${escapeHtml(selectedConfig.name || 'Unnamed')}</div>
-                    <div class="viewer-meta">by ${escapeHtml(selectedConfig.user_email || 'Anonymous')}</div>
+                    <div class="viewer-title" style="font-size:1.5rem;margin-bottom:4px;">${escapeHtml(selectedConfig.name || 'Unnamed')}</div>
+                    <div class="viewer-meta" style="font-size:0.85rem;">by ${escapeHtml(selectedConfig.user_email || 'Anonymous')}</div>
                 </div>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <button class="btn-primary" onclick="downloadConfig()">⬇️ Download</button>
                     <a href="./editor.html" class="btn btn-secondary desktop-only" target="_blank" style="text-decoration:none;">✏️ Edit</a>
                 </div>
             </div>
-            <div style="display:flex; gap:20px; align-items:center; padding:12px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+            <div style="display:flex; gap:12px; align-items:center; padding:8px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
                 ${tagsBadges}
-                <span style="color:var(--text-dim); font-size:0.9rem;">🔥 ${selectedConfig.upvotes || 0} votes</span>
-                <span style="color:var(--text-dim); font-size:0.9rem;">⬇️ ${selectedConfig.downloads || 0} downloads</span>
+                <span style="color:var(--text-dim); font-size:0.8rem; margin-left:auto;">🔥 ${selectedConfig.upvotes || 0}</span>
+                <span style="color:var(--text-dim); font-size:0.8rem;">⬇️ ${selectedConfig.downloads || 0}</span>
             </div>
         </div>
         
