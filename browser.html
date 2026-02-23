@@ -1416,6 +1416,45 @@
 </div>
 
 <script>
+    // Widget preview data (copied from editor for consistency)
+    const WIDGET_PREVIEWS = {
+        "WAltitude": { text: "1234", unit: "m", baseSize: 2.5 },
+        "WAltitudeAboveGround": { text: "856", unit: "m", baseSize: 2.5 },
+        "WAltitudeMaximum": { text: "2891", unit: "m", baseSize: 2.5 },
+        "WSpeed": { text: "24", unit: "km/h", baseSize: 2.5 },
+        "WXCSpeed": { text: "32", unit: "km/h", baseSize: 2.5 },
+        "WVerticalSpeed": { text: "+1.2", unit: "m/s", baseSize: 2.5 },
+        "WGlide": { text: "8.5", unit: "", baseSize: 2.5 },
+        "WWindSpeed": { text: "12", unit: "km/h", baseSize: 2 },
+        "WTime": { text: "14:32", baseSize: 2.5 },
+        "WAirTime": { text: "01:23:45", baseSize: 2 },
+        "WThermalAltGain": { text: "+180", unit: "m", baseSize: 2 },
+        "WOptiResult": { text: "42.3", unit: "km", baseSize: 2 },
+        "WStatusLine": { icon: "📶 🔋 💚", baseSize: 1.2 },
+        "WCompass": { icon: "🧭", baseSize: 2.8 },
+        "WThermalAssistant": { icon: "🌀", baseSize: 3 },
+        "WXCAssistant": { icon: "🗺️", baseSize: 3 },
+        "WCompMap": { icon: "🗺️", baseSize: 3 },
+        "WAirspaceProximity": { text: "2.5km", unit: "", baseSize: 1.5 },
+        "WCompDistanceToGoal": { text: "18.2", unit: "km", baseSize: 2 },
+        "WCompGlideToGoal": { text: "7.2", unit: "", baseSize: 2 },
+        "WCompAltitudeOverGoal": { text: "+450", unit: "m", baseSize: 2 },
+        "WCompTimeToStart": { text: "12:30", unit: "", baseSize: 2 },
+        "WCompTimeAtStart": { text: "00:15", unit: "", baseSize: 2 },
+        "WNextTurnpointDistance": { text: "5.8", unit: "km", baseSize: 2 },
+        "WNextTurnpointAlt": { text: "1650", unit: "m", baseSize: 2 },
+        "WNextTurnpointGlideTo": { text: "9.2", unit: "", baseSize: 2 },
+        "WNextTurnpointTimeOfArrival": { text: "15:45", unit: "", baseSize: 1.8 },
+        "WVerticalGraph": { icon: "📈", baseSize: 2 },
+        "WSideView": { icon: "⛰️", baseSize: 2 },
+        "WAltitudeDataGraph": { icon: "📊", baseSize: 2 },
+        "WFreeText": { text: "TEXT", unit: "", baseSize: 2 },
+        "WButtonZoomOut": { icon: "🔍➖", baseSize: 1.75 },
+        "WButtonZoomIn": { icon: "🔍➕", baseSize: 1.75 },
+        "WButtonNavigPrev": { icon: "◀️", baseSize: 2.5 },
+        "WButtonNavigNext": { icon: "▶️", baseSize: 2.5 },
+    };
+
     // Upload Modal Management
     let selectedFile = null;
     let parsedConfig = null;
@@ -1570,7 +1609,7 @@
         });
     }
 
-    // Render layout preview in a container
+    // Render layout preview in a container (editor-quality rendering)
     function renderLayoutPreview(config, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return null;
@@ -1609,12 +1648,16 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         `;
         
-        // Render widgets
+        // Render widgets with proper preview (like editor)
         widgets.forEach(widget => {
             const x = (widget.X1 / 10000) * maxWidth;
             const y = (widget.Y1 / 10000) * scaledHeight;
             const w = ((widget.X2 - widget.X1) / 10000) * maxWidth;
             const h = ((widget.Y2 - widget.Y1) / 10000) * scaledHeight;
+            
+            // Get widget preview data
+            const widgetKey = (widget.CLASS || '').split('.').pop();
+            const preview = WIDGET_PREVIEWS[widgetKey] || null;
             
             const widgetDiv = document.createElement('div');
             widgetDiv.style.cssText = `
@@ -1627,12 +1670,15 @@
                 background: rgba(255,255,255,0.08);
                 border-radius: 3px;
                 overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
             `;
             
-            // Add label
-            const className = widget.CLASS || '';
-            if (className && h > 15) {
-                const shortName = className.split('.').pop().replace(/^W/, '') || className;
+            // Add label in top-left
+            if (widgetKey && h > 15) {
+                const shortName = widgetKey.replace(/^W/, '');
                 const label = document.createElement('div');
                 label.style.cssText = `
                     position: absolute;
@@ -1649,9 +1695,61 @@
                     text-overflow: ellipsis;
                     white-space: nowrap;
                     font-family: 'DM Sans', sans-serif;
+                    z-index: 1;
                 `;
                 label.textContent = shortName;
                 widgetDiv.appendChild(label);
+            }
+            
+            // Add preview content (icon or value+unit)
+            if (preview) {
+                const fontSize = Math.max(8, h * 0.78 * (preview.baseSize / 2.5)) * scale;
+                const unitSize = fontSize * 0.4;
+                
+                if (preview.icon) {
+                    // Icon widget
+                    const iconDiv = document.createElement('div');
+                    iconDiv.style.cssText = `
+                        font-size: ${fontSize}px;
+                        opacity: 0.8;
+                        pointer-events: none;
+                    `;
+                    iconDiv.textContent = preview.icon;
+                    widgetDiv.appendChild(iconDiv);
+                } else if (preview.text) {
+                    // Value widget
+                    const contentDiv = document.createElement('div');
+                    contentDiv.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        gap: ${fontSize * 0.1}px;
+                        pointer-events: none;
+                    `;
+                    
+                    const valueDiv = document.createElement('div');
+                    valueDiv.style.cssText = `
+                        font-size: ${fontSize}px;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                        color: #1e293b;
+                        font-weight: 500;
+                    `;
+                    valueDiv.textContent = preview.text;
+                    contentDiv.appendChild(valueDiv);
+                    
+                    if (preview.unit) {
+                        const unitDiv = document.createElement('div');
+                        unitDiv.style.cssText = `
+                            font-size: ${unitSize}px;
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                            color: #1e293b;
+                            font-weight: 400;
+                        `;
+                        unitDiv.textContent = preview.unit;
+                        contentDiv.appendChild(unitDiv);
+                    }
+                    
+                    widgetDiv.appendChild(contentDiv);
+                }
             }
             
             phoneScreen.appendChild(widgetDiv);
@@ -1754,6 +1852,7 @@
                     user_email: currentUser?.email || null,
                     config_json: parsedConfig,
                     screenshot: screenshot,
+                    category: tags[0] || 'casual',  // Required field - first tag or default
                     tags: tags
                 })
                 .select()
