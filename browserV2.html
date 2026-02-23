@@ -760,11 +760,11 @@ function renderViewer() {
                     </div>
                     <div style="display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">
                         <button onclick="viewerOrientation='portrait'; renderViewer();" 
-                                style="padding:6px 12px; border:none; background:${viewerOrientation==='landscape'?'transparent':'var(--sky)'}; color:${viewerOrientation==='landscape'?'var(--text-dim)':'white'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
+                                style="padding:6px 12px; border:none; background:${viewerOrientation==='portrait'?'var(--sky)':'transparent'}; color:${viewerOrientation==='portrait'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif; transition:all 0.2s;">
                             📱 Portrait
                         </button>
                         <button onclick="viewerOrientation='landscape'; renderViewer();" 
-                                style="padding:6px 12px; border:none; border-left:1px solid var(--border); background:${viewerOrientation==='portrait'?'transparent':'var(--sky)'}; color:${viewerOrientation==='portrait'?'var(--text-dim)':'white'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
+                                style="padding:6px 12px; border:none; border-left:1px solid var(--border); background:${viewerOrientation==='landscape'?'var(--sky)':'transparent'}; color:${viewerOrientation==='landscape'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif; transition:all 0.2s;">
                             📱 Landscape
                         </button>
                     </div>
@@ -786,7 +786,7 @@ function renderViewer() {
 }
 
 function renderPage(page, width, height, index) {
-    const maxWidth = 400; // Bigger previews
+    const maxWidth = 400;
     const scale = maxWidth / width;
     const scaledHeight = height * scale;
     
@@ -798,22 +798,37 @@ function renderPage(page, width, height, index) {
         
         const widgetKey = (widget.CLASS || '').split('.').pop();
         const preview = WIDGET_PREVIEWS[widgetKey];
-        // Better fontSize: use h directly with baseSize multiplier
-        const fontSize = preview ? Math.max(10, h * 0.78 * (preview.baseSize / 2.5)) : 14;
+        
+        // Calculate fontSize like editor does
+        const fontSize = preview ? Math.max(12, h * 0.78 * (preview.baseSize / 2.5)) : 14;
+        const unitSize = fontSize * 0.4;
         
         let content = '';
         if (preview?.icon) {
             content = `<div style="font-size:${fontSize}px;opacity:0.8">${preview.icon}</div>`;
         } else if (preview?.text) {
-            content = `<div style="display:flex;align-items:center;gap:${fontSize*0.1}px">
-                <div style="font-size:${fontSize}px;color:#1e293b;font-weight:500">${preview.text}</div>
-                ${preview.unit ? `<div style="font-size:${fontSize*0.4}px;color:#1e293b">${preview.unit}</div>` : ''}
-            </div>`;
+            // Check if unit has fraction (km/h, m/s, etc.)
+            if (preview.unit && preview.unit.includes('/')) {
+                const parts = preview.unit.split('/');
+                content = `<div style="display:flex;align-items:center;gap:6px">
+                    <div style="font-size:${fontSize}px;color:#1e293b;font-weight:bold;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;line-height:1">${preview.text}</div>
+                    <div style="display:flex;flex-direction:column;align-items:center;font-size:${unitSize}px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;color:#64748b;line-height:0.8;gap:1px">
+                        <div>${parts[0]}</div>
+                        <div style="border-top:1px solid #6b7280;width:100%;margin:0"></div>
+                        <div>${parts[1]}</div>
+                    </div>
+                </div>`;
+            } else {
+                content = `<div style="display:flex;align-items:center;gap:6px">
+                    <div style="font-size:${fontSize}px;color:#1e293b;font-weight:bold;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;line-height:1">${preview.text}</div>
+                    ${preview.unit ? `<div style="font-size:${unitSize}px;color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif">${preview.unit}</div>` : ''}
+                </div>`;
+            }
         }
         
         return `<div class="widget" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
             <div class="widget-label">${widgetKey.replace(/^W/, '')}</div>
-            ${content}
+            ${content ? `<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">${content}</div>` : ''}
         </div>`;
     }).join('');
     
