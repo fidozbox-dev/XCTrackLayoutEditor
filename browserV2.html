@@ -713,14 +713,15 @@ function renderViewer() {
     
     const config = selectedConfig.config_json;
     
-    // Portrait pages
-    const portraitPages = config.layout['0'] || [];
+    // Try different layout key formats
+    const portraitPages = config.layout['0'] || config.layout[0] || config.layout.portrait || [];
+    const landscapePages = config.layout['90'] || config.layout[90] || config.layout.landscape || [];
+    
     const portraitHTML = portraitPages.length > 0 ? portraitPages.map((page, i) => 
         renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i)
     ).join('') : '<div style="color:var(--text-dim)">No portrait pages</div>';
     
     // Landscape pages  
-    const landscapePages = config.layout['90'] || [];
     const landscapeHTML = landscapePages.length > 0 ? `<div class="pages-grid">${landscapePages.map((page, i) => 
         renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
     ).join('')}</div>` : '<div style="color:var(--text-dim)">No landscape pages</div>';
