@@ -727,14 +727,14 @@ function renderViewer() {
         // Portrait: phone is vertical (width < height)
         pagesHTML = portraitPages.length > 0 
             ? `<div class="pages-stack">${portraitPages.map((page, i) => 
-                renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i, 400)
+                renderPage(page, config.screenResolution?.width || 1080, config.screenResolution?.height || 2400, i, 450)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No portrait pages</div>';
     } else {
-        // Landscape: phone is horizontal (width > height) - bigger for grid
+        // Landscape: phone is horizontal (width > height) - also vertical stack
         pagesHTML = landscapePages.length > 0 
-            ? `<div class="pages-grid">${landscapePages.map((page, i) => 
-                renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i, 500)
+            ? `<div class="pages-stack">${landscapePages.map((page, i) => 
+                renderPage(page, config.screenResolution?.height || 2400, config.screenResolution?.width || 1080, i, 450)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No landscape pages</div>';
     }
@@ -785,9 +785,15 @@ function renderViewer() {
     `;
 }
 
-function renderPage(page, width, height, index, maxWidth = 400) {
+function renderPage(page, width, height, index, maxWidth = 450) {
     const scale = maxWidth / width;
     const scaledHeight = height * scale;
+    
+    // Extract page type from CLASS
+    const pageClass = (page.CLASS || '').split('.').pop().replace(/^WP/, ''); // WPXCAssistant → XCAssistant
+    const navigType = page.navigations && page.navigations.length > 0 
+        ? page.navigations[0].split('.').pop().replace(/^Task/, '') 
+        : 'All';
     
     const widgets = (page.widgets || []).map(widget => {
         const x = (widget.X1 / 10000) * maxWidth;
@@ -831,8 +837,15 @@ function renderPage(page, width, height, index, maxWidth = 400) {
         </div>`;
     }).join('');
     
-    return `<div class="phone-screen" style="width:${maxWidth}px;height:${scaledHeight}px">${widgets}</div>`;
+    return `<div style="margin-bottom:30px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 4px;">
+            <div style="font-size:0.85rem;color:var(--text-dim);font-weight:600;">${pageClass}</div>
+            <div style="font-size:0.75rem;color:var(--text-dim);">${navigType}</div>
+        </div>
+        <div class="phone-screen" style="width:${maxWidth}px;height:${scaledHeight}px">${widgets}</div>
+    </div>`;
 }
+
 
 function downloadConfig() {
     if (!selectedConfig) return;
