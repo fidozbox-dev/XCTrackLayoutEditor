@@ -546,16 +546,39 @@ let parsedConfig = null;
 const WIDGET_PREVIEWS = {
     "WAltitude": { text: "1234", unit: "m", baseSize: 2.5 },
     "WAltitudeAboveGround": { text: "856", unit: "m", baseSize: 2.5 },
+    "WAltitudeMaximum": { text: "2891", unit: "m", baseSize: 2.5 },
     "WSpeed": { text: "24", unit: "km/h", baseSize: 2.5 },
     "WXCSpeed": { text: "32", unit: "km/h", baseSize: 2.5 },
     "WVerticalSpeed": { text: "+1.2", unit: "m/s", baseSize: 2.5 },
     "WGlide": { text: "8.5", unit: "", baseSize: 2.5 },
+    "WWindSpeed": { text: "12", unit: "km/h", baseSize: 2 },
     "WTime": { text: "14:32", baseSize: 2.5 },
+    "WAirTime": { text: "01:23:45", baseSize: 2 },
+    "WThermalAltGain": { text: "+180", unit: "m", baseSize: 2 },
     "WOptiResult": { text: "42.3", unit: "km", baseSize: 2 },
+    "WStatusLine": { icon: "📶 🔋 💚", baseSize: 1.2 },
     "WCompass": { icon: "🧭", baseSize: 2.8 },
     "WThermalAssistant": { icon: "🌀", baseSize: 3 },
     "WXCAssistant": { icon: "🗺️", baseSize: 3 },
     "WCompMap": { icon: "🗺️", baseSize: 3 },
+    "WAirspaceProximity": { text: "2.5km", unit: "", baseSize: 1.5 },
+    "WCompDistanceToGoal": { text: "18.2", unit: "km", baseSize: 2 },
+    "WCompGlideToGoal": { text: "7.2", unit: "", baseSize: 2 },
+    "WCompAltitudeOverGoal": { text: "+450", unit: "m", baseSize: 2 },
+    "WCompTimeToStart": { text: "12:30", unit: "", baseSize: 2 },
+    "WCompTimeAtStart": { text: "00:15", unit: "", baseSize: 2 },
+    "WNextTurnpointDistance": { text: "5.8", unit: "km", baseSize: 2 },
+    "WNextTurnpointAlt": { text: "1650", unit: "m", baseSize: 2 },
+    "WNextTurnpointGlideTo": { text: "9.2", unit: "", baseSize: 2 },
+    "WNextTurnpointTimeOfArrival": { text: "15:45", unit: "", baseSize: 1.8 },
+    "WVerticalGraph": { icon: "📈", baseSize: 2 },
+    "WSideView": { icon: "⛰️", baseSize: 2 },
+    "WAltitudeDataGraph": { icon: "📊", baseSize: 2 },
+    "WFreeText": { text: "TEXT", unit: "", baseSize: 2 },
+    "WButtonZoomOut": { icon: "🔍➖", baseSize: 1.75 },
+    "WButtonZoomIn": { icon: "🔍➕", baseSize: 1.75 },
+    "WButtonNavigPrev": { icon: "◀️", baseSize: 2.5 },
+    "WButtonNavigNext": { icon: "▶️", baseSize: 2.5 },
 };
 
 // Init
@@ -727,14 +750,14 @@ function renderViewer() {
         // Portrait: phone is vertical (width < height)
         pagesHTML = portraitPages.length > 0 
             ? `<div class="pages-stack">${portraitPages.map((page, i) => 
-                renderPage(page, config.screenResolution?.width || 1080, config.screenResolution?.height || 2400, i, 450)
+                renderPage(page, config.screenResolution?.width || 1080, config.screenResolution?.height || 2400, i)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No portrait pages</div>';
     } else {
         // Landscape: phone is horizontal (width > height) - also vertical stack
         pagesHTML = landscapePages.length > 0 
             ? `<div class="pages-stack">${landscapePages.map((page, i) => 
-                renderPage(page, config.screenResolution?.height || 2400, config.screenResolution?.width || 1080, i, 450)
+                renderPage(page, config.screenResolution?.height || 2400, config.screenResolution?.width || 1080, i)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No landscape pages</div>';
     }
@@ -785,8 +808,10 @@ function renderViewer() {
     `;
 }
 
-function renderPage(page, width, height, index, maxWidth = 450) {
-    const scale = maxWidth / width;
+function renderPage(page, width, height, index, maxWidth = null) {
+    // Use editor's scale factor (0.3)
+    const scale = 0.3;
+    const scaledWidth = width * scale;
     const scaledHeight = height * scale;
     
     // Extract page type from CLASS
@@ -810,9 +835,9 @@ function renderPage(page, width, height, index, maxWidth = 450) {
     </div>`;
     
     const widgets = (page.widgets || []).map(widget => {
-        const x = (widget.X1 / 10000) * maxWidth;
+        const x = (widget.X1 / 10000) * scaledWidth;
         const y = (widget.Y1 / 10000) * scaledHeight;
-        const w = ((widget.X2 - widget.X1) / 10000) * maxWidth;
+        const w = ((widget.X2 - widget.X1) / 10000) * scaledWidth;
         const h = ((widget.Y2 - widget.Y1) / 10000) * scaledHeight;
         
         const widgetKey = (widget.CLASS || '').split('.').pop();
@@ -871,7 +896,7 @@ function renderPage(page, width, height, index, maxWidth = 450) {
             <div style="font-size:0.85rem;color:var(--text-dim);font-weight:600;">${pageClass}</div>
             <div style="font-size:0.75rem;color:var(--text-dim);">${navigType}</div>
         </div>
-        <div class="phone-screen" style="width:${maxWidth}px;height:${scaledHeight}px">
+        <div class="phone-screen" style="width:${scaledWidth}px;height:${scaledHeight}px">
             ${gridHTML}
             ${widgets}
         </div>
