@@ -6,6 +6,7 @@
     <title>XCTrack Layout Library</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --sky: #0ea5e9;
@@ -1367,6 +1368,23 @@
             <input type="file" id="fileInput" accept=".xcfg,.json" style="display:none">
         </div>
         
+        <!-- Preview container (hidden until file loaded) -->
+        <div id="uploadPreviewContainer" style="display:none; margin-bottom:20px;">
+            <label style="display:block; color:var(--text-dim); font-size:0.9rem; font-weight:500; margin-bottom:8px;">
+                Aperçu
+            </label>
+            <div id="uploadPreview" style="
+                background: var(--deeper);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 200px;
+            "></div>
+        </div>
+        
         <div class="upload-form-group">
             <label id="uploadLabelName">Nom de la configuration</label>
             <input type="text" id="configName" placeholder="Ex: Ma config compétition" maxlength="100">
@@ -1449,6 +1467,10 @@
             : '📂 Drag & drop your .xcfg file<br>or click to browse';
         document.getElementById('uploadSubmit').disabled = true;
         document.getElementById('uploadError').classList.remove('active');
+        
+        // Hide preview
+        document.getElementById('uploadPreviewContainer').style.display = 'none';
+        document.getElementById('uploadPreview').innerHTML = '';
     }
 
     function handleDragOver(e) {
@@ -1548,6 +1570,97 @@
         });
     }
 
+    // Render layout preview in a container
+    function renderLayoutPreview(config, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return null;
+        
+        // Clear container
+        container.innerHTML = '';
+        
+        // Get dimensions
+        const width = config.screenResolution?.width || 1440;
+        const height = config.screenResolution?.height || 2560;
+        
+        // Get first orientation's first page
+        const orientations = Object.keys(config.layout || {}).sort();
+        if (orientations.length === 0) return null;
+        
+        const firstOrientation = orientations[0];
+        const pages = config.layout[firstOrientation] || [];
+        if (pages.length === 0) return null;
+        
+        const firstPage = pages[0];
+        const widgets = firstPage.widgets || [];
+        
+        // Create phone screen container
+        const maxWidth = 300; // Preview size
+        const scale = maxWidth / width;
+        const scaledHeight = height * scale;
+        
+        const phoneScreen = document.createElement('div');
+        phoneScreen.style.cssText = `
+            width: ${maxWidth}px;
+            height: ${scaledHeight}px;
+            background: #e0f2fe;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        `;
+        
+        // Render widgets
+        widgets.forEach(widget => {
+            const x = (widget.X1 / 10000) * maxWidth;
+            const y = (widget.Y1 / 10000) * scaledHeight;
+            const w = ((widget.X2 - widget.X1) / 10000) * maxWidth;
+            const h = ((widget.Y2 - widget.Y1) / 10000) * scaledHeight;
+            
+            const widgetDiv = document.createElement('div');
+            widgetDiv.style.cssText = `
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                width: ${w}px;
+                height: ${h}px;
+                border: 2px solid rgba(100,116,139,0.45);
+                background: rgba(255,255,255,0.08);
+                border-radius: 3px;
+                overflow: hidden;
+            `;
+            
+            // Add label
+            const className = widget.CLASS || '';
+            if (className && h > 15) {
+                const shortName = className.split('.').pop().replace(/^W/, '') || className;
+                const label = document.createElement('div');
+                label.style.cssText = `
+                    position: absolute;
+                    top: 2px;
+                    left: 2px;
+                    font-size: 0.55rem;
+                    font-weight: 600;
+                    color: #1e293b;
+                    background: rgba(255,255,255,0.85);
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    max-width: calc(100% - 8px);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-family: 'DM Sans', sans-serif;
+                `;
+                label.textContent = shortName;
+                widgetDiv.appendChild(label);
+            }
+            
+            phoneScreen.appendChild(widgetDiv);
+        });
+        
+        container.appendChild(phoneScreen);
+        return phoneScreen;
+    }
+
     async function processFile(file) {
         if (!file.name.endsWith('.xcfg') && !file.name.endsWith('.json')) {
             showUploadError(lang === 'fr'
@@ -1571,6 +1684,11 @@
             // Auto-detect and apply tags
             const detectedTags = detectTags(config);
             applyDetectedTags(detectedTags);
+            
+            // Render preview
+            const previewContainer = document.getElementById('uploadPreviewContainer');
+            previewContainer.style.display = 'block';
+            renderLayoutPreview(config, 'uploadPreview');
             
             // Update UI
             document.getElementById('fileDrop').classList.add('has-file');
@@ -1636,7 +1754,6 @@
                     user_email: currentUser?.email || null,
                     config_json: parsedConfig,
                     screenshot: screenshot,
-                    category: tags[0] || 'casual',  // Required field - use first tag or default to casual
                     tags: tags
                 })
                 .select()
@@ -1663,61 +1780,27 @@
     }
 
     async function generateScreenshot(config) {
-        // Generate canvas-based screenshot of first page
-        const width = config.screenResolution?.width || 1440;
-        const height = config.screenResolution?.height || 2560;
+        // Use html2canvas on the preview for perfect screenshot
+        const previewElement = document.getElementById('uploadPreview').querySelector('div');
         
-        // Get first orientation's first page
-        const orientations = Object.keys(config.layout || {}).sort();
-        if (orientations.length === 0) return null;
+        if (!previewElement || !window.html2canvas) {
+            console.warn('Preview or html2canvas not available, returning null');
+            return null;
+        }
         
-        const firstOrientation = orientations[0];
-        const pages = config.layout[firstOrientation] || [];
-        if (pages.length === 0) return null;
-        
-        const firstPage = pages[0];
-        const widgets = firstPage.widgets || [];
-        
-        // Create canvas
-        const canvas = document.createElement('canvas');
-        const scale = 0.3; // Smaller for upload
-        canvas.width = width * scale;
-        canvas.height = height * scale;
-        const ctx = canvas.getContext('2d');
-        
-        // Background (light blue like phone screen)
-        ctx.fillStyle = '#e0f2fe';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw widgets
-        ctx.strokeStyle = 'rgba(100,116,139,0.5)';
-        ctx.fillStyle = 'rgba(100,116,139,0.15)';
-        ctx.lineWidth = 2;
-        
-        widgets.forEach(widget => {
-            const x = (widget.X1 / 10000) * canvas.width;
-            const y = (widget.Y1 / 10000) * canvas.height;
-            const w = ((widget.X2 - widget.X1) / 10000) * canvas.width;
-            const h = ((widget.Y2 - widget.Y1) / 10000) * canvas.height;
+        try {
+            const canvas = await html2canvas(previewElement, {
+                scale: 2, // High quality
+                backgroundColor: '#e0f2fe',
+                logging: false,
+                useCORS: true
+            });
             
-            // Draw widget box
-            ctx.fillRect(x, y, w, h);
-            ctx.strokeRect(x, y, w, h);
-            
-            // Draw widget label
-            const label = widget.CLASS || '';
-            if (label && h > 20) {
-                ctx.fillStyle = '#1e293b';
-                ctx.font = `${Math.max(10, h * 0.15)}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(label.replace('W', ''), x + w/2, y + h/2);
-                ctx.fillStyle = 'rgba(100,116,139,0.15)';
-            }
-        });
-        
-        // Convert to base64
-        return canvas.toDataURL('image/png');
+            return canvas.toDataURL('image/png');
+        } catch (err) {
+            console.error('Screenshot generation error:', err);
+            return null;
+        }
     }
 
     function showUploadError(message) {
