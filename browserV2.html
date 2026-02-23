@@ -726,15 +726,17 @@ function renderViewer() {
     // Render only selected orientation
     let pagesHTML = '';
     if (viewerOrientation === 'portrait') {
+        // Portrait: phone is vertical (width < height)
         pagesHTML = portraitPages.length > 0 
             ? `<div class="pages-stack">${portraitPages.map((page, i) => 
-                renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i)
+                renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No portrait pages</div>';
     } else {
+        // Landscape: phone is horizontal (width > height)
         pagesHTML = landscapePages.length > 0 
             ? `<div class="pages-grid">${landscapePages.map((page, i) => 
-                renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
+                renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No landscape pages</div>';
     }
