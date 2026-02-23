@@ -217,8 +217,8 @@
         }
 
         .pages-stack {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
         }
 
@@ -423,7 +423,7 @@
         <div class="header-buttons">
             <button class="btn-ghost" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
             <button class="btn-primary" onclick="openUploadModal()">📤 <span id="uploadLabel">Upload Config</span></button>
-            <a href="./editor.html" class="btn-secondary desktop-only" target="_blank">✏️ <span id="editorLabel">Open Editor</span></a>
+            <a href="./editor.html" class="btn btn-secondary desktop-only" target="_blank" style="text-decoration: none;">✏️ <span id="editorLabel">Open Editor</span></a>
         </div>
     </div>
     
@@ -448,7 +448,7 @@
         <button class="tag-btn" data-tag="casual" onclick="toggleFilter('casual')">☀️ <span class="i18n-casual">Casual</span></button>
         <button class="tag-btn" data-tag="experimental" onclick="toggleFilter('experimental')">🆕 <span class="i18n-experimental">Experimental</span></button>
         <button class="tag-btn" id="filterMode" onclick="toggleFilterMode()" style="margin-left: 10px; font-weight: 600;">OR</button>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; margin-left: auto; flex-shrink: 0;">
             <button class="tag-btn" data-sort="upvotes" onclick="setSort('upvotes')">🔥 Popular</button>
             <button class="tag-btn active" data-sort="created_at" onclick="setSort('created_at')">⭐ Recent</button>
             <button class="tag-btn" data-sort="downloads" onclick="setSort('downloads')">⬇️ Downloaded</button>
