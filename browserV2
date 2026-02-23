@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XCTrack Layout Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --sky: #0ea5e9;
+            --deep: #060d1a;
+            --card: #0d1b2e;
+            --border: rgba(14, 165, 233, 0.12);
+            --text: #d4e4f5;
+            --text-dim: #6b8fae;
+            --green: #10b981;
+            --cross: #34d399;
+            --compete: #f59e0b;
+            --casual: #a78bfa;
+            --experimental: #fb7185;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--deep);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            color: var(--sky);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button, .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: #000;
+        }
+
+        .btn-primary:hover { background: #22c55e; }
+
+        .btn-secondary {
+            background: var(--sky);
+            color: white;
+        }
+
+        .btn-secondary:hover { background: #0284c7; }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .stats {
+            display: flex;
+            gap: 40px;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--sky);
+        }
+
+        /* FILTERS */
+        .filters {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .tag-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .tag-btn.active {
+            border-width: 2px;
+            font-weight: 600;
+        }
+
+        .tag-btn[data-tag="cross"].active { border-color: var(--cross); color: var(--cross); }
+        .tag-btn[data-tag="compete"].active { border-color: var(--compete); color: var(--compete); }
+        .tag-btn[data-tag="casual"].active { border-color: var(--casual); color: var(--casual); }
+        .tag-btn[data-tag="experimental"].active { border-color: var(--experimental); color: var(--experimental); }
+
+        /* MAIN LAYOUT */
+        .main {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            height: calc(100vh - 200px);
+        }
+
+        /* CONFIG LIST */
+        .config-list {
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .config-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .config-item:hover {
+            background: rgba(14,165,233,0.05);
+        }
+
+        .config-item.selected {
+            background: rgba(14,165,233,0.1);
+            border-left: 3px solid var(--sky);
+        }
+
+        .config-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .config-author {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .config-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .config-tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .config-tag.cross { background: rgba(52,211,153,0.2); color: var(--cross); }
+        .config-tag.compete { background: rgba(245,158,11,0.2); color: var(--compete); }
+        .config-tag.casual { background: rgba(167,139,250,0.2); color: var(--casual); }
+        .config-tag.experimental { background: rgba(251,113,133,0.2); color: var(--experimental); }
+
+        /* VIEWER */
+        .viewer {
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .viewer-header {
+            margin-bottom: 30px;
+        }
+
+        .viewer-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .viewer-meta {
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+
+        .viewer-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .layouts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .layout-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--text-dim);
+        }
+
+        .pages-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .pages-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .phone-screen {
+            background: #e0f2fe;
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .widget {
+            position: absolute;
+            border: 2px solid rgba(100,116,139,0.45);
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .widget-label {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 0.55rem;
+            font-weight: 600;
+            color: #1e293b;
+            background: rgba(255,255,255,0.85);
+            padding: 2px 6px;
+            border-radius: 3px;
+            max-width: calc(100% - 8px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: var(--text-dim);
+        }
+
+        /* UPLOAD MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: var(--deep);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-drop:hover { border-color: var(--sky); }
+        .file-drop.has-file { border-color: var(--green); }
+
+        .upload-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .upload-tag {
+            display: none;
+        }
+
+        .upload-tag-label {
+            padding: 8px 16px;
+            border-radius: var(--tag-radius);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .upload-tag:checked + .upload-tag-label {
+            border-width: 2px;
+            font-weight: 600;
+        }
+
+        .upload-tag-label[data-tag="cross"] { color: var(--cross); }
+        .upload-tag:checked + .upload-tag-label[data-tag="cross"] { border-color: var(--cross); }
+        .upload-tag-label[data-tag="compete"] { color: var(--compete); }
+        .upload-tag:checked + .upload-tag-label[data-tag="compete"] { border-color: var(--compete); }
+        .upload-tag-label[data-tag="casual"] { color: var(--casual); }
+        .upload-tag:checked + .upload-tag-label[data-tag="casual"] { border-color: var(--casual); }
+        .upload-tag-label[data-tag="experimental"] { color: var(--experimental); }
+        .upload-tag:checked + .upload-tag-label[data-tag="experimental"] { border-color: var(--experimental); }
+
+        .error {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            padding: 12px;
+            color: #ef4444;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .error.active { display: block; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .main {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .config-list {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                max-height: 300px;
+            }
+            
+            .layouts {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-secondary.desktop-only {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            button, .btn {
+                width: 100%;
+            }
+
+            .pages-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-top">
+        <div class="logo">XCTRACK LIBRARY</div>
+        <div class="header-buttons">
+            <button class="btn-ghost" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
+            <button class="btn-primary" onclick="openUploadModal()">📤 <span id="uploadLabel">Upload Config</span></button>
+            <a href="./editor.html" class="btn-secondary desktop-only" target="_blank">✏️ <span id="editorLabel">Open Editor</span></a>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div>
+            <div class="stat-value" id="totalConfigs">—</div>
+            <div class="stat-label"><span id="labelConfigs">Configurations</span></div>
+        </div>
+        <div>
+            <div class="stat-value" id="totalContributors">—</div>
+            <div class="stat-label"><span id="labelContributors">Contributors</span></div>
+        </div>
+        <div>
+            <div class="stat-value" id="totalDownloads">—</div>
+            <div class="stat-label"><span id="labelDownloads">Downloads</span></div>
+        </div>
+    </div>
+    
+    <div class="filters">
+        <button class="tag-btn" data-tag="cross" onclick="toggleFilter('cross')">🏔️ Cross</button>
+        <button class="tag-btn" data-tag="compete" onclick="toggleFilter('compete')">🏁 <span class="i18n-compete">Competition</span></button>
+        <button class="tag-btn" data-tag="casual" onclick="toggleFilter('casual')">☀️ <span class="i18n-casual">Casual</span></button>
+        <button class="tag-btn" data-tag="experimental" onclick="toggleFilter('experimental')">🆕 <span class="i18n-experimental">Experimental</span></button>
+        <div style="margin-left: auto; display: flex; gap: 10px;">
+            <button class="tag-btn" data-sort="upvotes" onclick="setSort('upvotes')">🔥 <span class="i18n-popular">Popular</span></button>
+            <button class="tag-btn active" data-sort="created_at" onclick="setSort('created_at')">⭐ <span class="i18n-recent">Recent</span></button>
+            <button class="tag-btn" data-sort="downloads" onclick="setSort('downloads')">⬇️ <span class="i18n-downloads">Downloaded</span></button>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+    <!-- CONFIG LIST -->
+    <div class="config-list" id="configList">
+        <div class="empty-state">Loading...</div>
+    </div>
+    
+    <!-- VIEWER -->
+    <div class="viewer" id="viewer">
+        <div class="empty-state">
+            <div style="font-size: 3rem; margin-bottom: 20px;">📱</div>
+            <div>Select a configuration to view</div>
+        </div>
+    </div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal" id="uploadModal">
+    <div class="modal-content">
+        <h2 id="uploadTitle">Upload Configuration</h2>
+        
+        <div class="form-group">
+            <label id="labelFile">.xcfg File</label>
+            <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()">
+                <div id="fileDropText">📂 Drop your .xcfg file or click to browse</div>
+            </div>
+            <input type="file" id="fileInput" accept=".xcfg,.json" style="display:none">
+        </div>
+        
+        <div class="form-group">
+            <label id="labelName">Configuration Name</label>
+            <input type="text" id="configName" placeholder="My Competition Layout">
+        </div>
+        
+        <div class="form-group">
+            <label id="labelAuthor">Author (optional, email preferred for contact)</label>
+            <input type="text" id="configAuthor" placeholder="john@example.com">
+        </div>
+        
+        <div class="form-group">
+            <label id="labelTags">Tags</label>
+            <div class="upload-tags">
+                <input type="checkbox" id="tagCross" class="upload-tag" checked>
+                <label for="tagCross" class="upload-tag-label" data-tag="cross">🏔️ Cross</label>
+                
+                <input type="checkbox" id="tagCompete" class="upload-tag" checked>
+                <label for="tagCompete" class="upload-tag-label" data-tag="compete">🏁 Competition</label>
+                
+                <input type="checkbox" id="tagCasual" class="upload-tag" checked>
+                <label for="tagCasual" class="upload-tag-label" data-tag="casual">☀️ Casual</label>
+                
+                <input type="checkbox" id="tagExperimental" class="upload-tag" checked>
+                <label for="tagExperimental" class="upload-tag-label" data-tag="experimental">🆕 Experimental</label>
+            </div>
+        </div>
+        
+        <button class="btn-primary" style="width:100%" id="uploadSubmit" onclick="handleUpload()" disabled>
+            <span id="uploadBtnSubmit">📤 Upload to Library</span>
+        </button>
+        
+        <button class="btn-ghost" style="width:100%; margin-top:10px" onclick="closeUploadModal()">
+            <span id="uploadBtnCancel">Cancel</span>
+        </button>
+        
+        <div class="error" id="uploadError"></div>
+    </div>
+</div>
+
+<script>
+// Supabase setup
+const SUPABASE_URL = 'https://xxrclljmmjtlupnuovfb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4cmNsbGptbWp0bHVwbnVvdmZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0NzY5NTYsImV4cCI6MjA1MzA1Mjk1Nn0.mVIXmAL_UB68A9lhM1S4nNK0dIxjxXvlkc8oaIGWDp8';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// State
+let configs = [];
+let selectedConfig = null;
+let filters = [];
+let sortBy = 'created_at';
+let lang = localStorage.getItem('xctrackLang') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+let selectedFile = null;
+let parsedConfig = null;
+
+// Widget previews (for rendering)
+const WIDGET_PREVIEWS = {
+    "WAltitude": { text: "1234", unit: "m", baseSize: 2.5 },
+    "WAltitudeAboveGround": { text: "856", unit: "m", baseSize: 2.5 },
+    "WSpeed": { text: "24", unit: "km/h", baseSize: 2.5 },
+    "WXCSpeed": { text: "32", unit: "km/h", baseSize: 2.5 },
+    "WVerticalSpeed": { text: "+1.2", unit: "m/s", baseSize: 2.5 },
+    "WGlide": { text: "8.5", unit: "", baseSize: 2.5 },
+    "WTime": { text: "14:32", baseSize: 2.5 },
+    "WOptiResult": { text: "42.3", unit: "km", baseSize: 2 },
+    "WCompass": { icon: "🧭", baseSize: 2.8 },
+    "WThermalAssistant": { icon: "🌀", baseSize: 3 },
+    "WXCAssistant": { icon: "🗺️", baseSize: 3 },
+    "WCompMap": { icon: "🗺️", baseSize: 3 },
+};
+
+// Init
+loadConfigs();
+loadStats();
+applyLang();
+
+// Language
+function toggleLang() {
+    lang = lang === 'fr' ? 'en' : 'fr';
+    localStorage.setItem('xctrackLang', lang);
+    applyLang();
+}
+
+function applyLang() {
+    // TODO: Add translations
+    document.getElementById('langBtn').textContent = lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+}
+
+// Filters
+function toggleFilter(tag) {
+    const idx = filters.indexOf(tag);
+    if (idx >= 0) {
+        filters.splice(idx, 1);
+    } else {
+        filters.push(tag);
+    }
+    document.querySelectorAll('.tag-btn[data-tag]').forEach(btn => {
+        btn.classList.toggle('active', filters.includes(btn.dataset.tag));
+    });
+    loadConfigs();
+}
+
+function setSort(sort) {
+    sortBy = sort;
+    document.querySelectorAll('.tag-btn[data-sort]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sort === sort);
+    });
+    loadConfigs();
+}
+
+// Load configs
+async function loadConfigs() {
+    try {
+        let query = sb.from('configs').select('id, name, user_email, tags, upvotes, downloads, created_at');
+        
+        if (filters.length > 0) {
+            query = query.contains('tags', filters);
+        }
+        
+        query = query.order(sortBy, { ascending: false }).limit(100);
+        
+        const { data, error } = await query;
+        if (error) throw error;
+        
+        configs = data || [];
+        renderConfigList();
+    } catch (err) {
+        console.error('Load error:', err);
+    }
+}
+
+async function loadStats() {
+    try {
+        const { data } = await sb.from('configs').select('user_email, downloads');
+        const total = data?.length || 0;
+        const contributors = new Set(data?.map(c => c.user_email)).size;
+        const downloads = data?.reduce((sum, c) => sum + (c.downloads || 0), 0) || 0;
+        
+        document.getElementById('totalConfigs').textContent = total;
+        document.getElementById('totalContributors').textContent = contributors;
+        document.getElementById('totalDownloads').textContent = downloads;
+    } catch (err) {
+        console.error('Stats error:', err);
+    }
+}
+
+function renderConfigList() {
+    const list = document.getElementById('configList');
+    
+    if (configs.length === 0) {
+        list.innerHTML = '<div class="empty-state">No configurations found</div>';
+        return;
+    }
+    
+    list.innerHTML = configs.map(config => `
+        <div class="config-item" onclick="selectConfig(${config.id})">
+            <div class="config-name">${config.name || 'Unnamed'}</div>
+            <div class="config-author">by ${config.user_email || 'Anonymous'}</div>
+            <div class="config-tags">
+                ${(config.tags || []).map(tag => `<span class="config-tag ${tag}">${tag}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function selectConfig(id) {
+    try {
+        const { data, error } = await sb.from('configs').select('*').eq('id', id).single();
+        if (error) throw error;
+        
+        selectedConfig = data;
+        renderViewer();
+        
+        // Mark selected
+        document.querySelectorAll('.config-item').forEach((item, idx) => {
+            item.classList.toggle('selected', configs[idx].id === id);
+        });
+    } catch (err) {
+        console.error('Select error:', err);
+    }
+}
+
+function renderViewer() {
+    const viewer = document.getElementById('viewer');
+    
+    if (!selectedConfig) {
+        viewer.innerHTML = '<div class="empty-state">Select a configuration</div>';
+        return;
+    }
+    
+    const config = selectedConfig.config_json;
+    
+    // Portrait pages
+    const portraitPages = config.layout['0'] || [];
+    const portraitHTML = portraitPages.length > 0 ? portraitPages.map((page, i) => 
+        renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i)
+    ).join('') : '<div style="color:var(--text-dim)">No portrait pages</div>';
+    
+    // Landscape pages  
+    const landscapePages = config.layout['90'] || [];
+    const landscapeHTML = landscapePages.length > 0 ? `<div class="pages-grid">${landscapePages.map((page, i) => 
+        renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
+    ).join('')}</div>` : '<div style="color:var(--text-dim)">No landscape pages</div>';
+    
+    viewer.innerHTML = `
+        <div class="viewer-header">
+            <div class="viewer-title">${selectedConfig.name || 'Unnamed'}</div>
+            <div class="viewer-meta">by ${selectedConfig.user_email || 'Anonymous'}</div>
+            <div class="viewer-actions">
+                <button class="btn-primary" onclick="downloadConfig()">⬇️ Download</button>
+                <a href="./editor.html" class="btn-secondary desktop-only" target="_blank">✏️ Edit</a>
+            </div>
+        </div>
+        
+        <div class="layouts">
+            <div class="layout-section">
+                <h3>📱 Portrait</h3>
+                <div class="pages-stack">${portraitHTML}</div>
+            </div>
+            <div class="layout-section">
+                <h3>📱 Landscape</h3>
+                ${landscapeHTML}
+            </div>
+        </div>
+    `;
+}
+
+function renderPage(page, width, height, index) {
+    const maxWidth = 300;
+    const scale = maxWidth / width;
+    const scaledHeight = height * scale;
+    
+    const widgets = (page.widgets || []).map(widget => {
+        const x = (widget.X1 / 10000) * maxWidth;
+        const y = (widget.Y1 / 10000) * scaledHeight;
+        const w = ((widget.X2 - widget.X1) / 10000) * maxWidth;
+        const h = ((widget.Y2 - widget.Y1) / 10000) * scaledHeight;
+        
+        const widgetKey = (widget.CLASS || '').split('.').pop();
+        const preview = WIDGET_PREVIEWS[widgetKey];
+        const fontSize = preview ? Math.max(8, h * 0.78 * (preview.baseSize / 2.5)) * scale : 12;
+        
+        let content = '';
+        if (preview?.icon) {
+            content = `<div style="font-size:${fontSize}px;opacity:0.8">${preview.icon}</div>`;
+        } else if (preview?.text) {
+            content = `<div style="display:flex;align-items:center;gap:${fontSize*0.1}px">
+                <div style="font-size:${fontSize}px;color:#1e293b;font-weight:500">${preview.text}</div>
+                ${preview.unit ? `<div style="font-size:${fontSize*0.4}px;color:#1e293b">${preview.unit}</div>` : ''}
+            </div>`;
+        }
+        
+        return `<div class="widget" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
+            <div class="widget-label">${widgetKey.replace(/^W/, '')}</div>
+            ${content}
+        </div>`;
+    }).join('');
+    
+    return `<div class="phone-screen" style="width:${maxWidth}px;height:${scaledHeight}px">${widgets}</div>`;
+}
+
+function downloadConfig() {
+    if (!selectedConfig) return;
+    
+    const dataStr = JSON.stringify(selectedConfig.config_json, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedConfig.name || 'config'}.xcfg`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    // Increment download count
+    sb.from('configs').update({ downloads: (selectedConfig.downloads || 0) + 1 }).eq('id', selectedConfig.id);
+}
+
+// Upload
+function openUploadModal() {
+    document.getElementById('uploadModal').classList.add('active');
+}
+
+function closeUploadModal() {
+    document.getElementById('uploadModal').classList.remove('active');
+    selectedFile = null;
+    parsedConfig = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('configName').value = '';
+    document.getElementById('configAuthor').value = '';
+    document.getElementById('fileDrop').classList.remove('has-file');
+    document.getElementById('uploadSubmit').disabled = true;
+}
+
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+        const text = await file.text();
+        const config = JSON.parse(text);
+        
+        if (!config.layout) {
+            throw new Error('Invalid config');
+        }
+        
+        selectedFile = file;
+        parsedConfig = config;
+        
+        document.getElementById('fileDrop').classList.add('has-file');
+        document.getElementById('fileDropText').textContent = `✅ ${file.name}`;
+        document.getElementById('uploadSubmit').disabled = false;
+        
+        if (!document.getElementById('configName').value) {
+            document.getElementById('configName').value = file.name.replace('.xcfg', '').replace('.json', '');
+        }
+    } catch (err) {
+        alert('Invalid file');
+        console.error(err);
+    }
+});
+
+async function handleUpload() {
+    if (!parsedConfig) return;
+    
+    const name = document.getElementById('configName').value.trim();
+    const author = document.getElementById('configAuthor').value.trim();
+    
+    if (!name) {
+        alert('Please enter a name');
+        return;
+    }
+    
+    const tags = [];
+    if (document.getElementById('tagCross').checked) tags.push('cross');
+    if (document.getElementById('tagCompete').checked) tags.push('compete');
+    if (document.getElementById('tagCasual').checked) tags.push('casual');
+    if (document.getElementById('tagExperimental').checked) tags.push('experimental');
+    
+    if (tags.length === 0) {
+        alert('Please select at least one tag');
+        return;
+    }
+    
+    try {
+        const { error } = await sb.from('configs').insert({
+            name: name,
+            user_email: author || null,
+            config_json: parsedConfig,
+            category: tags[0],
+            tags: tags,
+            screenshot: null
+        });
+        
+        if (error) throw error;
+        
+        alert('✅ Upload successful!');
+        closeUploadModal();
+        loadConfigs();
+        loadStats();
+    } catch (err) {
+        alert('Upload failed: ' + err.message);
+        console.error(err);
+    }
+}
+</script>
+
+</body>
+</html>
