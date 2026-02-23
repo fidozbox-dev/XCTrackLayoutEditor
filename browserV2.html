@@ -536,6 +536,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // State
 let configs = [];
 let selectedConfig = null;
+let viewerOrientation = 'portrait'; // portrait or landscape
 let filters = [];
 let filterMode = 'OR'; // OR or AND
 let sortBy = 'created_at';
@@ -604,6 +605,11 @@ function toggleFilterMode() {
     if (filters.length > 0) {
         loadConfigs();
     }
+}
+
+function toggleViewerOrientation() {
+    viewerOrientation = viewerOrientation === 'portrait' ? 'landscape' : 'portrait';
+    renderViewer();
 }
 
 // Load configs
@@ -717,14 +723,21 @@ function renderViewer() {
     const portraitPages = config.layout['0'] || config.layout[0] || config.layout.portrait || [];
     const landscapePages = config.layout['90'] || config.layout[90] || config.layout.landscape || [];
     
-    const portraitHTML = portraitPages.length > 0 ? portraitPages.map((page, i) => 
-        renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i)
-    ).join('') : '<div style="color:var(--text-dim)">No portrait pages</div>';
-    
-    // Landscape pages  
-    const landscapeHTML = landscapePages.length > 0 ? `<div class="pages-grid">${landscapePages.map((page, i) => 
-        renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
-    ).join('')}</div>` : '<div style="color:var(--text-dim)">No landscape pages</div>';
+    // Render only selected orientation
+    let pagesHTML = '';
+    if (viewerOrientation === 'portrait') {
+        pagesHTML = portraitPages.length > 0 
+            ? `<div class="pages-stack">${portraitPages.map((page, i) => 
+                renderPage(page, config.screenResolution?.height || 2560, config.screenResolution?.width || 1440, i)
+              ).join('')}</div>`
+            : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No portrait pages</div>';
+    } else {
+        pagesHTML = landscapePages.length > 0 
+            ? `<div class="pages-grid">${landscapePages.map((page, i) => 
+                renderPage(page, config.screenResolution?.width || 1440, config.screenResolution?.height || 2560, i)
+              ).join('')}</div>`
+            : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No landscape pages</div>';
+    }
     
     // Tags badges
     const tagsBadges = (selectedConfig.tags || []).map(tag => {
@@ -740,9 +753,21 @@ function renderViewer() {
     viewer.innerHTML = `
         <div class="viewer-header" style="margin-bottom:30px;">
             <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
-                <div>
-                    <div class="viewer-title" style="font-size:1.5rem;margin-bottom:4px;">${escapeHtml(selectedConfig.name || 'Unnamed')}</div>
-                    <div class="viewer-meta" style="font-size:0.85rem;">by ${escapeHtml(selectedConfig.user_email || 'Anonymous')}</div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div>
+                        <div class="viewer-title" style="font-size:1.5rem;margin-bottom:4px;">${escapeHtml(selectedConfig.name || 'Unnamed')}</div>
+                        <div class="viewer-meta" style="font-size:0.85rem;">by ${escapeHtml(selectedConfig.user_email || 'Anonymous')}</div>
+                    </div>
+                    <div style="display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+                        <button onclick="viewerOrientation='portrait'; renderViewer();" 
+                                style="padding:6px 12px; border:none; background:${viewerOrientation==='portrait'?'var(--sky)':'transparent'}; color:${viewerOrientation==='portrait'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
+                            📱 Portrait
+                        </button>
+                        <button onclick="viewerOrientation='landscape'; renderViewer();" 
+                                style="padding:6px 12px; border:none; border-left:1px solid var(--border); background:${viewerOrientation==='landscape'?'var(--sky)':'transparent'}; color:${viewerOrientation==='landscape'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif;">
+                            📱 Landscape
+                        </button>
+                    </div>
                 </div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <button class="btn-primary" onclick="downloadConfig()">⬇️ Download</button>
@@ -756,16 +781,7 @@ function renderViewer() {
             </div>
         </div>
         
-        <div class="layouts">
-            <div class="layout-section">
-                <h3>📱 Portrait</h3>
-                <div class="pages-stack">${portraitHTML}</div>
-            </div>
-            <div class="layout-section">
-                <h3>📱 Landscape</h3>
-                ${landscapeHTML}
-            </div>
-        </div>
+        ${pagesHTML}
     `;
 }
 
