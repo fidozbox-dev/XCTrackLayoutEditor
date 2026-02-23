@@ -534,7 +534,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // State
 let configs = [];
 let selectedConfig = null;
-let viewerOrientation = 'portrait'; // portrait or landscape
+let viewerOrientation = localStorage.getItem('xctrackViewerOrientation') || 'portrait';
 let filters = [];
 let filterMode = 'OR'; // OR or AND
 let sortBy = 'created_at';
@@ -630,6 +630,7 @@ function toggleFilterMode() {
 
 function toggleViewerOrientation() {
     viewerOrientation = viewerOrientation === 'portrait' ? 'landscape' : 'portrait';
+    localStorage.setItem('xctrackViewerOrientation', viewerOrientation);
     renderViewer();
 }
 
@@ -640,12 +641,6 @@ async function loadConfigs() {
     
     try {
         let query = sb.from('configs').select('id, name, user_email, tags, upvotes, downloads, created_at');
-        
-        // OR mode: use Supabase contains
-        if (filters.length > 0 && filterMode === 'OR') {
-            query = query.contains('tags', filters);
-        }
-        
         query = query.order(sortBy, { ascending: false }).limit(100);
         
         const { data, error } = await query;
@@ -653,11 +648,18 @@ async function loadConfigs() {
         
         let results = data || [];
         
-        // AND mode: filter client-side
-        if (filters.length > 0 && filterMode === 'AND') {
-            results = results.filter(config => 
-                filters.every(f => (config.tags || []).includes(f))
-            );
+        // Apply tag filters client-side
+        if (filters.length > 0) {
+            results = results.filter(config => {
+                const configTags = config.tags || [];
+                if (filterMode === 'OR') {
+                    // OR: config must have AT LEAST ONE of the selected tags
+                    return filters.some(f => configTags.includes(f));
+                } else {
+                    // AND: config must have ALL selected tags
+                    return filters.every(f => configTags.includes(f));
+                }
+            });
         }
         
         configs = results;
@@ -782,11 +784,11 @@ function renderViewer() {
                         <div class="viewer-meta" style="font-size:0.85rem;">by ${escapeHtml(selectedConfig.user_email || 'Anonymous')}</div>
                     </div>
                     <div style="display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">
-                        <button onclick="viewerOrientation='portrait'; renderViewer();" 
+                        <button onclick="viewerOrientation='portrait'; localStorage.setItem('xctrackViewerOrientation', 'portrait'); renderViewer();" 
                                 style="padding:6px 12px; border:none; background:${viewerOrientation==='portrait'?'var(--sky)':'transparent'}; color:${viewerOrientation==='portrait'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif; transition:all 0.2s;">
                             📱 Portrait
                         </button>
-                        <button onclick="viewerOrientation='landscape'; renderViewer();" 
+                        <button onclick="viewerOrientation='landscape'; localStorage.setItem('xctrackViewerOrientation', 'landscape'); renderViewer();" 
                                 style="padding:6px 12px; border:none; border-left:1px solid var(--border); background:${viewerOrientation==='landscape'?'var(--sky)':'transparent'}; color:${viewerOrientation==='landscape'?'white':'var(--text-dim)'}; cursor:pointer; font-size:0.8rem; font-family:'DM Sans',sans-serif; transition:all 0.2s;">
                             📱 Landscape
                         </button>
