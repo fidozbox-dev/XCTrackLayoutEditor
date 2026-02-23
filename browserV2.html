@@ -222,6 +222,12 @@
             gap: 20px;
         }
 
+        .pages-stack-single {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .pages-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -448,12 +454,11 @@
         <button class="tag-btn" data-tag="casual" onclick="toggleFilter('casual')">☀️ <span class="i18n-casual">Casual</span></button>
         <button class="tag-btn" data-tag="experimental" onclick="toggleFilter('experimental')">🆕 <span class="i18n-experimental">Experimental</span></button>
         <button class="tag-btn" id="filterMode" onclick="toggleFilterMode()" style="margin-left: 10px; font-weight: 600;">OR</button>
-        <div style="display: flex; gap: 8px; margin-left: auto; flex-shrink: 0;">
-            <button class="tag-btn" data-sort="upvotes" onclick="setSort('upvotes')">🔥 Popular</button>
-            <button class="tag-btn active" data-sort="created_at" onclick="setSort('created_at')">⭐ Recent</button>
-            <button class="tag-btn" data-sort="downloads" onclick="setSort('downloads')">⬇️ Downloaded</button>
-            <button class="tag-btn" data-sort="user_email" onclick="setSort('user_email')">👤 Author</button>
-        </div>
+        <div style="flex-basis: 100%; height: 0;"></div>
+        <button class="tag-btn" data-sort="upvotes" onclick="setSort('upvotes')">🔥 Popular</button>
+        <button class="tag-btn active" data-sort="created_at" onclick="setSort('created_at')">⭐ Recent</button>
+        <button class="tag-btn" data-sort="downloads" onclick="setSort('downloads')">⬇️ Downloaded</button>
+        <button class="tag-btn" data-sort="user_email" onclick="setSort('user_email')">👤 Author</button>
     </div>
 </div>
 
@@ -756,9 +761,9 @@ function renderViewer() {
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No portrait pages</div>';
     } else {
-        // Landscape: phone is horizontal (width > height) - also vertical stack
+        // Landscape: phone is horizontal (width > height) - simple column stack
         pagesHTML = landscapePages.length > 0 
-            ? `<div class="pages-stack">${landscapePages.map((page, i) => 
+            ? `<div class="pages-stack-single">${landscapePages.map((page, i) => 
                 renderPage(page, config.screenResolution?.height || 2400, config.screenResolution?.width || 1080, i)
               ).join('')}</div>`
             : '<div style="color:var(--text-dim);padding:40px;text-align:center;">No landscape pages</div>';
