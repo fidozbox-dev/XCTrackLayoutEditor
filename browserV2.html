@@ -650,15 +650,26 @@ function renderConfigList() {
         return;
     }
     
-    list.innerHTML = configs.map(config => `
-        <div class="config-item" onclick="selectConfig(${config.id})">
-            <div class="config-name">${config.name || 'Unnamed'}</div>
-            <div class="config-author">by ${config.user_email || 'Anonymous'}</div>
+    list.innerHTML = configs.map((config, idx) => `
+        <div class="config-item" data-config-idx="${idx}">
+            <div class="config-name">${escapeHtml(config.name || 'Unnamed')}</div>
+            <div class="config-author">by ${escapeHtml(config.user_email || 'Anonymous')}</div>
             <div class="config-tags">
                 ${(config.tags || []).map(tag => `<span class="config-tag ${tag}">${tag}</span>`).join('')}
             </div>
         </div>
     `).join('');
+    
+    // Add click listeners
+    document.querySelectorAll('.config-item').forEach((item, idx) => {
+        item.addEventListener('click', () => selectConfig(configs[idx].id));
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 async function selectConfig(id) {
