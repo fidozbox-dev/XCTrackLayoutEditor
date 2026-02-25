@@ -1434,7 +1434,9 @@
                 }
             }[lang];
 
-            const currentResolution = RESOLUTION_PRESETS[resolutionIndex];
+            const currentResolution = useMemo(() => {
+                return RESOLUTION_PRESETS[resolutionIndex];
+            }, [resolutionIndex]);
 
             const loadConfig = (jsonText, source = 'import') => {
                 try {
@@ -1546,6 +1548,13 @@
                 if (savedOrientation) {
                     setOrientation(savedOrientation);
                     localStorage.removeItem('xctrackOrientation'); // consume once
+                }
+
+                // Restore resolution if set
+                const savedResolution = localStorage.getItem('xctrackResolutionIndex');
+                if (savedResolution) {
+                    setResolutionIndex(parseInt(savedResolution));
+                    localStorage.removeItem('xctrackResolutionIndex'); // consume once
                 }
             }, []);
 
@@ -2537,7 +2546,10 @@
                                     <label>{t.resolution}</label>
                                     <select 
                                         value={resolutionIndex} 
-                                        onChange={(e) => setResolutionIndex(parseInt(e.target.value))}
+                                        onChange={(e) => {
+                                            setResolutionIndex(parseInt(e.target.value));
+                                            localStorage.setItem('xctrackResolutionIndex', e.target.value);
+                                        }}
                                     >
                                         {RESOLUTION_PRESETS.map((preset, idx) => (
                                             <option key={idx} value={idx}>
