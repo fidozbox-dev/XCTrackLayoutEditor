@@ -319,6 +319,7 @@
             background: rgba(255,255,255,0.08);
             transition: all 0.15s;
             overflow: hidden;
+            user-select: none;
         }
 
         .widget:hover {
@@ -1003,6 +1004,7 @@
 
         const RESOLUTION_PRESETS = [
             { name: 'Samsung A51 (1080×2400)', width: 2400, height: 1080, gridCols: 44, gridRows: 22 },
+            { name: 'Onyx BOOX Go Color 7 (1680×1264)', width: 1680, height: 1264, gridCols: 32, gridRows: 24},
             { name: 'Standard HD (1080×1920)', width: 1920, height: 1080, gridCols: 35, gridRows: 20 },
         ];
 
@@ -1432,7 +1434,9 @@
                 }
             }[lang];
 
-            const currentResolution = RESOLUTION_PRESETS[resolutionIndex];
+            const currentResolution = useMemo(() => {
+                return RESOLUTION_PRESETS[resolutionIndex];
+            }, [resolutionIndex]);
 
             const loadConfig = (jsonText, source = 'import') => {
                 try {
@@ -1544,6 +1548,13 @@
                 if (savedOrientation) {
                     setOrientation(savedOrientation);
                     localStorage.removeItem('xctrackOrientation'); // consume once
+                }
+
+                // Restore resolution if set
+                const savedResolution = localStorage.getItem('xctrackResolutionIndex');
+                if (savedResolution) {
+                    setResolutionIndex(parseInt(savedResolution));
+                    localStorage.removeItem('xctrackResolutionIndex'); // consume once
                 }
             }, []);
 
@@ -2535,7 +2546,10 @@
                                     <label>{t.resolution}</label>
                                     <select 
                                         value={resolutionIndex} 
-                                        onChange={(e) => setResolutionIndex(parseInt(e.target.value))}
+                                        onChange={(e) => {
+                                            setResolutionIndex(parseInt(e.target.value));
+                                            localStorage.setItem('xctrackResolutionIndex', e.target.value);
+                                        }}
                                     >
                                         {RESOLUTION_PRESETS.map((preset, idx) => (
                                             <option key={idx} value={idx}>
@@ -2942,21 +2956,21 @@
                                         </div>
                                         <div className="action-buttons">
                                             <button onClick={copyWidget}>
-                                                📋 Copier (Ctrl+C)
+                                                📋 {t.copy} (Ctrl+C)
                                             </button>
                                             <button onClick={duplicateWidget}>
-                                                📑 Dupliquer (Ctrl+D)
+                                                📑 {t.duplicate} (Ctrl+D)
                                             </button>
                                             <button 
                                                 className="delete-btn"
                                                 onClick={() => deleteWidget(selectedPage, selectedWidget)}
                                             >
-                                                🗑️ Supprimer (Del)
+                                                🗑️ {t.delete} (Del)
                                             </button>
                                             <button onClick={() => setSelectedWidget(null)}
                                                 style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-dim)', whiteSpace: 'normal', textAlign: 'center' }}
                                             >
-                                                ✕ {lang === 'fr' ? 'Désélectionner' : 'Deselect'}
+                                                ✕ {t.deselect}
                                             </button>
                                         </div>
                                     </>
