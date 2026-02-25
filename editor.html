@@ -2943,21 +2943,21 @@
                                         </div>
                                         <div className="action-buttons">
                                             <button onClick={copyWidget}>
-                                                📋 Copier (Ctrl+C)
+                                                📋 {t.copy} (Ctrl+C)
                                             </button>
                                             <button onClick={duplicateWidget}>
-                                                📑 Dupliquer (Ctrl+D)
+                                                📑 {t.duplicate} (Ctrl+D)
                                             </button>
                                             <button 
                                                 className="delete-btn"
                                                 onClick={() => deleteWidget(selectedPage, selectedWidget)}
                                             >
-                                                🗑️ Supprimer (Del)
+                                                🗑️ {t.delete} (Del)
                                             </button>
                                             <button onClick={() => setSelectedWidget(null)}
                                                 style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-dim)', whiteSpace: 'normal', textAlign: 'center' }}
                                             >
-                                                ✕ {lang === 'fr' ? 'Désélectionner' : 'Deselect'}
+                                                ✕ {t.deselect}
                                             </button>
                                         </div>
                                     </>
